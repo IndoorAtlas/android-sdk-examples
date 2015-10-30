@@ -1,0 +1,9 @@
+
+local.properties
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
+build/
+.gradle

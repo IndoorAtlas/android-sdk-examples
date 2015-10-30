@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="platform_circle_fill">#33ff0000</color>
+    <color name="platform_circle">#ffff0000</color>
+    <color name="ia_blue">#ff00a5f5</color>
+
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IndoorAtlas SDK Examples</string>
+    <string name="title_activity_maps">Google Map</string>
+    <string name="action_map_type_satelite">Satellite</string>
+    <string name="action_map_type_street">Street</string>
+    <string name="action_map_type">Map type</string>
+    <string name="action_location_source_mixed"><![CDATA[Platform & SDK]]></string>
+    <string name="action_location_source_sdk">SDK only</string>
+    <string name="action_location_source">Location source</string>
+    <string name="action_map_show_buildings">Show buildings</string>
+    <string name="action_map_show_settings">Settings</string>
+    <string name="action_map_show_corner_markers">Show corner markers</string>
+    <string name="action_clear">Clear</string>
+    <string name="title_activity_floor_plan_manager">IAFloorPlanManager Demo</string>
+    <string name="fetch_floor_plan">Fetch</string>
+    <string name="ia_show_public_examples">ia_show_public_examples</string>
+
+    <string name="example_simple_title">01. Basic</string>
+    <string name="example_simple_description">Demonstrates basic functionality, shows events as text entries.</string>
+
+    <string name="example_imageview_title">02. ImageView</string>
+    <string name="example_imageview_description">Demonstrates showing locations on a floor plan displayed with ImageView.</string>
+
+    <string name="example_googlemaps_basic_title">03. Google Maps - Basic</string>
+    <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
+
+    <string name="example_googlemaps_overlay_title">04. Google Maps - Overlay</string>
+    <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay.</string>
+    <string name="ia_location_permission_request_title">Permission required</string>
+    <string name="ia_location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
+    <string name="ia_button_accept">Sure</string>
+    <string name="ia_button_deny">Deny</string>
+    <string name="ia_location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
+
+
+</resources>
