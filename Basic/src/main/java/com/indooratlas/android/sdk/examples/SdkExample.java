@@ -1,6 +1,5 @@
 package com.indooratlas.android.sdk.examples;
 
-import android.support.annotation.BoolRes;
 import android.support.annotation.StringRes;
 
 import java.lang.annotation.ElementType;
@@ -27,8 +26,4 @@ public @interface SdkExample {
      */
     @StringRes int description();
 
-    /**
-     * Resource identifier that tells if this is internal example
-     */
-    @BoolRes boolean internal() default false;
 }

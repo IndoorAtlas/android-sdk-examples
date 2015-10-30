@@ -25,24 +25,24 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
-import com.indooratlas.android.sdk.resources.IATask;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
 import com.indooratlas.android.sdk.resources.IAResourceManager;
 import com.indooratlas.android.sdk.resources.IAResult;
 import com.indooratlas.android.sdk.resources.IAResultCallback;
+import com.indooratlas.android.sdk.resources.IATask;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
 public class MapsOverlayActivity extends FragmentActivity {
+
+    private static final String TAG = "IndoorAtlasExample";
+
     private static final float HUE_IABLUE = 200.0f;
     // used to decide when bitmap should be downscaled
     private static final int MAX_DIMENSION = 2048;
-    String floorPlanId;
-
-    private static final String TAG = "IndoorAtlasExample";
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker mMarker;
@@ -66,7 +66,7 @@ public class MapsOverlayActivity extends FragmentActivity {
             if (mMarker == null) {
                 if (mMap != null) {
                     mMarker = mMap.addMarker(new MarkerOptions().position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
                 }
             } else {
                 mMarker.setPosition(latLng);
@@ -86,14 +86,15 @@ public class MapsOverlayActivity extends FragmentActivity {
         public void onEnterRegion(IARegion region) {
 
             if (region.getType() == IARegion.TYPE_UNKNOWN) {
-                Toast.makeText(MapsOverlayActivity.this, "Moved out of map", Toast.LENGTH_LONG).show();
+                Toast.makeText(MapsOverlayActivity.this, "Moved out of map",
+                        Toast.LENGTH_LONG).show();
                 return;
             }
 
             // entering new region, mark need to move camera
             mCameraPositionNeedsUpdating = true;
 
-            String newId = region.getId();
+            final String newId = region.getId();
             Log.d(TAG, "floorPlan changed to " + newId);
             Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
             fetchFloorPlan(newId);
@@ -120,7 +121,7 @@ public class MapsOverlayActivity extends FragmentActivity {
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find
            location automatically */
-        floorPlanId = getResources().getString(R.string.indooratlas_floor_plan_id);
+        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
         if (floorPlanId != null && !floorPlanId.isEmpty()) {
             final IALocation FLOOR_PLAN_ID = IALocation.from(IARegion.floorPlan(floorPlanId));
             mIALocationManager.setLocation(FLOOR_PLAN_ID);
@@ -140,7 +141,7 @@ public class MapsOverlayActivity extends FragmentActivity {
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                .getMap();
+                    .getMap();
         }
         // creates IndoorAtlas location request
         IALocationRequest request = IALocationRequest.create();
@@ -156,12 +157,13 @@ public class MapsOverlayActivity extends FragmentActivity {
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
-    /** Methods for fetching floor plan data and bitmap image.
-     Method {@link #fetchFloorPlan(String id)} fetches floor plan data including URL to bitmap
-     on IndoorAtlas server. On success it calls {@link #setBitmap(String url)} which uses
-     Picasso library to fetch bitmap image. If fetching bitmap image is successful then
-     {@link #setupGroundOverlay(Bitmap bitmap)} is called to set the bitmap as ground overlay on
-     Google Maps.
+    /**
+     * Methods for fetching floor plan data and bitmap image.
+     * Method {@link #fetchFloorPlan(String id)} fetches floor plan data including URL to bitmap
+     * on IndoorAtlas server. On success it calls {@link #setBitmap(String url)} which uses
+     * Picasso library to fetch bitmap image. If fetching bitmap image is successful then
+     * {@link #setupGroundOverlay(Bitmap bitmap)} is called to set the bitmap as ground overlay on
+     * Google Maps.
      */
 
     // sets bitmap of floor plan as ground overlay on Google Maps
@@ -173,9 +175,9 @@ public class MapsOverlayActivity extends FragmentActivity {
             IALatLng iaLatLng = mFloorPlan.getCenter();
             LatLng center = new LatLng(iaLatLng.latitude, iaLatLng.longitude);
             GroundOverlayOptions fpOverlay = new GroundOverlayOptions()
-                .image(bitmapDescriptor)
-                .position(center, mFloorPlan.getWidthMeters(),
-                    mFloorPlan.getHeightMeters()).bearing(mFloorPlan.getBearing());
+                    .image(bitmapDescriptor)
+                    .position(center, mFloorPlan.getWidthMeters(),
+                            mFloorPlan.getHeightMeters()).bearing(mFloorPlan.getBearing());
 
             groundOverlay = mMap.addGroundOverlay(fpOverlay);
         }
@@ -189,10 +191,10 @@ public class MapsOverlayActivity extends FragmentActivity {
                 // scale down large bitmaps
                 if ((bitmap.getWidth() * bitmap.getHeight()) > (MAX_DIMENSION * MAX_DIMENSION)) {
                     int largerDimension = (bitmap.getHeight() > bitmap.getWidth()) ?
-                        bitmap.getHeight() : bitmap.getWidth();
+                            bitmap.getHeight() : bitmap.getWidth();
                     int scaleFactor = (largerDimension / MAX_DIMENSION) + 1;
                     Bitmap dsBitMap = Bitmap.createScaledBitmap(bitmap,
-                        bitmap.getWidth() / scaleFactor, bitmap.getHeight() / scaleFactor, false);
+                            bitmap.getWidth() / scaleFactor, bitmap.getHeight() / scaleFactor, false);
                     setupGroundOverlay(dsBitMap);
                 } else {
                     setupGroundOverlay(bitmap);
@@ -215,7 +217,9 @@ public class MapsOverlayActivity extends FragmentActivity {
         Picasso.with(this).load(url).into(loadtarget);
     }
 
-    // fetches floor plan data from IndoorAtlas server
+    /**
+     * Fetches floor plan data from IndoorAtlas server.
+     */
     private void fetchFloorPlan(String id) {
         cancelPendingNetworkCalls();
         final IATask<IAFloorPlan> asyncResult = mFloorPlanManager.fetchFloorPlanWithId(id);
@@ -233,8 +237,8 @@ public class MapsOverlayActivity extends FragmentActivity {
                         if (!asyncResult.isCancelled()) {
                             // do something with error
                             Toast.makeText(MapsOverlayActivity.this,
-                                "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
-                                .show();
+                                    "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
+                                    .show();
                             // remove current ground overlay
                             if (groundOverlay != null) {
                                 groundOverlay.remove();

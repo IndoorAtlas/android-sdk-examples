@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- IndoorAtlas settings -->
-    <!-- Get your API key and secret from IndoorAtlas developer website -->
-    <string name="indooratlas_api_key">your-api-key-here</string>
-    <string name="indooratlas_api_secret" formatted="false">your-api-secret-here</string>
+
     <!-- Set your floor plan id here or leave empty for fully automatic selection
          You can get the floor plan id from developer website-->
     <string name="indooratlas_floor_plan_id"></string>

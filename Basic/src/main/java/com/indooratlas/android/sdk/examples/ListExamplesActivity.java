@@ -6,12 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -28,12 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-
 /**
  * Main entry into IndoorAtlas examples. Displays all example activities as list and opens selected
  * activity. Activities are populated from AndroidManifest metadata.
  */
-public class ExampleListActivity extends AppCompatActivity {
+public class ListExamplesActivity extends AppCompatActivity {
 
     private static final String TAG = "IAExample";
 
@@ -58,6 +55,18 @@ public class ExampleListActivity extends AppCompatActivity {
             }
         });
 
+        if (!isSdkConfigured()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.configuration_incomplete_title)
+                    .setMessage(R.string.configuration_incomplete_message)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).show();
+            return;
+        }
 
         ensurePermissions();
 
@@ -69,40 +78,40 @@ public class ExampleListActivity extends AppCompatActivity {
     private void ensurePermissions() {
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
 
             // we don't have access to coarse locations, hence we have not access to wifi either
             // check if this requires explanation to user
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
 
                 new AlertDialog.Builder(this)
-                    .setTitle(R.string.ia_location_permission_request_title)
-                    .setMessage(R.string.ia_location_permission_request_rationale)
-                    .setPositiveButton(R.string.ia_button_accept, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Log.d(TAG, "request permissions");
-                            ActivityCompat.requestPermissions(ExampleListActivity.this,
-                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                REQUEST_CODE_ACCESS_COARSE_LOCATION);
-                        }
-                    })
-                    .setNegativeButton(R.string.ia_button_deny, null)
-                    .show();
+                        .setTitle(R.string.location_permission_request_title)
+                        .setMessage(R.string.location_permission_request_rationale)
+                        .setPositiveButton(R.string.permission_button_accept, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.d(TAG, "request permissions");
+                                ActivityCompat.requestPermissions(ListExamplesActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                            }
+                        })
+                        .setNegativeButton(R.string.permission_button_deny, null)
+                        .show();
 
             } else {
 
                 // ask user for permission
                 ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
 
             }
 
         }
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
 
@@ -116,9 +125,9 @@ public class ExampleListActivity extends AppCompatActivity {
             case REQUEST_CODE_ACCESS_COARSE_LOCATION:
 
                 if (grantResults.length == 0
-                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.ia_location_permission_denied_message,
-                        Toast.LENGTH_LONG).show();
+                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, R.string.location_permission_denied_message,
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
         }
@@ -158,7 +167,7 @@ public class ExampleListActivity extends AppCompatActivity {
             ExampleEntry entry = mExamples.get(position);
             if (convertView == null) {
                 convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2,
-                    parent, false);
+                        parent, false);
             }
             TextView labelText = (TextView) convertView.findViewById(android.R.id.text1);
             TextView descriptionText = (TextView) convertView.findViewById(android.R.id.text2);
@@ -183,10 +192,7 @@ public class ExampleListActivity extends AppCompatActivity {
 
             ActivityInfo[] activities = info.activities;
             for (int i = 0; i < activities.length; i++) {
-                ExampleEntry exampleEntry = maybeReadExample(activities[i]);
-                if (exampleEntry != null) {
-                    result.add(exampleEntry);
-                }
+                parseExample(activities[i], result);
             }
             return result;
 
@@ -197,28 +203,21 @@ public class ExampleListActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("unchecked")
-    private ExampleEntry maybeReadExample(ActivityInfo info) {
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isRelease = !BuildConfig.BUILD_TYPE.equals("debug");
-        boolean show_public = sharedPrefs.getBoolean(getString(R.string.ia_show_public_examples),
-            isRelease);
+    private void parseExample(ActivityInfo info, ArrayList<ExampleEntry> list) {
         try {
             Class cls = Class.forName(info.name);
             if (cls.isAnnotationPresent(SdkExample.class)) {
                 SdkExample annotation = (SdkExample) cls.getAnnotation(SdkExample.class);
-                if (!annotation.internal() && !show_public) {
-                    return null;
-                }
-                return new ExampleEntry(new ComponentName(info.packageName, info.name),
-                    annotation.title() != -1
-                        ? getString(annotation.title())
-                        : info.loadLabel(getPackageManager()).toString(),
-                    getString(annotation.description()));
+                list.add(new ExampleEntry(new ComponentName(info.packageName, info.name),
+                        annotation.title() != -1
+                                ? getString(annotation.title())
+                                : info.loadLabel(getPackageManager()).toString(),
+                        getString(annotation.description())));
             }
-        } catch (ClassNotFoundException ignore) {
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, "failed to read example info for class: " + info.name, e);
         }
 
-        return null;
     }
 
 
@@ -240,6 +239,12 @@ public class ExampleListActivity extends AppCompatActivity {
         public int compareTo(ExampleEntry another) {
             return mLabel.compareTo(another.mLabel);
         }
+    }
+
+
+    private boolean isSdkConfigured() {
+        return !"api-key-not-set".equals(getString(R.string.indooratlas_api_key))
+                && !"api-secret-not-set".equals(getString(R.string.indooratlas_api_secret));
     }
 
 

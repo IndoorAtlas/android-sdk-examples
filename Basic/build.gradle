@@ -1,9 +1,14 @@
 
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 23
     buildToolsVersion "22.0.1"
+
+    // note: use gradle.properties in project root level to set your api credentials
+    def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set";
+    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set";
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
@@ -11,6 +16,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        resValue "string", "indooratlas_api_key", apiKey
+        resValue "string", "indooratlas_api_secret", apiSecret
     }
 
     signingConfigs {

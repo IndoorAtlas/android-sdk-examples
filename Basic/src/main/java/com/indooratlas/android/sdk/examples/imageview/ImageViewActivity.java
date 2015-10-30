@@ -1,12 +1,10 @@
 package com.indooratlas.android.sdk.examples.imageview;
 
-import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.PointF;
 import android.net.Uri;
@@ -14,8 +12,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,30 +37,29 @@ import java.io.File;
 
 @SdkExample(description = R.string.example_imageview_description)
 public class ImageViewActivity extends FragmentActivity {
-    // blue dot radius in meters
-    private static final float dotRadius = 1.0f;
-    String floorPlanId;
 
     private static final String TAG = "IndoorAtlasExample";
 
-    public IALocationManager mIALocationManager;
-    public IAResourceManager mFloorPlanManager;
+    // blue dot radius in meters
+    private static final float dotRadius = 1.0f;
+
+    private IALocationManager mIALocationManager;
+    private IAResourceManager mFloorPlanManager;
     private IATask<IAFloorPlan> mPendingAsyncResult;
     private IAFloorPlan mFloorPlan;
-    public BlueDotView imageView;
-    long downloadId;
-    DownloadManager downloadManager;
-
+    private BlueDotView mImageView;
+    private long mDownloadId;
+    private DownloadManager mDownloadManager;
 
     private IALocationListener mLocationListener = new IALocationListenerSupport() {
         @Override
         public void onLocationChanged(IALocation location) {
             Log.d(TAG, "location is: " + location.getLatitude() + "," + location.getLongitude());
-            if (imageView != null && imageView.isReady()) {
+            if (mImageView != null && mImageView.isReady()) {
                 IALatLng latLng = new IALatLng(location.getLatitude(), location.getLongitude());
                 PointF point = mFloorPlan.coordinateToPoint(latLng);
-                imageView.setDotCenter(point);
-                imageView.postInvalidate();
+                mImageView.setDotCenter(point);
+                mImageView.postInvalidate();
             }
         }
     };
@@ -93,19 +90,21 @@ public class ImageViewActivity extends FragmentActivity {
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        imageView = (BlueDotView) findViewById(R.id.imageView);
+        mImageView = (BlueDotView) findViewById(R.id.imageView);
 
-        // Creates IndoorAtlas location manager
+        mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
+        mFloorPlanManager = IAResourceManager.create(this);
+
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find
            location automatically */
-        floorPlanId = getResources().getString(R.string.indooratlas_floor_plan_id);
-        if (floorPlanId != null && !floorPlanId.isEmpty()) {
-            final IALocation FLOOR_PLAN_ID = IALocation.from(IARegion.floorPlan(floorPlanId));
-            mIALocationManager.setLocation(FLOOR_PLAN_ID);
+        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
+        if (!TextUtils.isEmpty(floorPlanId)) {
+            final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
+            mIALocationManager.setLocation(location);
         }
-        mFloorPlanManager = IAResourceManager.create(this);
+
     }
 
     @Override
@@ -117,11 +116,8 @@ public class ImageViewActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        // creates IndoorAtlas location request
-        IALocationRequest request = IALocationRequest.create();
         // starts receiving location updates
-        mIALocationManager.requestLocationUpdates(request, mLocationListener);
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
         mIALocationManager.registerRegionListener(mRegionListener);
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
@@ -144,7 +140,7 @@ public class ImageViewActivity extends FragmentActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-            if (id != downloadId) {
+            if (id != mDownloadId) {
                 Log.w(TAG, "Ignore unrelated download");
                 return;
             }
@@ -152,14 +148,14 @@ public class ImageViewActivity extends FragmentActivity {
             Bundle extras = intent.getExtras();
             DownloadManager.Query q = new DownloadManager.Query();
             q.setFilterById(extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID));
-            Cursor c = downloadManager.query(q);
+            Cursor c = mDownloadManager.query(q);
 
             if (c.moveToFirst()) {
                 int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
                 if (status == DownloadManager.STATUS_SUCCESSFUL) {
                     // process download
                     String filePath = c.getString(c.getColumnIndex(
-                        DownloadManager.COLUMN_LOCAL_FILENAME));
+                            DownloadManager.COLUMN_LOCAL_FILENAME));
                     showFloorPlanImage(filePath);
                 }
             }
@@ -169,11 +165,13 @@ public class ImageViewActivity extends FragmentActivity {
 
     private void showFloorPlanImage(String filePath) {
         Log.w(TAG, "showFloorPlanImage: " + filePath);
-        imageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius);
-        imageView.setImage(ImageSource.uri(filePath));
+        mImageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius);
+        mImageView.setImage(ImageSource.uri(filePath));
     }
 
-    // fetches floor plan data from IndoorAtlas server
+    /**
+     * Fetches floor plan data from IndoorAtlas server. Some room for cleaning up!!
+     */
     private void fetchFloorPlan(String id) {
         cancelPendingNetworkCalls();
         final IATask<IAFloorPlan> asyncResult = mFloorPlanManager.fetchFloorPlanWithId(id);
@@ -187,26 +185,23 @@ public class ImageViewActivity extends FragmentActivity {
                         mFloorPlan = result.getResult();
                         String fileName = mFloorPlan.getId() + ".img";
                         String filePath = Environment.getExternalStorageDirectory() + "/"
-                            + Environment.DIRECTORY_DOWNLOADS + "/" + fileName;
+                                + Environment.DIRECTORY_DOWNLOADS + "/" + fileName;
                         File file = new File(filePath);
                         if (!file.exists()) {
                             DownloadManager.Request request =
-                                new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
+                                    new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
                             request.setDescription("IndoorAtlas floor plan");
                             request.setTitle("Floor plan");
                             // requires android 3.2 or later to compile
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                                 request.allowScanningByMediaScanner();
                                 request.setNotificationVisibility(DownloadManager.
-                                    Request.VISIBILITY_HIDDEN);
+                                        Request.VISIBILITY_HIDDEN);
                             }
                             request.setDestinationInExternalPublicDir(Environment.
-                                DIRECTORY_DOWNLOADS, fileName);
+                                    DIRECTORY_DOWNLOADS, fileName);
 
-// get download service and enqueue file
-                            downloadManager = (DownloadManager) getSystemService(Context.
-                                DOWNLOAD_SERVICE);
-                            downloadId = downloadManager.enqueue(request);
+                            mDownloadId = mDownloadManager.enqueue(request);
                         } else {
                             showFloorPlanImage(filePath);
                         }
@@ -214,10 +209,10 @@ public class ImageViewActivity extends FragmentActivity {
                         // do something with error
                         if (!asyncResult.isCancelled()) {
                             Toast.makeText(ImageViewActivity.this,
-                                (result.getError() != null
-                                    ? "error loading floor plan: " + result.getError()
-                                    : "access to floor plan denied"), Toast.LENGTH_LONG)
-                                .show();
+                                    (result.getError() != null
+                                            ? "error loading floor plan: " + result.getError()
+                                            : "access to floor plan denied"), Toast.LENGTH_LONG)
+                                    .show();
                         }
                     }
                 }

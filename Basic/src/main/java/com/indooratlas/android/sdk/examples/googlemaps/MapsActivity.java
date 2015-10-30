@@ -2,7 +2,7 @@ package com.indooratlas.android.sdk.examples.googlemaps;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,7 +21,7 @@ import com.indooratlas.android.sdk.examples.SdkExample;
 
 @SdkExample(description = R.string.example_googlemaps_basic_description)
 public class MapsActivity extends FragmentActivity implements IALocationListener {
-    String floorPlanId;
+
     private static final float HUE_IABLUE = 200.0f;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -33,11 +33,11 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mIALocationManager = IALocationManager.create(this);
-        /* optional setup of floor plan id
-           if setLocation is not called, then location manager tries to find
-           location automatically */
-        floorPlanId = getResources().getString(R.string.indooratlas_floor_plan_id);
-        if (floorPlanId != null && !floorPlanId.isEmpty()) {
+
+        // optional setup of floor plan id
+        // if setLocation is not called, then location manager tries to find  location automatically
+        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
+        if (!TextUtils.isEmpty(floorPlanId)) {
             final IALocation FLOOR_PLAN_ID = IALocation.from(IARegion.floorPlan(floorPlanId));
             mIALocationManager.setLocation(FLOOR_PLAN_ID);
         }
@@ -53,14 +53,10 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
     protected void onResume() {
         super.onResume();
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                .getMap();
+                    .getMap();
         }
-        // creates IndoorAtlas location request
-        IALocationRequest request = IALocationRequest.create();
-        // starts receiving location updates
-        mIALocationManager.requestLocationUpdates(request, this);
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
     }
 
     @Override
@@ -76,13 +72,11 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
      * This is where location updates can be handled by moving markers or the camera.
      */
     public void onLocationChanged(IALocation location) {
-        Log.d("IALocation", "location is: " + location.getLatitude() + "," + location.getLongitude());
-
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         if (mMarker == null) {
             if (mMap != null) {
                 mMarker = mMap.addMarker(new MarkerOptions().position(latLng)
-                    .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
+                        .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0f));
             }
         } else {
