@@ -35,7 +35,7 @@ android {
         }
         release {
             signingConfig signingConfigs.debug
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -43,7 +43,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.indooratlas.android:indooratlas-android-sdk:2.0.0@aar'
+    compile 'com.indooratlas.android:indooratlas-android-sdk:2.0.0-beta@aar'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.google.android.gms:play-services:8.1.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.+'
