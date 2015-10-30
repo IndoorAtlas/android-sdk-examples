@@ -53,10 +53,6 @@ dependencies {
 
 repositories {
     maven {
-        url  "http://indooratlas-ltd.bintray.com/mvn-internal" 
-        credentials {
-           username 'jukkaraanamo-indooratlas'
-           password bintrayApiKey
-        } 
+        url  "http://indooratlas-ltd.bintray.com/mvn-public"
     }
 }

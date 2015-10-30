@@ -20,9 +20,10 @@
 # This example uses Picasso, see: https://github.com/square/picasso/blob/master/README.md
 -dontwarn com.squareup.okhttp.**
 
-# With Android 6.0, Apache Http is dropped but that is OK since its not being used here.
 -dontwarn org.apache.http.**
 -dontwarn android.net.http.**
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
 
 # Required by IndoorAtlas SDK
 -keep public class com.indooratlas.algorithm.ClientProcessingManager { *; }
