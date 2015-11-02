@@ -1,4 +1,3 @@
-
 apply plugin: 'com.android.application'
 
 
@@ -39,6 +38,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -53,6 +55,6 @@ dependencies {
 
 repositories {
     maven {
-        url  "http://indooratlas-ltd.bintray.com/mvn-public"
+        url "http://indooratlas-ltd.bintray.com/mvn-public"
     }
 }
