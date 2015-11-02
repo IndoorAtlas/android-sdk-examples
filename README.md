@@ -4,7 +4,7 @@ Example applications for IndoorAtlas Android SDK
 ## Setup
 
 To run examples you need to configure your IndoorAtlas API keys. If you do not have keys yet, 
-go to http://developer.indooratlas.com and sign up.
+go to https://developer.indooratlas.com and sign up.
 
 Once you have API keys, edit them into `gradle.properties` in the project root level.
 
