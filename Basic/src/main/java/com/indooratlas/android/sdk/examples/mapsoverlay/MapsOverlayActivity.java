@@ -33,6 +33,7 @@ import com.indooratlas.android.sdk.resources.IAResult;
 import com.indooratlas.android.sdk.resources.IAResultCallback;
 import com.indooratlas.android.sdk.resources.IATask;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
@@ -65,7 +66,8 @@ public class MapsOverlayActivity extends FragmentActivity {
         @Override
         public void onLocationChanged(IALocation location) {
 
-            Log.d(TAG, "location is: " + location.getLatitude() + "," + location.getLongitude());
+            Log.d(TAG, "new location received with coordinates: " + location.getLatitude()
+                    + "," + location.getLongitude());
 
             if (mMap == null) {
                 // location received before map is initialized, ignoring update here
@@ -206,7 +208,9 @@ public class MapsOverlayActivity extends FragmentActivity {
 
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    setupGroundOverlay(floorPlan, scaleBitmap(bitmap));
+                    Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
+                            + bitmap.getHeight());
+                    setupGroundOverlay(floorPlan, bitmap);
                 }
 
                 @Override
@@ -222,29 +226,20 @@ public class MapsOverlayActivity extends FragmentActivity {
             };
         }
 
-        Picasso.with(this).load(url).into(mLoadTarget);
-    }
+        RequestCreator request = Picasso.with(this).load(url);
 
-    /**
-     * Optionally scales down given bitmap.
-     */
-    private Bitmap scaleBitmap(Bitmap bitmap) {
+        final int bitmapWidth = floorPlan.getBitmapWidth();
+        final int bitmapHeight = floorPlan.getBitmapHeight();
 
-        if ((bitmap.getWidth() * bitmap.getHeight()) > (MAX_DIMENSION * MAX_DIMENSION)) {
-            int largerDimension = (bitmap.getHeight() > bitmap.getWidth())
-                    ? bitmap.getHeight()
-                    : bitmap.getWidth();
-            int scaleFactor = (largerDimension / MAX_DIMENSION) + 1;
-            return Bitmap.createScaledBitmap(bitmap,
-                    bitmap.getWidth() / scaleFactor,
-                    bitmap.getHeight() / scaleFactor,
-                    false);
-        } else {
-            // no need for scaling down
-            return bitmap;
+        if (bitmapHeight > MAX_DIMENSION) {
+            request.resize(0, MAX_DIMENSION);
+        } else if (bitmapWidth > MAX_DIMENSION) {
+            request.resize(MAX_DIMENSION, 0);
         }
 
+        request.into(mLoadTarget);
     }
+
 
     /**
      * Fetches floor plan data from IndoorAtlas server.
