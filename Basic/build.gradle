@@ -16,7 +16,8 @@ android {
         versionCode 1
         versionName "1.0"
         resValue "string", "indooratlas_api_key", apiKey
-        resValue "string", "indooratlas_api_secret", apiSecret
+        // avoid getting errors from malformed string resources if secret contains '%' chars
+        resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
     }
 
     signingConfigs {

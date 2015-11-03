@@ -41,47 +41,65 @@ public class MapsOverlayActivity extends FragmentActivity {
     private static final String TAG = "IndoorAtlasExample";
 
     private static final float HUE_IABLUE = 200.0f;
-    // used to decide when bitmap should be downscaled
+
+    /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker mMarker;
-    private GroundOverlay groundOverlay;
+    private GroundOverlay mGroundOverlay;
     private IALocationManager mIALocationManager;
-    private IAResourceManager mFloorPlanManager;
-    private IATask<IAFloorPlan> mPendingAsyncResult;
-    private Target loadtarget;
-    private IAFloorPlan mFloorPlan;
+    private IAResourceManager mResourceManager;
+    private IATask<IAFloorPlan> mFetchFloorPlanTask;
+    private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating;
 
+    /**
+     * Listener that handles location change events.
+     */
     private IALocationListener mListener = new IALocationListenerSupport() {
+
         /**
-         * Callback for receiving locations.
-         * This is where location updates can be handled by moving markers or the camera.
+         * Location changed, move marker and camera position.
          */
         @Override
         public void onLocationChanged(IALocation location) {
+
             Log.d(TAG, "location is: " + location.getLatitude() + "," + location.getLongitude());
+
+            if (mMap == null) {
+                // location received before map is initialized, ignoring update here
+                return;
+            }
+
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (mMarker == null) {
-                if (mMap != null) {
-                    mMarker = mMap.addMarker(new MarkerOptions().position(latLng)
-                            .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
-                }
+                // first location, add marker
+                mMarker = mMap.addMarker(new MarkerOptions().position(latLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
             } else {
+                // move existing markers position to received location
                 mMarker.setPosition(latLng);
             }
 
+            // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
-                if (mMap != null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.5f));
-                }
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.5f));
                 mCameraPositionNeedsUpdating = false;
             }
         }
     };
 
+    /**
+     * Region listener that when:
+     * <ul>
+     * <li>region has entered; marks need to move camera and starts
+     * loading floor plan bitmap</li>
+     * <li>region has existed; clears marker</li>
+     * </ul>.
+     */
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
+
         @Override
         public void onEnterRegion(IARegion region) {
 
@@ -95,7 +113,7 @@ public class MapsOverlayActivity extends FragmentActivity {
             mCameraPositionNeedsUpdating = true;
 
             final String newId = region.getId();
-            Log.d(TAG, "floorPlan changed to " + newId);
+
             Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
             fetchFloorPlan(newId);
         }
@@ -107,6 +125,7 @@ public class MapsOverlayActivity extends FragmentActivity {
                 mMarker = null;
             }
         }
+
     };
 
 
@@ -114,24 +133,19 @@ public class MapsOverlayActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
-        // Creates IndoorAtlas location manager
+
+        // instantiate IALocationManager and IAResourceManager
         mIALocationManager = IALocationManager.create(this);
-        /* optional setup of floor plan id
-           if setLocation is not called, then location manager tries to find
-           location automatically */
-        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
-        if (floorPlanId != null && !floorPlanId.isEmpty()) {
-            final IALocation FLOOR_PLAN_ID = IALocation.from(IARegion.floorPlan(floorPlanId));
-            mIALocationManager.setLocation(FLOOR_PLAN_ID);
-        }
-        mFloorPlanManager = IAResourceManager.create(this);
+        mResourceManager = IAResourceManager.create(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // remember to clean up after ourselves
         mIALocationManager.destroy();
     }
 
@@ -143,117 +157,141 @@ public class MapsOverlayActivity extends FragmentActivity {
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
         }
-        // creates IndoorAtlas location request
-        IALocationRequest request = IALocationRequest.create();
-        // starts receiving location updates
-        mIALocationManager.requestLocationUpdates(request, mListener);
+
+        // start receiving location updates & monitor region changes
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
-    /**
-     * Methods for fetching floor plan data and bitmap image.
-     * Method {@link #fetchFloorPlan(String id)} fetches floor plan data including URL to bitmap
-     * on IndoorAtlas server. On success it calls {@link #setBitmap(String url)} which uses
-     * Picasso library to fetch bitmap image. If fetching bitmap image is successful then
-     * {@link #setupGroundOverlay(Bitmap bitmap)} is called to set the bitmap as ground overlay on
-     * Google Maps.
-     */
 
-    // sets bitmap of floor plan as ground overlay on Google Maps
-    public void setupGroundOverlay(Bitmap bitmap) {
-        if (groundOverlay != null)
-            groundOverlay.remove();
+    /**
+     * Sets bitmap of floor plan as ground overlay on Google Maps
+     */
+    private void setupGroundOverlay(IAFloorPlan floorPlan, Bitmap bitmap) {
+
+        if (mGroundOverlay != null) {
+            mGroundOverlay.remove();
+        }
+
         if (mMap != null) {
             BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bitmap);
-            IALatLng iaLatLng = mFloorPlan.getCenter();
+            IALatLng iaLatLng = floorPlan.getCenter();
             LatLng center = new LatLng(iaLatLng.latitude, iaLatLng.longitude);
             GroundOverlayOptions fpOverlay = new GroundOverlayOptions()
                     .image(bitmapDescriptor)
-                    .position(center, mFloorPlan.getWidthMeters(),
-                            mFloorPlan.getHeightMeters()).bearing(mFloorPlan.getBearing());
+                    .position(center, floorPlan.getWidthMeters(), floorPlan.getHeightMeters())
+                    .bearing(floorPlan.getBearing());
 
-            groundOverlay = mMap.addGroundOverlay(fpOverlay);
+            mGroundOverlay = mMap.addGroundOverlay(fpOverlay);
         }
     }
 
-    // Uses Picasso library to download and cache bitmap image
-    public void setBitmap(String url) {
-        if (loadtarget == null) loadtarget = new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                // scale down large bitmaps
-                if ((bitmap.getWidth() * bitmap.getHeight()) > (MAX_DIMENSION * MAX_DIMENSION)) {
-                    int largerDimension = (bitmap.getHeight() > bitmap.getWidth()) ?
-                            bitmap.getHeight() : bitmap.getWidth();
-                    int scaleFactor = (largerDimension / MAX_DIMENSION) + 1;
-                    Bitmap dsBitMap = Bitmap.createScaledBitmap(bitmap,
-                            bitmap.getWidth() / scaleFactor, bitmap.getHeight() / scaleFactor, false);
-                    setupGroundOverlay(dsBitMap);
-                } else {
-                    setupGroundOverlay(bitmap);
+    /**
+     * Download floor plan using Picasso library.
+     */
+    private void fetchFloorPlanBitmap(final IAFloorPlan floorPlan) {
+
+        final String url = floorPlan.getUrl();
+
+        if (mLoadTarget == null) {
+            mLoadTarget = new Target() {
+
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    setupGroundOverlay(floorPlan, scaleBitmap(bitmap));
                 }
-                Log.d(TAG, "picasso bitmap loaded");
-            }
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-                Log.d(TAG, "picasso on prepare load");
-            }
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    // N/A
+                }
 
-            @Override
-            public void onBitmapFailed(Drawable placeHolderDraweble) {
-                Log.d(TAG, "picasso bitmap failed");
-                Toast.makeText(MapsOverlayActivity.this, "Failed to load bitmap", Toast.LENGTH_SHORT).show();
-            }
-        };
+                @Override
+                public void onBitmapFailed(Drawable placeHolderDraweble) {
+                    Toast.makeText(MapsOverlayActivity.this, "Failed to load bitmap",
+                            Toast.LENGTH_SHORT).show();
+                }
+            };
+        }
 
-        Picasso.with(this).load(url).into(loadtarget);
+        Picasso.with(this).load(url).into(mLoadTarget);
+    }
+
+    /**
+     * Optionally scales down given bitmap.
+     */
+    private Bitmap scaleBitmap(Bitmap bitmap) {
+
+        if ((bitmap.getWidth() * bitmap.getHeight()) > (MAX_DIMENSION * MAX_DIMENSION)) {
+            int largerDimension = (bitmap.getHeight() > bitmap.getWidth())
+                    ? bitmap.getHeight()
+                    : bitmap.getWidth();
+            int scaleFactor = (largerDimension / MAX_DIMENSION) + 1;
+            return Bitmap.createScaledBitmap(bitmap,
+                    bitmap.getWidth() / scaleFactor,
+                    bitmap.getHeight() / scaleFactor,
+                    false);
+        } else {
+            // no need for scaling down
+            return bitmap;
+        }
+
     }
 
     /**
      * Fetches floor plan data from IndoorAtlas server.
      */
     private void fetchFloorPlan(String id) {
-        cancelPendingNetworkCalls();
-        final IATask<IAFloorPlan> asyncResult = mFloorPlanManager.fetchFloorPlanWithId(id);
-        mPendingAsyncResult = asyncResult;
 
-        if (mPendingAsyncResult != null) {
-            mPendingAsyncResult.setCallback(new IAResultCallback<IAFloorPlan>() {
-                @Override
-                public void onResult(IAResult<IAFloorPlan> result) {
-                    Log.d(TAG, "fetch floor plan result:" + result);
-                    if (result.isSuccess() && result.getResult() != null) {
-                        mFloorPlan = result.getResult();
-                        setBitmap(mFloorPlan.getUrl());
-                    } else {
-                        if (!asyncResult.isCancelled()) {
-                            // do something with error
-                            Toast.makeText(MapsOverlayActivity.this,
-                                    "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
-                                    .show();
-                            // remove current ground overlay
-                            if (groundOverlay != null) {
-                                groundOverlay.remove();
-                                groundOverlay = null;
-                            }
+        // if there is already running task, cancel it
+        cancelPendingNetworkCalls();
+
+        final IATask<IAFloorPlan> task = mResourceManager.fetchFloorPlanWithId(id);
+
+        task.setCallback(new IAResultCallback<IAFloorPlan>() {
+
+            @Override
+            public void onResult(IAResult<IAFloorPlan> result) {
+
+                if (result.isSuccess() && result.getResult() != null) {
+                    // retrieve bitmap for this floor plan metadata
+                    fetchFloorPlanBitmap(result.getResult());
+                } else {
+                    // ignore errors if this task was already canceled
+                    if (!task.isCancelled()) {
+                        // do something with error
+                        Toast.makeText(MapsOverlayActivity.this,
+                                "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
+                                .show();
+                        // remove current ground overlay
+                        if (mGroundOverlay != null) {
+                            mGroundOverlay.remove();
+                            mGroundOverlay = null;
                         }
                     }
                 }
-            }, Looper.getMainLooper()); // deliver callbacks in main thread
-        }
+            }
+        }, Looper.getMainLooper()); // deliver callbacks using main looper
+
+        // keep reference to task so that it can be canceled if needed
+        mFetchFloorPlanTask = task;
+
     }
 
+    /**
+     * Helper method to cancel current task if any.
+     */
     private void cancelPendingNetworkCalls() {
-        if (mPendingAsyncResult != null && !mPendingAsyncResult.isCancelled()) {
-            mPendingAsyncResult.cancel();
+        if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
+            mFetchFloorPlanTask.cancel();
         }
     }
 }
