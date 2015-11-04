@@ -8,6 +8,9 @@ android {
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set";
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set";
+    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set";
+    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set";
+
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
@@ -15,9 +18,11 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        resValue "string", "indooratlas_api_key", apiKey
         // avoid getting errors from malformed string resources if secret contains '%' chars
+        resValue "string", "indooratlas_api_key", apiKey
         resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
+        resValue "string", "pubnub_publish_key", pubNubPublishKey
+        resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
     }
 
     signingConfigs {
@@ -51,4 +56,6 @@ dependencies {
     compile 'com.google.maps.android:android-maps-utils:0.3.+'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
+    compile 'com.pubnub:pubnub-android:3.7.5'
+    compile 'com.android.support:design:23.0.1'
 }

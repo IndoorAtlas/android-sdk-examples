@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">ShareLocation</string>
-    <string name="pub_nub_publish_key">pub-c-871b6353-948d-4768-b94f-e52040ab85fa</string>
-    <string name="pub_nub_subscribe_key">sub-c-a7cecd4e-822c-11e5-a49d-02ee2ddab7fe</string>
-    <string name="pub_num_channel_name">indooratlas_sdk_share_example</string>
-    <string name="button_ok">OK</string>
-    <string name="share_dialog_title">Your shared name?</string>
-</resources>
