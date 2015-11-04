@@ -37,8 +37,7 @@ import com.indooratlas.android.sdk.resources.IATask;
 
 /**
  * Simple example of sharing ones location with others on the same map. Uses PubNub cloud service
- * to share messages between clients. You will need to register with PubNub and add your credentials
- * to gradle.properties in the root of this project.
+ * to share messages between clients. 
  *
  * When ever region change is detected, this client will start listening events for that region and
  * to publish it's own locations for others on the same region.
@@ -76,6 +75,7 @@ public class ShareLocationActivity extends AppCompatActivity {
 
         mLocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
+
         mLocationChannel = new PubNubLocationChannelImpl(
                 getString(R.string.pubnub_publish_key),
                 getString(R.string.pubnub_subscribe_key));
@@ -89,6 +89,8 @@ public class ShareLocationActivity extends AppCompatActivity {
             setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
                     SharingUtils.randomColor(this)));
         }
+
+
 
     }
 
