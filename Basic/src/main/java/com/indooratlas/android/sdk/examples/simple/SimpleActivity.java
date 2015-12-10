@@ -40,7 +40,7 @@ public class SimpleActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_location_manager);
+        setContentView(R.layout.activity_simple);
         mLog = (TextView) findViewById(R.id.text);
         mScrollView = (ScrollView) findViewById(R.id.scroller);
         mLocationManager = IALocationManager.create(this);

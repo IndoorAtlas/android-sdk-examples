@@ -61,6 +61,11 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".credentials.CredentialsFromCodeActivity"
+            android:label="@string/example_credentials_title">
+        </activity>
+
         <activity android:name=".sharelocation.ShareLocationActivity">
         </activity>
 

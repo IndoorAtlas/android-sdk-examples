@@ -32,5 +32,7 @@
     <string name="example_sharelocation_description">Demonstrates sharing ones location via 3rd party cloud service.</string>
     <string name="example_sharelocation_title">05. Location sharing</string>
     <string name="menu_change_color">Change color</string>
+    <string name="example_credentials_title">06. Set credentials</string>
+    <string name="example_credentials_description">Demonstrates setting credentials from code</string>
 
 </resources>
