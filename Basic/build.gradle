@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "22.0.1"
+    buildToolsVersion "23.0.2"
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set";
