@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -107,7 +108,36 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        log("onStatusChanged: " + status);
+        String quality = "";
+        switch (status) {
+            case IALocationManager.STATUS_CALIBRATION_CHANGED:
+                if (extras != null) {
+                    switch (extras.getInt("quality")) {
+                        case IALocationManager.CALIBRATION_POOR:
+                            quality = "Poor";
+                            break;
+                        case IALocationManager.CALIBRATION_GOOD:
+                            quality = "Good";
+                            break;
+                        case IALocationManager.CALIBRATION_EXCELLENT:
+                            quality = "Excellent";
+                            break;
+                    }
+                    log("Calibration change. Quality: " + quality);
+                }
+                break;
+            case IALocationManager.STATUS_AVAILABLE:
+                log("onStatusChanged: Available");
+                break;
+            case IALocationManager.STATUS_LIMITED:
+                log("onStatusChanged: Limited");
+                break;
+            case IALocationManager.STATUS_OUT_OF_SERVICE:
+                log("onStatusChanged: Out of service");
+                break;
+            case IALocationManager.STATUS_TEMPORARILY_UNAVAILABLE:
+                log("onStatusChanged: Temporarily unavailable");
+        }
     }
 
     @Override
