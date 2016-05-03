@@ -108,23 +108,21 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        String quality = "";
         switch (status) {
             case IALocationManager.STATUS_CALIBRATION_CHANGED:
-                if (extras != null) {
-                    switch (extras.getInt("quality")) {
-                        case IALocationManager.CALIBRATION_POOR:
-                            quality = "Poor";
-                            break;
-                        case IALocationManager.CALIBRATION_GOOD:
-                            quality = "Good";
-                            break;
-                        case IALocationManager.CALIBRATION_EXCELLENT:
-                            quality = "Excellent";
-                            break;
-                    }
-                    log("Calibration change. Quality: " + quality);
+                String quality = "unknown";
+                switch (extras.getInt("quality")) {
+                    case IALocationManager.CALIBRATION_POOR:
+                        quality = "Poor";
+                        break;
+                    case IALocationManager.CALIBRATION_GOOD:
+                        quality = "Good";
+                        break;
+                    case IALocationManager.CALIBRATION_EXCELLENT:
+                        quality = "Excellent";
+                        break;
                 }
+                log("Calibration change. Quality: " + quality);
                 break;
             case IALocationManager.STATUS_AVAILABLE:
                 log("onStatusChanged: Available");
