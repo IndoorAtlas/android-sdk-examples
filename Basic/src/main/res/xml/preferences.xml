@@ -2,14 +2,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        android:key="@string/pref_api_key"
+        android:key="@string/pref_key_api_key"
         android:title="@string/pref_api_key_label"
+        android:defaultValue="@string/indooratlas_api_key"
         android:inputType="text"
         android:dialogTitle="Enter API key" />
 
     <EditTextPreference
-        android:key="@string/pref_api_secret"
+        android:key="@string/pref_key_api_secret"
         android:title="@string/pref_api_secret_label"
+        android:defaultValue="@string/indooratlas_api_secret"
         android:inputType="text"
         android:dialogTitle="Enter API secret" />
 

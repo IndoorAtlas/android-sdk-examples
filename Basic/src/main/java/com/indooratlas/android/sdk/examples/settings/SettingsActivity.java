@@ -30,8 +30,8 @@ public class SettingsActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
 
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_api_key)));
-            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_api_secret)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_api_key)));
+            bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_key_api_secret)));
         }
 
         private void bindPreferenceSummaryToValue(Preference preference) {
@@ -49,7 +49,7 @@ public class SettingsActivity extends AppCompatActivity {
             if (!stringValue.isEmpty()) {
                 preference.setSummary(stringValue);
             } else {
-                preference.setSummary("Not set");
+                preference.setSummary("not-set");
             }
             return true;
         }

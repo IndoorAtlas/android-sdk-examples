@@ -49,6 +49,9 @@ public class ListExamplesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Called the first time the activity starts.
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         mAdapter = new ExamplesAdapter(this);
         ListView listView = (ListView) findViewById(android.R.id.list);
         listView.setAdapter(mAdapter);
@@ -61,6 +64,13 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
         });
 
+        ensurePermissions();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         if (!isSdkConfigured()) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.configuration_incomplete_title)
@@ -69,14 +79,10 @@ public class ListExamplesActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             startActivity(new Intent(ListExamplesActivity.this, SettingsActivity.class));
-                            //finish();
                         }
                     }).show();
             return;
         }
-
-        ensurePermissions();
-
     }
 
     /**
@@ -252,18 +258,11 @@ public class ListExamplesActivity extends AppCompatActivity {
         SharedPreferences sharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
-        if ("api-key-not-set".equals(getString(R.string.indooratlas_api_key))
-                && "api-secret-not-set".equals(getString(R.string.indooratlas_api_secret))) {
+        String prefApiKey = sharedPrefs.getString(getString(R.string.pref_key_api_key), "");
+        String prefApiSecret = sharedPrefs.getString(getString(R.string.pref_key_api_secret), "");
 
-            String prefApiKey = sharedPrefs.getString(getString(R.string.pref_api_key), "");
-            String prefApiSecret = sharedPrefs.getString(getString(R.string.pref_api_secret), "");
-
-            if ("".equals(prefApiKey) && "".equals(prefApiSecret)) {
-                return false;
-            }
-        }
-
-        return true;
+        return !(("not-set".equals(prefApiKey) || prefApiKey.isEmpty())
+                && ("not-set".equals(prefApiSecret) || prefApiSecret.isEmpty()));
     }
 
     @Override
