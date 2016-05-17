@@ -49,7 +49,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Called the first time the activity starts.
+        // Called the first time the application starts.
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         mAdapter = new ExamplesAdapter(this);

@@ -12,6 +12,7 @@ import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 
@@ -23,10 +24,10 @@ import java.util.Locale;
  * <li>a) specifying as meta-data in AndroidManifest.xml</li>
  * <li>b) passing in as extra parameters via{@link IALocationManager#create(Context, Bundle)}</li>
  * </ul>
- * This example demonstrates option b).
+ * This example demonstrates option a).
  */
 @SdkExample(description = R.string.example_credentials_description)
-public class CredentialsFromCodeActivity extends AppCompatActivity implements IALocationListener {
+public class CredentialsFromManifestActivity extends AppCompatActivity implements IALocationListener {
 
     private IALocationManager mLocationManager;
     private TextView mLog;
@@ -38,13 +39,7 @@ public class CredentialsFromCodeActivity extends AppCompatActivity implements IA
         setContentView(R.layout.text_only);
         mLog = (TextView) findViewById(R.id.text);
 
-        Bundle extras = new Bundle(2);
-        extras.putString(IALocationManager.EXTRA_API_KEY,
-                getString(R.string.indooratlas_api_key));
-        extras.putString(IALocationManager.EXTRA_API_SECRET,
-                getString(R.string.indooratlas_api_secret));
-        mLocationManager = IALocationManager.create(this, extras);
-
+        mLocationManager = IALocationManager.create(this);
     }
 
     @Override
@@ -73,7 +68,7 @@ public class CredentialsFromCodeActivity extends AppCompatActivity implements IA
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        log("onStatusChanged: " + status);
+        log(LocationManagerHelper.logStatusChanges(status, extras));
     }
 
     private void log(String msg) {

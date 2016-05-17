@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.indooratlas.android.sdk.examples.R;
 
 /**
- *
+ * Settings Activity used to enter API credentials by the user at runtime.
  */
 public class SettingsActivity extends AppCompatActivity {
 

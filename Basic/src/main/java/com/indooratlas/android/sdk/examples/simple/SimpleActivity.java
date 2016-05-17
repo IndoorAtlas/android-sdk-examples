@@ -20,6 +20,7 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 
@@ -44,7 +45,8 @@ public class SimpleActivity extends AppCompatActivity
         setContentView(R.layout.activity_simple);
         mLog = (TextView) findViewById(R.id.text);
         mScrollView = (ScrollView) findViewById(R.id.scroller);
-        mLocationManager = IALocationManager.create(this);
+
+        mLocationManager = LocationManagerHelper.createLocationManagerExtras(this);
     }
 
     @Override
@@ -108,34 +110,7 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        switch (status) {
-            case IALocationManager.STATUS_CALIBRATION_CHANGED:
-                String quality = "unknown";
-                switch (extras.getInt("quality")) {
-                    case IALocationManager.CALIBRATION_POOR:
-                        quality = "Poor";
-                        break;
-                    case IALocationManager.CALIBRATION_GOOD:
-                        quality = "Good";
-                        break;
-                    case IALocationManager.CALIBRATION_EXCELLENT:
-                        quality = "Excellent";
-                        break;
-                }
-                log("Calibration change. Quality: " + quality);
-                break;
-            case IALocationManager.STATUS_AVAILABLE:
-                log("onStatusChanged: Available");
-                break;
-            case IALocationManager.STATUS_LIMITED:
-                log("onStatusChanged: Limited");
-                break;
-            case IALocationManager.STATUS_OUT_OF_SERVICE:
-                log("onStatusChanged: Out of service");
-                break;
-            case IALocationManager.STATUS_TEMPORARILY_UNAVAILABLE:
-                log("onStatusChanged: Temporarily unavailable");
-        }
+        log(LocationManagerHelper.logStatusChanges(status, extras));
     }
 
     @Override

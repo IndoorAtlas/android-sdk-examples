@@ -17,7 +17,7 @@
     <string name="permission_button_accept">Sure</string>
     <string name="permission_button_deny">Deny</string>
     <string name="configuration_incomplete_title">Configuration incomplete</string>
-    <string name="configuration_incomplete_message">API credentials needed, please see gradle.properties in project root level.</string>
+    <string name="configuration_incomplete_message">API credentials needed, please see gradle.properties in project root level or set credentials now.</string>
     <string name="dialog_set_location_title">Set location</string>
     <string name="error_could_not_set_location">Error setting location: %s</string>
     <string name="action_share">Share...</string>
@@ -33,7 +33,7 @@
     <string name="example_sharelocation_title">05. Location sharing</string>
     <string name="menu_change_color">Change color</string>
     <string name="example_credentials_title">06. Set credentials</string>
-    <string name="example_credentials_description">Demonstrates setting credentials from code</string>
+    <string name="example_credentials_description">Demonstrates setting credentials from the manifest</string>
 
     <string name="action_set_credentials">Set Credentials</string>
     <string name="settings_title">Credentials</string>
