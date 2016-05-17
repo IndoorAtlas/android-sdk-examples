@@ -46,7 +46,7 @@ public class SimpleActivity extends AppCompatActivity
         mLog = (TextView) findViewById(R.id.text);
         mScrollView = (ScrollView) findViewById(R.id.scroller);
 
-        mLocationManager = LocationManagerHelper.createLocationManagerExtras(this);
+        mLocationManager = LocationManagerHelper.createLocationManager(this);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        log(LocationManagerHelper.logStatusChanges(status, extras));
+        log(LocationManagerHelper.statusToString(status, extras));
     }
 
     @Override

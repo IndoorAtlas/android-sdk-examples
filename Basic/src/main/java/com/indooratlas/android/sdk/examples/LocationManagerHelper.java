@@ -13,7 +13,7 @@ import com.indooratlas.android.sdk.IALocationManager;
  */
 public class LocationManagerHelper {
 
-    public static IALocationManager createLocationManagerExtras(Context context) {
+    public static IALocationManager createLocationManager(Context context) {
         SharedPreferences sharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context);
 
@@ -27,7 +27,7 @@ public class LocationManagerHelper {
         return IALocationManager.create(context, extras);
     }
 
-    public static String logStatusChanges(int status, Bundle extras) {
+    public static String statusToString(int status, Bundle extras) {
         String logMessage = "onStatusChanged: Unknown";
         switch (status) {
             case IALocationManager.STATUS_CALIBRATION_CHANGED:

@@ -68,7 +68,7 @@ public class CredentialsFromManifestActivity extends AppCompatActivity implement
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        log(LocationManagerHelper.logStatusChanges(status, extras));
+        log(LocationManagerHelper.statusToString(status, extras));
     }
 
     private void log(String msg) {
