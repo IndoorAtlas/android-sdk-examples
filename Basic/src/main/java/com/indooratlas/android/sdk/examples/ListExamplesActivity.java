@@ -75,7 +75,9 @@ public class ListExamplesActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.configuration_incomplete_title)
                     .setMessage(R.string.configuration_incomplete_message)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
+                        public void onCancel(DialogInterface dialog) {
                             finish();
                         }
                     })
