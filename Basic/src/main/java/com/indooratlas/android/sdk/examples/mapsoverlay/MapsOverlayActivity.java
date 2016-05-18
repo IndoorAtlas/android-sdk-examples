@@ -23,6 +23,7 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
@@ -140,7 +141,7 @@ public class MapsOverlayActivity extends FragmentActivity {
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
         // instantiate IALocationManager and IAResourceManager
-        mIALocationManager = IALocationManager.create(this);
+        mIALocationManager = LocationManagerHelper.createLocationManager(this);
         mResourceManager = IAResourceManager.create(this);
     }
 

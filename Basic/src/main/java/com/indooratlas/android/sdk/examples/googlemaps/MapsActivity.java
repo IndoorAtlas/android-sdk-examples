@@ -16,6 +16,7 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 
@@ -32,7 +33,7 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        mIALocationManager = IALocationManager.create(this);
+        mIALocationManager = LocationManagerHelper.createLocationManager(this);
 
         // optional setup of floor plan id
         // if setLocation is not called, then location manager tries to find  location automatically

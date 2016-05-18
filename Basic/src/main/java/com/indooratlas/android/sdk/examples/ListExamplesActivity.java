@@ -75,6 +75,10 @@ public class ListExamplesActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.configuration_incomplete_title)
                     .setMessage(R.string.configuration_incomplete_message)
+                        @Override
+                            finish();
+                        }
+                    })
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
