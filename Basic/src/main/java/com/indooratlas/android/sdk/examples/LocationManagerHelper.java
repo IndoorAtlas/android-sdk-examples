@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 
 import com.indooratlas.android.sdk.IALocationManager;
+import com.indooratlas.android.sdk.resources.IAResourceManager;
 
 /**
  * Helper class containing methods used to create IALocationManager using
@@ -13,7 +14,7 @@ import com.indooratlas.android.sdk.IALocationManager;
  */
 public class LocationManagerHelper {
 
-    public static IALocationManager createLocationManager(Context context) {
+    public static Bundle getApiKeys(Context context) {
         SharedPreferences sharedPrefs = PreferenceManager
                 .getDefaultSharedPreferences(context);
 
@@ -24,7 +25,15 @@ public class LocationManagerHelper {
         extras.putString(IALocationManager.EXTRA_API_KEY, prefApiKey);
         extras.putString(IALocationManager.EXTRA_API_SECRET, prefApiSecret);
 
-        return IALocationManager.create(context, extras);
+        return extras;
+    }
+
+    public static IALocationManager createLocationManager(Context context) {
+        return IALocationManager.create(context, getApiKeys(context));
+    }
+
+    public static IAResourceManager createResourceManager(Context context) {
+        return IAResourceManager.create(context, getApiKeys(context));
     }
 
     public static String statusToString(int status, Bundle extras) {

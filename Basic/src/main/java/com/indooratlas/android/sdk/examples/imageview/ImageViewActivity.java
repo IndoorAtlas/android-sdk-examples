@@ -95,7 +95,7 @@ public class ImageViewActivity extends FragmentActivity {
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = LocationManagerHelper.createLocationManager(this);
-        mFloorPlanManager = IAResourceManager.create(this);
+        mFloorPlanManager = LocationManagerHelper.createResourceManager(this);
 
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find

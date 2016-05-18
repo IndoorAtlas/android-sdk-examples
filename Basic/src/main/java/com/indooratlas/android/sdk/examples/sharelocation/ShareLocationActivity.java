@@ -75,7 +75,7 @@ public class ShareLocationActivity extends AppCompatActivity {
         mMapView = (MultiLocationMapView) findViewById(R.id.map);
 
         mLocationManager = LocationManagerHelper.createLocationManager(this);
-        mResourceManager = IAResourceManager.create(this);
+        mResourceManager = LocationManagerHelper.createResourceManager(this);
 
         mLocationChannel = new PubNubLocationChannelImpl(
                 getString(R.string.pubnub_publish_key),

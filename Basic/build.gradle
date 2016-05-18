@@ -6,8 +6,8 @@ android {
     buildToolsVersion "23.0.2"
 
     // note: use gradle.properties in project root level to set your api credentials
-    def apiKey = project.properties['indoorAtlasApiKey'] ?: "not-set";
-    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "not-set";
+    def apiKey = project.properties['indoorAtlasApiKey'] ?: "";
+    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "";
     def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set";
     def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set";
 

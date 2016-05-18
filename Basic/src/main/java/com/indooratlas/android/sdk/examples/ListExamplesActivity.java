@@ -267,8 +267,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         String prefApiKey = sharedPrefs.getString(getString(R.string.pref_key_api_key), "");
         String prefApiSecret = sharedPrefs.getString(getString(R.string.pref_key_api_secret), "");
 
-        return !(("not-set".equals(prefApiKey) || prefApiKey.isEmpty())
-                && ("not-set".equals(prefApiSecret) || prefApiSecret.isEmpty()));
+        return !((prefApiKey.isEmpty()) && (prefApiSecret.isEmpty()));
     }
 
     @Override
