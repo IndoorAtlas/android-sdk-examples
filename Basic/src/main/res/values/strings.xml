@@ -34,5 +34,7 @@
     <string name="menu_change_color">Change color</string>
     <string name="example_credentials_title">06. Set credentials</string>
     <string name="example_credentials_description">Demonstrates setting credentials from code</string>
+    <string name="fastest_interval_label">Fastest interval (milliseconds)</string>
+    <string name="shortest_displacement_label">Shortest displacement (meters)</string>
 
 </resources>
