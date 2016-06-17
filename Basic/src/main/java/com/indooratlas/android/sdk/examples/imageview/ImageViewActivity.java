@@ -1,10 +1,12 @@
 package com.indooratlas.android.sdk.examples.imageview;
 
+import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.PointF;
 import android.net.Uri;
@@ -12,7 +14,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Looper;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -39,6 +43,8 @@ import java.io.File;
 public class ImageViewActivity extends FragmentActivity {
 
     private static final String TAG = "IndoorAtlasExample";
+
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
 
     // blue dot radius in meters
     private static final float dotRadius = 1.0f;
@@ -116,6 +122,7 @@ public class ImageViewActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ensurePermissions();
         // starts receiving location updates
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
         mIALocationManager.registerRegionListener(mRegionListener);
@@ -224,6 +231,33 @@ public class ImageViewActivity extends FragmentActivity {
         if (mPendingAsyncResult != null && !mPendingAsyncResult.isCancelled()) {
             mPendingAsyncResult.cancel();
         }
+    }
+
+
+    private void ensurePermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        switch (requestCode) {
+            case REQUEST_CODE_WRITE_EXTERNAL_STORAGE:
+
+                if (grantResults.length == 0
+                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, R.string.storage_permission_denied_message,
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
+
     }
 
 

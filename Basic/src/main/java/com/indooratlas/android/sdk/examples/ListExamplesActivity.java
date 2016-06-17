@@ -97,7 +97,14 @@ public class ListExamplesActivity extends AppCompatActivity {
                                         REQUEST_CODE_ACCESS_COARSE_LOCATION);
                             }
                         })
-                        .setNegativeButton(R.string.permission_button_deny, null)
+                        .setNegativeButton(R.string.permission_button_deny, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(ListExamplesActivity.this,
+                                        R.string.location_permission_denied_message,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        })
                         .show();
 
             } else {
@@ -110,12 +117,6 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
 
         }
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
-
-
     }
 
     @Override
