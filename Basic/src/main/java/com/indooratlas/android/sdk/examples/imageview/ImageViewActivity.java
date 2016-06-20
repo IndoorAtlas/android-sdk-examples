@@ -27,6 +27,7 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
@@ -99,8 +100,8 @@ public class ImageViewActivity extends FragmentActivity {
         mImageView = (BlueDotView) findViewById(R.id.imageView);
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        mIALocationManager = IALocationManager.create(this);
-        mFloorPlanManager = IAResourceManager.create(this);
+        mIALocationManager = LocationManagerHelper.createLocationManager(this);
+        mFloorPlanManager = LocationManagerHelper.createResourceManager(this);
 
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find

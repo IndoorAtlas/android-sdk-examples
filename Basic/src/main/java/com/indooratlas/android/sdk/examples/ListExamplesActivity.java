@@ -6,14 +6,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,6 +25,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.indooratlas.android.sdk.examples.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +49,9 @@ public class ListExamplesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Called the first time the application starts.
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
         mAdapter = new ExamplesAdapter(this);
         ListView listView = (ListView) findViewById(android.R.id.list);
         listView.setAdapter(mAdapter);
@@ -55,21 +64,31 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
         });
 
+        ensurePermissions();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         if (!isSdkConfigured()) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.configuration_incomplete_title)
                     .setMessage(R.string.configuration_incomplete_message)
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            finish();
+                        }
+                    })
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                            startActivity(new Intent(ListExamplesActivity.this, SettingsActivity.class));
                         }
                     }).show();
             return;
         }
-
-        ensurePermissions();
-
     }
 
     /**
@@ -242,11 +261,30 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
     }
 
-
     private boolean isSdkConfigured() {
-        return !"api-key-not-set".equals(getString(R.string.indooratlas_api_key))
-                && !"api-secret-not-set".equals(getString(R.string.indooratlas_api_secret));
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+
+        String prefApiKey = sharedPrefs.getString(getString(R.string.pref_key_api_key), "");
+        String prefApiSecret = sharedPrefs.getString(getString(R.string.pref_key_api_secret), "");
+
+        return !((prefApiKey.isEmpty()) && (prefApiSecret.isEmpty()));
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_listexamples, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        final int id = item.getItemId();
+        if (id == R.id.action_set_credentials) {
+            startActivity(new Intent(ListExamplesActivity.this,
+                    SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

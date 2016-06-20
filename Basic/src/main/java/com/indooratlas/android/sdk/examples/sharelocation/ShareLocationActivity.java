@@ -19,6 +19,7 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.examples.LocationManagerHelper;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.examples.sharelocation.channel.LocationChannel;
@@ -73,8 +74,8 @@ public class ShareLocationActivity extends AppCompatActivity {
         mCoordinatorLayout = findViewById(R.id.coordinatorLayout);
         mMapView = (MultiLocationMapView) findViewById(R.id.map);
 
-        mLocationManager = IALocationManager.create(this);
-        mResourceManager = IAResourceManager.create(this);
+        mLocationManager = LocationManagerHelper.createLocationManager(this);
+        mResourceManager = LocationManagerHelper.createResourceManager(this);
 
         mLocationChannel = new PubNubLocationChannelImpl(
                 getString(R.string.pubnub_publish_key),

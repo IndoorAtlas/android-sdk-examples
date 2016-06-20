@@ -62,8 +62,17 @@
         </activity>
 
         <activity
-            android:name=".credentials.CredentialsFromCodeActivity"
+            android:name=".credentials.CredentialsFromManifestActivity"
             android:label="@string/example_credentials_title">
+        </activity>
+
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:label="@string/settings_title"
+            android:parentActivityName=".ListExamplesActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ListExamplesActivity"/>
         </activity>
 
         <activity android:name=".sharelocation.ShareLocationActivity">
