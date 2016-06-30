@@ -40,8 +40,8 @@ public class SimpleActivity extends AppCompatActivity
     private ScrollView mScrollView;
     private long mRequestStartTime;
 
-    private long mFastestInterval;
-    private float mShortestDisplacement;
+    private long mFastestInterval = -1L;
+    private float mShortestDisplacement = -1f;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -207,17 +207,26 @@ public class SimpleActivity extends AppCompatActivity
 
         final EditText fastestInterval = (EditText) dialogLayout
                 .findViewById(R.id.edit_text_interval);
-        fastestInterval.setText(String.valueOf(mFastestInterval));
 
         final EditText shortestDisplacement = (EditText) dialogLayout
                 .findViewById(R.id.edit_text_displacement);
-        shortestDisplacement.setText(String.valueOf(mShortestDisplacement));
+
+        if (mFastestInterval != -1L) {
+            fastestInterval.setText(String.valueOf(mFastestInterval));
+        } else {
+            fastestInterval.setHint("default");
+        }
+        if (mShortestDisplacement != -1f) {
+            shortestDisplacement.setText(String.valueOf(mShortestDisplacement));
+        } else {
+            shortestDisplacement.setHint("default");
+        }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Location request options")
+                builder.setTitle(R.string.dialog_request_options_title)
                 .setView(dialogLayout)
                 .setCancelable(true)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mRequestStartTime = SystemClock.elapsedRealtime();
@@ -230,25 +239,24 @@ public class SimpleActivity extends AppCompatActivity
 
                         if (!fastestIntervalInput.isEmpty()) {
                             mFastestInterval = Long.valueOf(fastestIntervalInput);
+                            request.setFastestInterval(mFastestInterval);
                         } else {
-                            mFastestInterval = 0L;
+                            mFastestInterval = -1L;
                         }
 
                         if (!shortestDisplacementInput.isEmpty()) {
                             mShortestDisplacement = Float.valueOf(shortestDisplacementInput);
+                            request.setSmallestDisplacement(mShortestDisplacement);
                         } else {
-                            mShortestDisplacement = 0f;
+                            mShortestDisplacement = -1f;
                         }
-
-                        request.setFastestInterval(mFastestInterval);
-                        request.setSmallestDisplacement(mShortestDisplacement);
 
                         mLocationManager.removeLocationUpdates(SimpleActivity.this);
                         mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
                         log("requestLocationUpdates");
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
