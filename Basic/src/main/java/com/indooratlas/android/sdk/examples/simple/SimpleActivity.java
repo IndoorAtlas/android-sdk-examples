@@ -98,18 +98,7 @@ public class SimpleActivity extends AppCompatActivity
     }
 
     public void requestUpdates(View view) {
-
-        if (mFastestInterval == 0L || mShortestDisplacement == 0f) {
-            setLocationRequestOptions();
-        } else {
-            mRequestStartTime = SystemClock.elapsedRealtime();
-            IALocationRequest request = IALocationRequest.create();
-            request.setFastestInterval(mFastestInterval);
-            request.setSmallestDisplacement(mShortestDisplacement);
-
-            mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
-            log("requestLocationUpdates");
-        }
+        setLocationRequestOptions();
     }
 
     public void removeUpdates(View view) {
@@ -218,8 +207,11 @@ public class SimpleActivity extends AppCompatActivity
 
         final EditText fastestInterval = (EditText) dialogLayout
                 .findViewById(R.id.edit_text_interval);
+        fastestInterval.setText(String.valueOf(mFastestInterval));
+
         final EditText shortestDisplacement = (EditText) dialogLayout
                 .findViewById(R.id.edit_text_displacement);
+        shortestDisplacement.setText(String.valueOf(mShortestDisplacement));
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Location request options")
@@ -231,23 +223,29 @@ public class SimpleActivity extends AppCompatActivity
                         mRequestStartTime = SystemClock.elapsedRealtime();
                         IALocationRequest request = IALocationRequest.create();
 
-                        try {
-                            mFastestInterval = Long.valueOf(fastestInterval.getText()
-                                    .toString());
-                            mShortestDisplacement = Float.valueOf(shortestDisplacement.getText()
-                                    .toString());
+                        String fastestIntervalInput = fastestInterval.getText()
+                                .toString();
+                        String shortestDisplacementInput = shortestDisplacement.getText()
+                                .toString();
 
-                            request.setFastestInterval(mFastestInterval);
-                            request.setSmallestDisplacement(mShortestDisplacement);
-
-                            mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
-                            log("requestLocationUpdates");
-
-                        } catch (NumberFormatException e) {
-                            Toast.makeText(SimpleActivity.this, e.toString(),
-                                    Toast.LENGTH_SHORT).show();
+                        if (!fastestIntervalInput.isEmpty()) {
+                            mFastestInterval = Long.valueOf(fastestIntervalInput);
+                        } else {
+                            mFastestInterval = 0L;
                         }
 
+                        if (!shortestDisplacementInput.isEmpty()) {
+                            mShortestDisplacement = Float.valueOf(shortestDisplacementInput);
+                        } else {
+                            mShortestDisplacement = 0f;
+                        }
+
+                        request.setFastestInterval(mFastestInterval);
+                        request.setSmallestDisplacement(mShortestDisplacement);
+
+                        mLocationManager.removeLocationUpdates(SimpleActivity.this);
+                        mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
+                        log("requestLocationUpdates");
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
