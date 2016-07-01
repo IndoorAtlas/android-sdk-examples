@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,15 +32,27 @@ import java.util.Locale;
 public class SimpleActivity extends AppCompatActivity
         implements IALocationListener, IARegion.Listener {
 
+    static final String FASTEST_INTERVAL = "fastestInterval";
+    static final String SHORTEST_DISPLACEMENT = "shortestDisplacement";
+
     private IALocationManager mLocationManager;
     private TextView mLog;
     private ScrollView mScrollView;
     private long mRequestStartTime;
 
+    private long mFastestInterval = -1L;
+    private float mShortestDisplacement = -1f;
+
     @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            mFastestInterval = savedInstanceState.getLong(FASTEST_INTERVAL);
+            mShortestDisplacement = savedInstanceState.getFloat(SHORTEST_DISPLACEMENT);
+        }
+
         setContentView(R.layout.activity_simple);
         mLog = (TextView) findViewById(R.id.text);
         mScrollView = (ScrollView) findViewById(R.id.scroller);
@@ -86,9 +98,7 @@ public class SimpleActivity extends AppCompatActivity
     }
 
     public void requestUpdates(View view) {
-        mRequestStartTime = SystemClock.elapsedRealtime();
-        mLocationManager.requestLocationUpdates(IALocationRequest.create(), this);
-        log("requestLocationUpdates");
+        setLocationRequestOptions();
     }
 
     public void removeUpdates(View view) {
@@ -188,6 +198,81 @@ public class SimpleActivity extends AppCompatActivity
                     }
                 }).show();
 
+    }
+
+    private void setLocationRequestOptions() {
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        final View dialogLayout = inflater.inflate(R.layout.location_request_dialog, null);
+
+        final EditText fastestInterval = (EditText) dialogLayout
+                .findViewById(R.id.edit_text_interval);
+
+        final EditText shortestDisplacement = (EditText) dialogLayout
+                .findViewById(R.id.edit_text_displacement);
+
+        if (mFastestInterval != -1L) {
+            fastestInterval.setText(String.valueOf(mFastestInterval));
+        } else {
+            fastestInterval.setHint("default");
+        }
+        if (mShortestDisplacement != -1f) {
+            shortestDisplacement.setText(String.valueOf(mShortestDisplacement));
+        } else {
+            shortestDisplacement.setHint("default");
+        }
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.dialog_request_options_title)
+                .setView(dialogLayout)
+                .setCancelable(true)
+                .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mRequestStartTime = SystemClock.elapsedRealtime();
+                        IALocationRequest request = IALocationRequest.create();
+
+                        String fastestIntervalInput = fastestInterval.getText()
+                                .toString();
+                        String shortestDisplacementInput = shortestDisplacement.getText()
+                                .toString();
+
+                        if (!fastestIntervalInput.isEmpty()) {
+                            mFastestInterval = Long.valueOf(fastestIntervalInput);
+                            request.setFastestInterval(mFastestInterval);
+                        } else {
+                            mFastestInterval = -1L;
+                        }
+
+                        if (!shortestDisplacementInput.isEmpty()) {
+                            mShortestDisplacement = Float.valueOf(shortestDisplacementInput);
+                            request.setSmallestDisplacement(mShortestDisplacement);
+                        } else {
+                            mShortestDisplacement = -1f;
+                        }
+
+                        mLocationManager.removeLocationUpdates(SimpleActivity.this);
+                        mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
+                        log("requestLocationUpdates");
+                    }
+                })
+                .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putLong(FASTEST_INTERVAL, mFastestInterval);
+        savedInstanceState.putFloat(SHORTEST_DISPLACEMENT, mShortestDisplacement);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     /**

@@ -15,6 +15,7 @@
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
     <string name="storage_permission_denied_message">No access to external storage. Permission needed for displaying floor plans</string>
     <string name="button_ok">OK</string>
+    <string name="button_cancel">Cancel</string>
     <string name="permission_button_accept">Sure</string>
     <string name="permission_button_deny">Deny</string>
     <string name="configuration_incomplete_title">Configuration incomplete</string>
@@ -35,5 +36,8 @@
     <string name="menu_change_color">Change color</string>
     <string name="example_credentials_title">06. Set credentials</string>
     <string name="example_credentials_description">Demonstrates setting credentials from code</string>
+    <string name="dialog_request_options_title">Location request options</string>
+    <string name="fastest_interval_label">Fastest interval (milliseconds)</string>
+    <string name="shortest_displacement_label">Shortest displacement (meters)</string>
 
 </resources>
