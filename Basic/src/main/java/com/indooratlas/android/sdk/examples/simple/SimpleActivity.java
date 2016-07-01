@@ -213,13 +213,10 @@ public class SimpleActivity extends AppCompatActivity
 
         if (mFastestInterval != -1L) {
             fastestInterval.setText(String.valueOf(mFastestInterval));
-        } else {
-            fastestInterval.setHint("default");
         }
+
         if (mShortestDisplacement != -1f) {
             shortestDisplacement.setText(String.valueOf(mShortestDisplacement));
-        } else {
-            shortestDisplacement.setHint("default");
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);

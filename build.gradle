@@ -16,7 +16,7 @@ allprojects {
         jcenter()
         mavenCentral()
         maven {
-            url "http://indooratlas-ltd.bintray.com/mvn-public"
+            url "http://indooratlas-ltd.bintray.com/mvn-public-beta"
         }
     }
 

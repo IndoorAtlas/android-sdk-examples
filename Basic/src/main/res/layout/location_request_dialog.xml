@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:inputType="number"
         android:ems="10"
+        android:hint="@string/default_label"
         android:id="@+id/edit_text_interval" />
 
     <TextView
@@ -27,6 +28,7 @@
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
         android:ems="10"
+        android:hint="@string/default_label"
         android:id="@+id/edit_text_displacement" />
 
 
