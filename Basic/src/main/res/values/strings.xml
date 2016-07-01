@@ -39,5 +39,6 @@
     <string name="dialog_request_options_title">Location request options</string>
     <string name="fastest_interval_label">Fastest interval (milliseconds)</string>
     <string name="shortest_displacement_label">Shortest displacement (meters)</string>
+    <string name="default_label">use default</string>
 
 </resources>
