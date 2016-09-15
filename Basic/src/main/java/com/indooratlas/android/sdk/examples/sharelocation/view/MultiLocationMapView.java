@@ -46,6 +46,8 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
     private Paint mTextPaint;
 
+    private Target mTarget;
+
     public MultiLocationMapView(Context context) {
         this(context, null);
     }
@@ -114,24 +116,25 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
     private void loadBitmap(String url) {
 
+        // hold strong reference into target so that it does not get GC'd
+        mTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                setImage(ImageSource.bitmap(bitmap.copy(bitmap.getConfig(), true)));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        };
+
         Picasso.with(getContext())
                 .load(url)
-                .into(new Target() {
-                    @Override
-                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        setImage(ImageSource.bitmap(bitmap.copy(bitmap.getConfig(), true)));
-                    }
-
-                    @Override
-                    public void onBitmapFailed(Drawable errorDrawable) {
-                        Log.e(TAG, "onBitmapFailed");
-                    }
-
-                    @Override
-                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                    }
-                });
+                .into(mTarget);
 
     }
 
