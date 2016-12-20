@@ -112,8 +112,9 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(IALocation location) {
-        log(String.format(Locale.US, "%f,%f, accuracy: %.2f", location.getLatitude(),
-                location.getLongitude(), location.getAccuracy()));
+        log(String.format(Locale.US, "%f,%f, accuracy: %.2f, certainty: %.2f",
+                location.getLatitude(), location.getLongitude(), location.getAccuracy(),
+                location.getFloorCertainty()));
     }
 
     @Override
@@ -150,12 +151,28 @@ public class SimpleActivity extends AppCompatActivity
 
     @Override
     public void onEnterRegion(IARegion region) {
-        log("onEnterRegion: " + region.getType() + ", " + region.getId());
+        log("onEnterRegion: " + regionType(region.getType()) + ", " + region.getId());
     }
 
     @Override
     public void onExitRegion(IARegion region) {
-        log("onExitRegion: " + region.getType() + ", " + region.getId());
+        log("onExitRegion: " + regionType(region.getType()) + ", " + region.getId());
+    }
+
+    /**
+     * Turn {@link IARegion#getType()} to human-readable name
+     */
+    private String regionType(int type) {
+        switch (type) {
+            case IARegion.TYPE_UNKNOWN:
+                return "unknown";
+            case IARegion.TYPE_FLOOR_PLAN:
+                return "floor plan";
+            case IARegion.TYPE_VENUE:
+                return "venue";
+            default:
+                return Integer.toString(type);
+        }
     }
 
     /**
