@@ -44,6 +44,8 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
     private Paint mDotPaint;
 
+    private Paint mDotPaintAccuracy;
+
     private Paint mTextPaint;
 
     private Target mTarget;
@@ -90,10 +92,17 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
                 continue;
             }
 
+            final float scaledRadiusAccuracy = getScale() * (mRadius + entry.mAccuracy);
+
             sourceToViewCoord(entry.mPoint, mRecyclePoint);
             mDotPaint.setColor(entry.mSource.color);
             mTextPaint.setColor(entry.mSource.color);
             canvas.drawCircle(mRecyclePoint.x, mRecyclePoint.y, scaledRadius, mDotPaint);
+
+            mDotPaintAccuracy.setColor(entry.mSource.color);
+            mDotPaintAccuracy.setAlpha(50);
+            canvas.drawCircle(mRecyclePoint.x, mRecyclePoint.y, scaledRadiusAccuracy, mDotPaintAccuracy);
+
             canvas.drawText(entry.mSource.name,
                     mRecyclePoint.x + (scaledRadius * 1.2f),
                     mRecyclePoint.y + (scaledRadius / 2),
@@ -109,6 +118,9 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
         mDotPaint = new Paint();
         mDotPaint.setAntiAlias(true);
         mDotPaint.setStyle(Paint.Style.FILL);
+        mDotPaintAccuracy = new Paint();
+        mDotPaintAccuracy.setAntiAlias(true);
+        mDotPaintAccuracy.setStyle(Paint.Style.FILL);
         mTextPaint = new Paint();
         mTextPaint.setAntiAlias(true);
         mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.location_text_size));
@@ -145,6 +157,7 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
         IALatLng latLng = new IALatLng(location.getLatitude(), location.getLongitude());
         PointF point = mFloorPlan.coordinateToPoint(latLng);
+        float accuracy = location.getAccuracy() * mFloorPlan.getMetersToPixels();
 
         Log.d(TAG, "converted location ("
                 + event.location.getLatitude() + "," + event.location.getLongitude()
@@ -155,9 +168,10 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
         LocationEntry previousEntry = mKnownLocations.get(identity);
         if (previousEntry != null) {
             previousEntry.mPoint = point;
+            previousEntry.mAccuracy = accuracy;
             previousEntry.mLastUpdated = SystemClock.elapsedRealtime();
         } else {
-            mKnownLocations.put(identity, new LocationEntry(event.source, point));
+            mKnownLocations.put(identity, new LocationEntry(event.source, point, accuracy));
         }
 
     }
@@ -166,12 +180,15 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
         PointF mPoint;
 
+        float mAccuracy;
+
         LocationSource mSource;
 
         long mLastUpdated;
 
-        LocationEntry(LocationSource source, PointF point) {
+        LocationEntry(LocationSource source, PointF point, float accuracy) {
             mPoint = point;
+            mAccuracy = accuracy;
             mSource = source;
             mLastUpdated = SystemClock.elapsedRealtime();
         }
@@ -180,6 +197,7 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
         public String toString() {
             final StringBuilder sb = new StringBuilder("LocationEntry{");
             sb.append("mPoint=").append(mPoint);
+            sb.append("mAccuracy=").append(mAccuracy);
             sb.append(", mSource=").append(mSource);
             sb.append('}');
             return sb.toString();
