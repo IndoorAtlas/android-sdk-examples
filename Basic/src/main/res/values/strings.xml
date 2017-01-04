@@ -23,7 +23,6 @@
     <string name="dialog_set_location_title">Set location</string>
     <string name="error_could_not_set_location">Error setting location: %s</string>
     <string name="action_share">Share...</string>
-
     <string name="share_dialog_title">Your shared name?</string>
     <string name="current_channel">Current channel: %s</string>
     <string name="error_loading_floor_plan">Error while loading floor plan</string>
@@ -40,5 +39,15 @@
     <string name="fastest_interval_label">Fastest interval (milliseconds)</string>
     <string name="shortest_displacement_label">Shortest displacement (meters)</string>
     <string name="default_label">use default</string>
+    <string name="example_regions_description">Demonstrates automatic region transitions and certainty</string>
+    <string name="example_regions_title">07. Regions</string>
+    <string name="venue_outside">Outside mapped area</string>
+    <string name="venue_inside">In venue %s</string>
+    <string name="floor_plan_outside">No floor plan</string>
+    <string name="floor_plan_inside">In floor plan %s</string>
+    <string name="floor_level_not_given">Floor level not given</string>
+    <string name="floor_level_is">Floor level %d</string>
+    <string name="floor_certainty_not_given">Floor certainty not given</string>
+    <string name="floor_certainty_is">Floor certainty %.1f</string>
 
 </resources>

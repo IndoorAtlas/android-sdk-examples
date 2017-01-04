@@ -68,7 +68,13 @@
             android:label="@string/example_credentials_title">
         </activity>
 
-        <activity android:name=".sharelocation.ShareLocationActivity">
+        <activity
+            android:name=".regions.RegionsActivity"
+            android:label="@string/example_regions_title">
+        </activity>
+
+        <activity
+            android:name=".sharelocation.ShareLocationActivity">
         </activity>
 
     </application>
