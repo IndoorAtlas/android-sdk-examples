@@ -17,6 +17,7 @@ public class ConversionUtils {
     private static final String KEY_LOCATION = "location";
     private static final String KEY_LAT = "lat";
     private static final String KEY_LON = "lon";
+    private static final String KEY_ACCURACY = "accuracy";
     private static final String KEY_NAME = "name";
     private static final String KEY_COLOR = "color";
     private static final String KEY_ID = "id";
@@ -34,7 +35,8 @@ public class ConversionUtils {
                 .put(KEY_COLOR, source.color));
         jsonObject.put(KEY_LOCATION, new JSONObject()
                 .put(KEY_LAT, location.getLatitude())
-                .put(KEY_LON, location.getLongitude()));
+                .put(KEY_LON, location.getLongitude())
+                .put(KEY_ACCURACY, location.getAccuracy()));
         return jsonObject;
     }
 
@@ -46,6 +48,7 @@ public class ConversionUtils {
 
         final double latitude = location.getDouble(KEY_LAT);
         final double longitude = location.getDouble(KEY_LON);
+        final double accuracy = location.getDouble(KEY_ACCURACY);
 
         return new LocationEvent(
                 new LocationSource(source.getString(KEY_ID), source.getString(KEY_NAME),
@@ -53,6 +56,7 @@ public class ConversionUtils {
                 new IALocation.Builder()
                         .withLatitude(latitude)
                         .withLongitude(longitude)
+                        .withAccuracy((float)accuracy)
                         .build());
 
     }
