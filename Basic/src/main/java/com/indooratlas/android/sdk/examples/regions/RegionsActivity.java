@@ -1,7 +1,9 @@
 package com.indooratlas.android.sdk.examples.regions;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.indooratlas.android.sdk.IALocation;
@@ -28,7 +30,9 @@ public class RegionsActivity extends FragmentActivity implements IALocationListe
     Float mCurrentCertainty = null;
 
     TextView mUiVenue;
+    TextView mUiVenueId;
     TextView mUiFloorPlan;
+    TextView mUiFloorPlanId;
     TextView mUiFloorLevel;
     TextView mUiFloorCertainty;
 
@@ -44,7 +48,9 @@ public class RegionsActivity extends FragmentActivity implements IALocationListe
         mManager.requestLocationUpdates(IALocationRequest.create(), this);
 
         mUiVenue = (TextView) findViewById(R.id.text_view_venue);
+        mUiVenueId = (TextView) findViewById(R.id.text_view_venue_id);
         mUiFloorPlan = (TextView) findViewById(R.id.text_view_floor_plan);
+        mUiFloorPlanId = (TextView) findViewById(R.id.text_view_floor_plan_id);
         mUiFloorLevel = (TextView) findViewById(R.id.text_view_floor_level);
         mUiFloorCertainty = (TextView) findViewById(R.id.text_view_floor_certainty);
 
@@ -90,27 +96,45 @@ public class RegionsActivity extends FragmentActivity implements IALocationListe
 
     void updateUi() {
         String venue = getString(R.string.venue_outside);
+        String venueId = "";
         String floorPlan = "";
-        String level = getString(R.string.floor_level_not_given);
-        String certainty = getString(R.string.floor_certainty_not_given);
+        String floorPlanId = "";
+        String level = "";
+        String certainty = "";
         if (mCurrentVenue != null) {
-            venue = getString(R.string.venue_inside, mCurrentVenue.getId());
+            venue = getString(R.string.venue_inside);
+            venueId = mCurrentVenue.getId();
             if (mCurrentFloorPlan != null) {
-                floorPlan = getString(R.string.floor_plan_inside, mCurrentFloorPlan.getId());
+                floorPlan = getString(R.string.floor_plan_inside);
+                floorPlanId = mCurrentFloorPlan.getId();
             } else {
                 floorPlan = getString(R.string.floor_plan_outside);
             }
         }
         if (mCurrentFloorLevel != null) {
-            level = getString(R.string.floor_level_is, mCurrentFloorLevel);
+            level = mCurrentFloorLevel.toString();
         }
         if (mCurrentCertainty != null) {
-            certainty = getString(R.string.floor_certainty_is, mCurrentCertainty * 100.0f);
+            certainty = getString(R.string.floor_certainty_percentage, mCurrentCertainty * 100.0f);
         }
-        mUiVenue.setText(venue);
-        mUiFloorPlan.setText(floorPlan);
-        mUiFloorLevel.setText(level);
-        mUiFloorCertainty.setText(certainty);
+        setText(mUiVenue, venue, true);
+        setText(mUiVenueId, venueId, true);
+        setText(mUiFloorPlan, floorPlan, true);
+        setText(mUiFloorPlanId, floorPlanId, true);
+        setText(mUiFloorLevel, level, true);
+        setText(mUiFloorCertainty, certainty, false); // do not animate as changes can be frequent
     }
-    
+
+    /**
+     * Set the text of a TextView and make a animation to notify when the value has changed
+     */
+    void setText(@NonNull TextView view, @NonNull String text, boolean animateWhenChanged) {
+        if (!view.getText().toString().equals(text)) {
+            view.setText(text);
+            if (animateWhenChanged) {
+                view.startAnimation(AnimationUtils.loadAnimation(this, R.anim.notify_change));
+            }
+        }
+    }
+
 }

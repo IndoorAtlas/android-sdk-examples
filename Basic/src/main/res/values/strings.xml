@@ -39,15 +39,16 @@
     <string name="fastest_interval_label">Fastest interval (milliseconds)</string>
     <string name="shortest_displacement_label">Shortest displacement (meters)</string>
     <string name="default_label">use default</string>
-    <string name="example_regions_description">Demonstrates automatic region transitions and certainty</string>
+    <string name="example_regions_description">Demonstrates automatic region transitions and vertical position information</string>
     <string name="example_regions_title">07. Regions</string>
+    <string name="region_information">Region information</string>
     <string name="venue_outside">Outside mapped area</string>
-    <string name="venue_inside">In venue %s</string>
+    <string name="venue_inside">In venue</string>
     <string name="floor_plan_outside">No floor plan</string>
-    <string name="floor_plan_inside">In floor plan %s</string>
-    <string name="floor_level_not_given">Floor level not given</string>
-    <string name="floor_level_is">Floor level %d</string>
-    <string name="floor_certainty_not_given">Floor certainty not given</string>
-    <string name="floor_certainty_is">Floor certainty %.1f</string>
+    <string name="floor_plan_inside">In floor plan</string>
+    <string name="vertical_position">Vertical position</string>
+    <string name="floor_level">Floor level</string>
+    <string name="floor_certainty">Floor certainty</string>
+    <string name="floor_certainty_percentage">%.1f %%</string>
 
 </resources>
