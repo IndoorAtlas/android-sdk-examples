@@ -296,13 +296,17 @@ public class ShareLocationActivity extends AppCompatActivity {
         @Override
         public void onEnterRegion(IARegion region) {
             Log.d(SharingUtils.TAG, "onEnterRegion: " + region);
-            setChannel(region.getId(), false);
-            updateMapBitmap(region);
+            if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
+                setChannel(region.getId(), false);
+                updateMapBitmap(region);
+            }
         }
 
         @Override
         public void onExitRegion(IARegion region) {
-            mLocationChannel.unsubscribe(region.getId());
+            if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
+                mLocationChannel.unsubscribe(region.getId());
+            }
         }
     };
 
