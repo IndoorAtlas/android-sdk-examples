@@ -48,12 +48,13 @@ public class MapsOverlayActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Marker mMarker;
-    private GroundOverlay mGroundOverlay;
+    private IARegion mOverlayFloorPlan = null;
+    private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
     private IAResourceManager mResourceManager;
     private IATask<IAFloorPlan> mFetchFloorPlanTask;
     private Target mLoadTarget;
-    private boolean mCameraPositionNeedsUpdating;
+    private boolean mCameraPositionNeedsUpdating = true; // update on first location
 
     /**
      * Listener that handles location change events.
@@ -93,27 +94,37 @@ public class MapsOverlayActivity extends FragmentActivity {
     };
 
     /**
-     * Region listener that when:
-     * <ul>
-     * <li>region has entered; marks need to move camera and starts
-     * loading floor plan bitmap</li>
-     * <li>region has existed; clears marker</li>
-     * </ul>.
+     * Listener that changes overlay if needed
      */
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
 
         @Override
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                mCameraPositionNeedsUpdating = true; // entering new fp, mark need to move camera
                 final String newId = region.getId();
+                // Are we entering a new floor plan or coming back the floor plan we just left?
+                if (mGroundOverlay == null || !region.equals(mOverlayFloorPlan)) {
+                    mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
+                    if (mGroundOverlay != null) {
+                        mGroundOverlay.remove();
+                        mGroundOverlay = null;
+                    }
+                    mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
+                    fetchFloorPlan(newId);
+                } else {
+                    mGroundOverlay.setTransparency(0.0f);
+                }
                 Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
-                fetchFloorPlan(newId);
             }
         }
 
         @Override
         public void onExitRegion(IARegion region) {
+            if (mGroundOverlay != null) {
+                // Indicate we left this floor plan but leave it there for reference
+                // If we enter another floor plan, this one will be removed and another one loaded
+                mGroundOverlay.setTransparency(0.5f);
+            }
         }
 
     };
@@ -210,6 +221,7 @@ public class MapsOverlayActivity extends FragmentActivity {
                 public void onBitmapFailed(Drawable placeHolderDraweble) {
                     Toast.makeText(MapsOverlayActivity.this, "Failed to load bitmap",
                             Toast.LENGTH_SHORT).show();
+                    mOverlayFloorPlan = null;
                 }
             };
         }
@@ -254,11 +266,7 @@ public class MapsOverlayActivity extends FragmentActivity {
                         Toast.makeText(MapsOverlayActivity.this,
                                 "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
                                 .show();
-                        // remove current ground overlay
-                        if (mGroundOverlay != null) {
-                            mGroundOverlay.remove();
-                            mGroundOverlay = null;
-                        }
+                        mOverlayFloorPlan = null;
                     }
                 }
             }
