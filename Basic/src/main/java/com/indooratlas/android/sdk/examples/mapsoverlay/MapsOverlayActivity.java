@@ -104,28 +104,16 @@ public class MapsOverlayActivity extends FragmentActivity {
 
         @Override
         public void onEnterRegion(IARegion region) {
-
-            if (region.getType() == IARegion.TYPE_UNKNOWN) {
-                Toast.makeText(MapsOverlayActivity.this, "Moved out of map",
-                        Toast.LENGTH_LONG).show();
-                return;
+            if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
+                mCameraPositionNeedsUpdating = true; // entering new fp, mark need to move camera
+                final String newId = region.getId();
+                Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
+                fetchFloorPlan(newId);
             }
-
-            // entering new region, mark need to move camera
-            mCameraPositionNeedsUpdating = true;
-
-            final String newId = region.getId();
-
-            Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
-            fetchFloorPlan(newId);
         }
 
         @Override
         public void onExitRegion(IARegion region) {
-            if (mMarker != null) {
-                mMarker.remove();
-                mMarker = null;
-            }
         }
 
     };
