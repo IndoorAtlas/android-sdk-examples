@@ -113,7 +113,7 @@ public class ShareLocationActivity extends AppCompatActivity {
             askChannelName();
             return true;
         } else if (item.getItemId() == R.id.action_change_color) {
-            mMyLocationSource = new LocationSource(mMyLocationSource.name,
+            mMyLocationSource = new LocationSource(mMyLocationSource.id, mMyLocationSource.name,
                     SharingUtils.randomColor(this));
         }
         return false;
@@ -131,8 +131,8 @@ public class ShareLocationActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (!TextUtils.isEmpty(text.getText())) {
-                            setMyLocationSource(new LocationSource(text.getText().toString(),
-                                    mMyLocationSource.color));
+                            setMyLocationSource(new LocationSource(mMyLocationSource.id,
+                                    text.getText().toString(), mMyLocationSource.color));
                         }
                     }
                 })

@@ -32,8 +32,6 @@ import static com.indooratlas.android.sdk.examples.sharelocation.SharingUtils.TA
  */
 public class MultiLocationMapView extends SubsamplingScaleImageView {
 
-    private static final long LOCATION_EXPIRED_THRESHOLD = 1000 * 10;
-
     private float mRadius;
 
     private IAFloorPlan mFloorPlan;
@@ -85,12 +83,6 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
         Iterator<LocationEntry> iterator = mKnownLocations.values().iterator();
         while (iterator.hasNext()) {
             LocationEntry entry = iterator.next();
-
-            // don't draw locations that have not been updated for long time, cleanup instead
-            if (SystemClock.elapsedRealtime() - entry.mLastUpdated > LOCATION_EXPIRED_THRESHOLD) {
-                iterator.remove();
-                continue;
-            }
 
             final float scaledRadiusAccuracy = getScale() * (mRadius + entry.mAccuracy);
 
@@ -165,15 +157,7 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
                 + " with floorplan: " + mFloorPlan.getId()
                 + ", name: " + mFloorPlan.getName());
 
-        LocationEntry previousEntry = mKnownLocations.get(identity);
-        if (previousEntry != null) {
-            previousEntry.mPoint = point;
-            previousEntry.mAccuracy = accuracy;
-            previousEntry.mLastUpdated = SystemClock.elapsedRealtime();
-        } else {
-            mKnownLocations.put(identity, new LocationEntry(event.source, point, accuracy));
-        }
-
+        mKnownLocations.put(identity, new LocationEntry(event.source, point, accuracy));
     }
 
     static class LocationEntry {
@@ -184,13 +168,10 @@ public class MultiLocationMapView extends SubsamplingScaleImageView {
 
         LocationSource mSource;
 
-        long mLastUpdated;
-
         LocationEntry(LocationSource source, PointF point, float accuracy) {
             mPoint = point;
             mAccuracy = accuracy;
             mSource = source;
-            mLastUpdated = SystemClock.elapsedRealtime();
         }
 
         @Override
