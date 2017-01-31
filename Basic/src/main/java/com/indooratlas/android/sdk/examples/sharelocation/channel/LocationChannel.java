@@ -4,7 +4,7 @@
 package com.indooratlas.android.sdk.examples.sharelocation.channel;
 
 /**
- * Simple contract for subscribing for events and publishing our locations.
+ * Simple contract for subscribing for events and publishing our locations on a single channel.
  */
 public interface LocationChannel {
 
@@ -20,14 +20,14 @@ public interface LocationChannel {
             throws LocationChannelException;
 
     /**
-     * Un-subscribe from given {@code channelName}.
+     * Un-subscribe from current channel.
      */
-    void unsubscribe(String channelName);
+    void unsubscribe();
 
     /**
-     * Publish my location to given {@code channelName}.
+     * Publish my location to current channel.
      */
-    void publish(String channelName, LocationEvent event);
+    void publish(LocationEvent event);
 
     /**
      *  Disconnect from service.

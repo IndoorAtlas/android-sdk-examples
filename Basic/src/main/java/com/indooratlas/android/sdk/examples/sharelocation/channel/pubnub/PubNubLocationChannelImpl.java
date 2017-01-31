@@ -30,9 +30,9 @@ public class PubNubLocationChannelImpl implements LocationChannel {
 
     private Pubnub mPubNub;
 
-    private LocationChannelListener mListener;
+    private String mCurrentChannel;
 
-    private LocationEvent mPendingEvent;
+    private LocationChannelListener mListener;
 
     public PubNubLocationChannelImpl(String publishKey, String subscribeKey) {
 
@@ -55,28 +55,32 @@ public class PubNubLocationChannelImpl implements LocationChannel {
             throw new IllegalArgumentException("listener must be non null");
         }
 
+        unsubscribe();
+
         mListener = listener;
+        mCurrentChannel = channelName;
         try {
-            mPubNub.subscribe(channelName, mCallback);
+            mPubNub.subscribe(mCurrentChannel, mCallback);
         } catch (PubnubException e) {
             throw new LocationChannelException("subscribe failed", e);
         }
     }
 
     @Override
-    public void unsubscribe(String channel) {
-        mPubNub.unsubscribe(channel);
+    public void unsubscribe() {
+        if (mCurrentChannel != null) {
+            mPubNub.unsubscribe(mCurrentChannel);
+            mCurrentChannel = null;
+        }
     }
 
     @Override
-    public void publish(String channelName, LocationEvent event) {
-
+    public void publish(LocationEvent event) {
         try {
-            mPubNub.publish(channelName, ConversionUtils.toJSON(event), false, mCallback);
+            mPubNub.publish(mCurrentChannel, ConversionUtils.toJSON(event), false, mCallback);
         } catch (JSONException e) {
             throw new IllegalStateException("conversion failed", e);
         }
-
     }
 
     @Override

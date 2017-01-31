@@ -64,6 +64,12 @@
         </activity>
 
         <activity
+            android:name=".sharelocation.ShareLocationActivity"
+            android:label="@string/example_sharelocation_title"
+            android:configChanges="orientation|screenSize">
+        </activity>
+
+        <activity
             android:name=".credentials.CredentialsFromCodeActivity"
             android:label="@string/example_credentials_title">
         </activity>
@@ -74,9 +80,6 @@
             android:label="@string/example_regions_title">
         </activity>
 
-        <activity
-            android:name=".sharelocation.ShareLocationActivity">
-        </activity>
 
     </application>
 
