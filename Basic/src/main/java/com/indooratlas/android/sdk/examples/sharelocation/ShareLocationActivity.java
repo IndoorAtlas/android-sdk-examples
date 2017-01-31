@@ -46,10 +46,6 @@ import com.indooratlas.android.sdk.resources.IATask;
         title = R.string.example_sharelocation_title)
 public class ShareLocationActivity extends AppCompatActivity {
 
-    private static final String KEY_SOURCE = "source";
-
-    private static final String KEY_CHANNEL = "channel";
-
     private IALocationManager mLocationManager;
 
     private IAResourceManager mResourceManager;
@@ -80,27 +76,8 @@ public class ShareLocationActivity extends AppCompatActivity {
                 getString(R.string.pubnub_publish_key),
                 getString(R.string.pubnub_subscribe_key));
 
-        if (savedInstanceState != null) {
-            setMyLocationSource((LocationSource) savedInstanceState.getParcelable(KEY_SOURCE));
-            if (savedInstanceState.containsKey(KEY_CHANNEL)) {
-                setChannel(savedInstanceState.getString(KEY_CHANNEL), true);
-            }
-        } else {
-            setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
-                    SharingUtils.randomColor(this)));
-        }
-
-
-
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_SOURCE, mMyLocationSource);
-        if (mCustomChannelName != null) {
-            outState.putString(KEY_CHANNEL, mCustomChannelName);
-        }
+        setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
+                SharingUtils.randomColor(this)));
     }
 
     @Override
@@ -194,12 +171,10 @@ public class ShareLocationActivity extends AppCompatActivity {
      */
     private boolean setChannel(String channelName, boolean isCustom) {
         try {
-            if (isCustom || !hasCustomChannel()) {
-                mLocationChannel.subscribe(channelName, mChannelListener);
-                mCustomChannelName = isCustom ? channelName : null;
-                setMessage(getString(R.string.current_channel, channelName));
-                return true;
-            }
+            mLocationChannel.subscribe(channelName, mChannelListener);
+            mCustomChannelName = isCustom ? channelName : null;
+            setMessage(getString(R.string.current_channel, channelName));
+            return true;
         } catch (LocationChannelException e) {
             showError(getString(R.string.error_setting_channel, e.toString()));
         }
@@ -283,7 +258,7 @@ public class ShareLocationActivity extends AppCompatActivity {
             Log.d(SharingUtils.TAG, "onLocationChanged: " + location);
             final LocationEvent event = new LocationEvent(mMyLocationSource, location);
             showEventOnMap(event);
-            mLocationChannel.publish(location.getRegion().getId(), event);
+            mLocationChannel.publish(event);
         }
 
     };
@@ -296,16 +271,16 @@ public class ShareLocationActivity extends AppCompatActivity {
         @Override
         public void onEnterRegion(IARegion region) {
             Log.d(SharingUtils.TAG, "onEnterRegion: " + region);
-            if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                setChannel(region.getId(), false);
+            if (region.getType() == IARegion.TYPE_FLOOR_PLAN && !hasCustomChannel()) {
+                setChannel(region.getId(), false); // set automatically selected channel
                 updateMapBitmap(region);
             }
         }
 
         @Override
         public void onExitRegion(IARegion region) {
-            if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                mLocationChannel.unsubscribe(region.getId());
+            if (region.getType() == IARegion.TYPE_FLOOR_PLAN && !hasCustomChannel()) {
+                mLocationChannel.unsubscribe(); // exit automatically selected channel
             }
         }
     };
