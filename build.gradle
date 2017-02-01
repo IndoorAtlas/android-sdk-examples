@@ -18,9 +18,6 @@ allprojects {
         maven {
             url "http://indooratlas-ltd.bintray.com/mvn-public"
         }
-        maven {
-            url "http://indooratlas-ltd.bintray.com/mvn-public-alpha"
-        }
     }
 
 }
