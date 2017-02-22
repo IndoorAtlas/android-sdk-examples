@@ -50,4 +50,14 @@
     <string name="floor_level">Floor level</string>
     <string name="floor_certainty_percentage">Certainty: %.1f %%</string>
 
+    <!-- Background example -->
+    <string name="example_background_description">Demonstrates running IndoorAtlas location service in the background</string>
+    <string name="example_background_title">08. Background mode</string>
+    <string name="button_start_background">Start background mode</string>
+    <string name="button_stop_background">Stop background mode</string>
+    <string name="button_share_background">Share events</string>
+    <string name="text_background_received">Received location: %s</string>
+    <string name="button_reset_background">Reset events</string>
+    <string name="text_background_example">Start IA location services in the background.</string>
+
 </resources>

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    package="com.indooratlas.android.sdk.examples"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.indooratlas.android.sdk.examples">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -15,71 +14,73 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="@string/google_maps_key"/>
-
+            android:value="@string/google_maps_key" />
         <meta-data
             android:name="com.indooratlas.android.sdk.API_KEY"
-            android:value="@string/indooratlas_api_key"/>
+            android:value="@string/indooratlas_api_key" />
         <meta-data
             android:name="com.indooratlas.android.sdk.API_SECRET"
-            android:value="@string/indooratlas_api_secret"/>
+            android:value="@string/indooratlas_api_secret" />
 
         <activity
             android:name=".ListExamplesActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".simple.SimpleActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/example_simple_title">
-        </activity>
-
+            android:label="@string/example_simple_title" />
         <activity
             android:name=".imageview.ImageViewActivity"
             android:label="@string/example_imageview_title"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".googlemaps.MapsActivity"
             android:label="@string/example_googlemaps_basic_title"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".mapsoverlay.MapsOverlayActivity"
             android:label="@string/example_googlemaps_overlay_title"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".sharelocation.ShareLocationActivity"
-            android:label="@string/example_sharelocation_title"
-            android:configChanges="orientation|screenSize">
-        </activity>
-
+            android:configChanges="orientation|screenSize"
+            android:label="@string/example_sharelocation_title" />
         <activity
             android:name=".credentials.CredentialsFromCodeActivity"
-            android:label="@string/example_credentials_title">
-        </activity>
-
+            android:label="@string/example_credentials_title" />
         <activity
             android:name=".regions.RegionsActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/example_regions_title">
-        </activity>
+            android:label="@string/example_regions_title" />
+        <activity
+            android:name=".background.BackgroundActivity"
+            android:label="@string/example_background_title"/>
 
+        <service
+            android:name=".background.LocationStoreService"
+            android:exported="false">
+        </service>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.indooratlas.android.sdk.examples.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
 
     </application>
 
