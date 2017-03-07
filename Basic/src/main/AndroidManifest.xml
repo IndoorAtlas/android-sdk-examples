@@ -80,6 +80,12 @@
             android:label="@string/example_regions_title">
         </activity>
 
+        <activity
+            android:name=".osmdroid.OpenStreetMapOverlay"
+            android:label="@string/example_osm_overlay_title"
+            android:screenOrientation="portrait">
+        </activity>
+
 
     </application>
 
