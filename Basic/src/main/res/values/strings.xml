@@ -9,13 +9,14 @@
     <string name="example_googlemaps_basic_title">03. Google Maps - Basic</string>
     <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
     <string name="example_googlemaps_overlay_title">04. Google Maps - Overlay</string>
-    <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay.</string>
+    <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS).</string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
     <string name="storage_permission_denied_message">No access to external storage. Permission needed for displaying floor plans</string>
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_close">Close</string>
     <string name="permission_button_accept">Sure</string>
     <string name="permission_button_deny">Deny</string>
     <string name="configuration_incomplete_title">Configuration incomplete</string>
