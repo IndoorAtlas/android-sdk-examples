@@ -4,9 +4,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -114,8 +115,10 @@ public class MapsOverlayActivity extends FragmentActivity {
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
-                Toast.makeText(MapsOverlayActivity.this, newId, Toast.LENGTH_SHORT).show();
             }
+            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
+                    ? "VENUE "
+                    : "FLOOR_PLAN ") + region.getId());
         }
 
         @Override
@@ -125,6 +128,9 @@ public class MapsOverlayActivity extends FragmentActivity {
                 // If we enter another floor plan, this one will be removed and another one loaded
                 mGroundOverlay.setTransparency(0.5f);
             }
+            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
+                    ? "VENUE "
+                    : "FLOOR_PLAN ") + region.getId());
         }
 
     };
@@ -157,6 +163,7 @@ public class MapsOverlayActivity extends FragmentActivity {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+            mMap.setMyLocationEnabled(true);
         }
 
         // start receiving location updates & monitor region changes
@@ -219,8 +226,7 @@ public class MapsOverlayActivity extends FragmentActivity {
 
                 @Override
                 public void onBitmapFailed(Drawable placeHolderDraweble) {
-                    Toast.makeText(MapsOverlayActivity.this, "Failed to load bitmap",
-                            Toast.LENGTH_SHORT).show();
+                    showInfo("Failed to load bitmap");
                     mOverlayFloorPlan = null;
                 }
             };
@@ -263,9 +269,7 @@ public class MapsOverlayActivity extends FragmentActivity {
                     // ignore errors if this task was already canceled
                     if (!task.isCancelled()) {
                         // do something with error
-                        Toast.makeText(MapsOverlayActivity.this,
-                                "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
-                                .show();
+                        showInfo("Loading floor plan failed: " + result.getError());
                         mOverlayFloorPlan = null;
                     }
                 }
@@ -284,5 +288,17 @@ public class MapsOverlayActivity extends FragmentActivity {
         if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
             mFetchFloorPlanTask.cancel();
         }
+    }
+
+    private void showInfo(String text) {
+        final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
     }
 }
