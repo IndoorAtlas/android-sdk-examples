@@ -10,6 +10,8 @@
     <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
     <string name="example_googlemaps_overlay_title">04. Google Maps - Overlay</string>
     <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay.</string>
+    <string name="example_osm_overlay_title">08. Overlay with Open Street Map</string>
+    <string name="example_osm_overlay_description">Maps overlay with Open Street Map</string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
