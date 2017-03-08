@@ -185,10 +185,6 @@ public class OpenStreetMapOverlay extends Activity {
                     LayoutParams.FILL_PARENT));
 
             this.setContentView(rl);
-
-            // Try to obtain the map from the SupportMapFragment.
-            /*mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();*/
         }
 
         // start receiving location updates & monitor region changes
