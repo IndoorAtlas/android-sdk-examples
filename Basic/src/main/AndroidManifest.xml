@@ -65,18 +65,21 @@
             android:label="@string/example_regions_title" />
         <activity
             android:name=".background.BackgroundActivity"
-            android:label="@string/example_background_title"/>
+            android:label="@string/example_background_title" />
+        <activity
+            android:name=".orientation.OrientationActivity"
+            android:label="@string/example_orientation_title"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".background.LocationStoreService"
-            android:exported="false">
-        </service>
+            android:exported="false"></service>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
