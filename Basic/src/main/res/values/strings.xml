@@ -53,11 +53,11 @@
     <!-- Background example -->
     <string name="example_background_description">Demonstrates running IndoorAtlas location service in the background</string>
     <string name="example_background_title">08. Background mode</string>
-    <string name="button_start_background">Start background mode</string>
-    <string name="button_stop_background">Stop background mode</string>
+    <string name="button_start_background">Request location updates</string>
+    <string name="button_stop_background">Remove location updates</string>
     <string name="button_share_background">Share events</string>
-    <string name="text_background_received">Received location: %s</string>
-    <string name="button_reset_background">Reset events</string>
-    <string name="text_background_example">Start IA location services in the background.</string>
+    <string name="text_background_received">Last received location: %s</string>
+    <string name="button_reset_background">Clear stored events</string>
+    <string name="text_background_example">Request location updates with a PendingIntent. Updates are received by an IntentService that stores them to a file. Note that you can leave the application and still receive updates. </string>
 
 </resources>

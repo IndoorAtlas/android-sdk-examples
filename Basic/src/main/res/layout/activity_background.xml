@@ -16,7 +16,8 @@
         android:text="@string/text_background_example"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true"
+        android:layout_margin="4dp"/>
 
     <Button
         android:id="@+id/button_start"
@@ -24,7 +25,8 @@
         android:onClick="onStart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text_info"/>
+        android:layout_below="@id/text_info"
+        android:layout_margin="4dp"/>
 
     <Button
         android:id="@+id/button_stop"
@@ -32,7 +34,8 @@
         android:onClick="onStop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_start"/>
+        android:layout_below="@id/button_start"
+        android:layout_margin="4dp"/>
 
     <Button
         android:id="@+id/button_share"
@@ -40,13 +43,15 @@
         android:onClick="onShare"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_stop"/>
+        android:layout_below="@id/button_stop"
+        android:layout_margin="4dp"/>
 
     <TextView
         android:id="@+id/text_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button_share"/>
+        android:layout_below="@id/button_share"
+        android:layout_margin="4dp"/>
 
     <Button
         android:id="@+id/button_reset"
@@ -54,6 +59,7 @@
         android:onClick="onReset"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:layout_margin="4dp"/>
 
 </RelativeLayout>
