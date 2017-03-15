@@ -1,5 +1,6 @@
 package com.indooratlas.android.sdk.examples.orientation;
 
+import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -17,6 +18,9 @@ import com.indooratlas.android.sdk.examples.SdkExample;
 public class OrientationActivity extends AppCompatActivity implements IALocationListener,
         IAOrientationListener {
 
+    GLSurfaceView mGlView;
+    OrientationRenderer mRenderer;
+
     TextView mTextBearing;
     TextView mTextHeading;
     TextView mTextOrientation;
@@ -28,9 +32,17 @@ public class OrientationActivity extends AppCompatActivity implements IALocation
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orientation);
+
+        mGlView = (GLSurfaceView) findViewById(R.id.gl_view);
+        mGlView.setEGLContextClientVersion(2);
+        mRenderer = new OrientationRenderer(this);
+        mGlView.setRenderer(mRenderer);
+        mGlView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
         mTextBearing = (TextView) findViewById(R.id.text_bearing);
         mTextHeading = (TextView) findViewById(R.id.text_heading);
         mTextOrientation = (TextView) findViewById(R.id.text_orientation);
+
         mManager = IALocationManager.create(this);
     }
 
@@ -73,5 +85,7 @@ public class OrientationActivity extends AppCompatActivity implements IALocation
     public void onOrientationChange(long timestamp, double[] orientation) {
         mTextOrientation.setText(getString(R.string.text_orientation, orientation[0],
                 orientation[1], orientation[2], orientation[3]));
+        mRenderer.setOrientation(orientation);
+        mGlView.requestRender();
     }
 }
