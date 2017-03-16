@@ -1,6 +1,12 @@
 package com.indooratlas.android.sdk.examples.orientation;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
+import android.util.Log;
 
 /**
  * Static class containing OpenGL resources
@@ -12,14 +18,14 @@ public class GLTools {
     //     vec4 vPosition   vertex position
     // fs: vec4 uColor      uniform color
     public static int sProgSimple;
-    public static final String sVertexSimple =
+    private static final String sVertexSimple =
             "" +
                     "uniform    mat4        uMatrix;" +
                     "attribute  vec4        vPosition;" +
                     "void main() {" +
                     "  gl_Position = uMatrix * vPosition;" +
                     "}";
-    public static final String sFragmentSimple =
+    private static final String sFragmentSimple =
             "" +
                     "precision mediump float;" +
                     "uniform vec4 uColor;" +
@@ -27,44 +33,36 @@ public class GLTools {
                     "  gl_FragColor = uColor;" +
                     "}";
 
-    // Various shapes
-    public static OpenGLShape sShapeSky;
-    public static OpenGLShape sShapeGround;
-    public static OpenGLShape sShapeGrid;
-    public static OpenGLShape sShapeNorthNeedle;
-    public static OpenGLShape sShapeSouthNeedle;
+
+    // Shader program for textured surfaces
+    public static int sProgTexture;
+    private static final String sVertexTexture =
+            "" +
+                    "uniform    mat4        uMatrix;" +
+                    "attribute  vec4        vPosition;" +
+                    "attribute  vec2        aTexCoordinate;" +
+                    "varying    vec2        vTexCoordinate;" +
+                    "void main() {" +
+                    "  gl_Position = uMatrix * vPosition;" +
+                    "  vTexCoordinate = aTexCoordinate;" +
+                    "}";
+    private static final String sFragmentTexture =
+            "" +
+                    "precision mediump float;" +
+                    "uniform    sampler2D   uTexture;" +
+                    "varying    vec2        vTexCoordinate;" +
+                    "void main() {" +
+                    "  gl_FragColor = texture2D(uTexture, vTexCoordinate);" +
+                    "}";
 
     /**
      * Create shapes and shader programs
      */
     public static void setup() {
 
-        // Define various simple shapes
-        sShapeSky = new OpenGLShape(
-                0.0f, 20.0f, 0.0f,
-                -20.0f, 0.0f, -20.0f,
-                20.0f, 0.0f, -20.0f,
-                20.0f, 0.0f, 20.0f,
-                -20.0f, 0.0f, 20.0f,
-                -20.0f, 0.0f, -20.0f);
-        sShapeGround = new OpenGLShape(
-                0.0f, -20.0f, 0.0f,
-                -20.0f, 0.0f, -20.0f,
-                20.0f, 0.0f, -20.0f,
-                20.0f, 0.0f, 20.0f,
-                -20.0f, 0.0f, 20.0f,
-                -20.0f, 0.0f, -20.0f);
-        sShapeNorthNeedle = new OpenGLShape(
-                -1.0f, 0.0f, -15.0f,
-                1.0f, 0.0f, -15.0f,
-                0.0f, 3.0f, -15.0f);
-        sShapeSouthNeedle = new OpenGLShape(
-                -1.0f, 0.0f, 15.0f,
-                1.0f, 0.0f, 15.0f,
-                0.0f, 3.0f, 15.0f);
-
         // Define the spherical grid
-        OpenGLShape.Builder grid = new OpenGLShape.Builder();
+        /*
+        GLPrimitive.Builder grid = new GLPrimitive.Builder();
         int numLon = 8;
         int numLat = 8;
         int numLonFine = 36;
@@ -101,13 +99,73 @@ public class GLTools {
                 grid.addPoint(10.0f * coslon1 * sinlat, 10.0f * coslat, 10.0f * sinlon1 * sinlat);
 
             }
-
         }
-        sShapeGrid = grid.build();
+        */
 
         // Create programs
         sProgSimple = createProgram(GLTools.sVertexSimple, GLTools.sFragmentSimple);
+        GLES20.glLinkProgram(GLTools.sProgSimple);
+        sProgTexture = createProgram(GLTools.sVertexTexture, GLTools.sFragmentTexture);
+        GLES20.glLinkProgram(GLTools.sProgTexture);
     }
+
+    /**
+     * Create a panoramic sphere containing vertex and texture coordinates. Should be drawn using
+     * GL_TRIANGLES. Texture coordinate [0.5, 0.5] corresponds to the negative z-axis, i.e. forward
+     * points towards the center of the texture.
+     * // TODO: what ways does the coordinates increase
+     */
+    public static GLPrimitive createPanoramaSphere(int latCount, int lonCount, float radius) {
+        GLPrimitive.Builder builder = new GLPrimitive.Builder();
+
+        for (int iLon = 0; iLon < lonCount; iLon++) {
+
+            float lon0 = 2.0f * (float) Math.PI * (float) iLon / (float) lonCount;
+            float lon1 = 2.0f * (float) Math.PI * (float) (iLon + 1) / (float) lonCount;
+            float u0 = 0.5f + (float) iLon / (float) lonCount;
+            float u1 = 0.5f + (float) (iLon +1) / (float) lonCount;
+
+            float coslon0 = (float) Math.cos(lon0);
+            float sinlon0 = (float) Math.sin(lon0);
+            float coslon1 = (float) Math.cos(lon1);
+            float sinlon1 = (float) Math.sin(lon1);
+            for (int iLat = 0; iLat < latCount; iLat++) {
+
+                float lat0 = (float) Math.PI * (float) iLat / (float) latCount;
+                float lat1 = (float) Math.PI * (float) (iLat + 1) / (float) latCount;
+                float v0 = (float) iLat / (float) latCount;
+                float v1 = (float) (iLat + 1) / (float) latCount;
+
+                float coslat0 = (float) Math.cos(lat0);
+                float sinlat0 = (float) Math.sin(lat0);
+                float coslat1 = (float) Math.cos(lat1);
+                float sinlat1 = (float) Math.sin(lat1);
+                float x0 = radius * sinlon0 * sinlat0;
+                float z0 = -radius * coslon0 * sinlat0;
+                float y0 = -radius * coslat0;
+                float x1 = radius * sinlon1 * sinlat0;
+                float z1 = -radius * coslon1 * sinlat0;
+                float y1 = -radius * coslat0;
+                float x2 = radius * sinlon0 * sinlat1;
+                float z2 = -radius * coslon0 * sinlat1;
+                float y2 = -radius * coslat1;
+                float x3 = radius * sinlon1 * sinlat1;
+                float z3 = -radius * coslon1 * sinlat1;
+                float y3 = -radius * coslat1;
+
+                builder.posAndTexCoord(x0, y0, z0, u0, v0);
+                builder.posAndTexCoord(x1, y1, z1, u1, v0);
+                builder.posAndTexCoord(x2, y2, z2, u0, v1);
+
+                builder.posAndTexCoord(x2, y2, z2, u0, v1);
+                builder.posAndTexCoord(x1, y1, z1, u1, v0);
+                builder.posAndTexCoord(x3, y3, z3, u1, v1);
+
+            }
+        }
+        return builder.build();
+    }
+
 
     /**
      * Create an OpenGL program from a given vertex and fragment shader.
@@ -122,14 +180,49 @@ public class GLTools {
     }
 
 
-    public static int loadShader(int type, String shaderCode){
+    private static int loadShader(int type, String shaderCode){
         int shader = GLES20.glCreateShader(type);
-        if (shader == 0) {
-            throw new IllegalArgumentException("Failed to create shader");
-        }
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
         return shader;
+    }
+
+    // *** Texture related tools *** //
+
+    public static int loadTexture(Context context, int resourceId) {
+        final int[] textureHandle = new int[1];
+
+        GLES20.glGenTextures(1, textureHandle, 0);
+
+        if (textureHandle[0] == 0) {
+            throw new RuntimeException("failed to generate texture");
+        }
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;   // No pre-scaling
+
+        // Read in the resource
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
+
+        // Flip the bitmap to be compatibale with OpenGL coordinates
+        Matrix flip = new Matrix();
+        flip.postScale(1f, -1f);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), flip, false);
+
+        // Bind to the texture in OpenGL
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+
+        // Set filtering
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+
+        // Load the bitmap into the bound texture.
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+
+        // Recycle the bitmap, since its data has been loaded into OpenGL.
+        bitmap.recycle();
+
+        return textureHandle[0];
     }
 
 

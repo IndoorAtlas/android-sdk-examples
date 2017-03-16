@@ -4,9 +4,9 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
+import com.indooratlas.android.sdk.examples.R;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -23,6 +23,9 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
     private final float[] mMatrixView = new float[16];
     private final float[] mMatrixCombined = new float[16];
 
+    private GLPrimitive mPanoramaShape;
+    private int mTexturePanorama = 0;
+
     public void setOrientation(double [] quat) {
         mOrientation = new float[4];
         for (int i = 0; i < 4; i++) {
@@ -36,6 +39,8 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 unused) {
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         float [] quat = mOrientation;
         // forward is always where phone negative z axis points
@@ -51,29 +56,28 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMatrixCombined, 0, mMatrixProjection, 0, mMatrixView, 0);
 
-        GLES20.glUseProgram(GLTools.sProgSimple);
-        int handlePosition = GLES20.glGetAttribLocation(GLTools.sProgSimple, "vPosition");
-        int handleMatrix = GLES20.glGetUniformLocation(GLTools.sProgSimple, "uMatrix");
-        int handleColor = GLES20.glGetUniformLocation(GLTools.sProgSimple, "uColor");
+        // ** panorama ** //
+
+        // Draw using the texture program
+        GLES20.glUseProgram(GLTools.sProgTexture);
+        int handlePosition = GLES20.glGetAttribLocation(GLTools.sProgTexture, "vPosition");
+        int handleTexCoord = GLES20.glGetAttribLocation(GLTools.sProgTexture, "aTexCoordinate");
+        int handleMatrix = GLES20.glGetUniformLocation(GLTools.sProgTexture, "uMatrix");
+        int handleTexture = GLES20.glGetUniformLocation(GLTools.sProgTexture, "uTexture");
+
         GLES20.glEnableVertexAttribArray(handlePosition);
+        GLES20.glEnableVertexAttribArray(handleTexCoord);
 
         GLES20.glUniformMatrix4fv(handleMatrix, 1, false, mMatrixCombined, 0);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTexturePanorama);
+        GLES20.glUniform1i(handleTexture, 0);
 
-        GLES20.glUniform4f(handleColor, 0.0f, 165.0f / 255.0f, 245.0f / 255.0f, 1.0f);
-        GLTools.sShapeSky.drawAs(handlePosition, GLES20.GL_TRIANGLE_FAN);
+        mPanoramaShape.drawArrayWithPosTexCoord(handlePosition, handleTexCoord, GLES20.GL_TRIANGLES);
 
-        GLES20.glUniform4f(handleColor, 0.1f, 0.5f, 0.0f, 1.0f);
-        GLTools.sShapeGround.drawAs(handlePosition, GLES20.GL_TRIANGLE_FAN);
-
-        GLES20.glUniform4f(handleColor, 1.0f, 0.0f, 0.0f, 1.0f);
-        GLTools.sShapeNorthNeedle.drawAs(handlePosition, GLES20.GL_TRIANGLES);
-        GLES20.glUniform4f(handleColor, 0.0f, 0.0f, 0.0f, 1.0f);
-        GLTools.sShapeSouthNeedle.drawAs(handlePosition, GLES20.GL_TRIANGLES);
-
-        GLES20.glUniform4f(handleColor, 1.0f, 1.0f, 1.0f, 1.0f);
-        GLTools.sShapeGrid.drawAs(handlePosition, GLES20.GL_LINES);
-
+        GLES20.glDisableVertexAttribArray(handleTexCoord);
         GLES20.glDisableVertexAttribArray(handlePosition);
+
 
     }
 
@@ -112,13 +116,13 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
         float dy = near * fow * (float) height / (float) width;
         Matrix.frustumM(mMatrixProjection, 0, -dx, dx, -dy, dy, near, far);
 
-        // Set the drawing program
-        GLES20.glLinkProgram(GLTools.sProgSimple);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLTools.setup();
+        mPanoramaShape = GLTools.createPanoramaSphere(20, 20, 5.0f);
+        mTexturePanorama = GLTools.loadTexture(mContext, R.raw.panorama);
     }
 
 }
