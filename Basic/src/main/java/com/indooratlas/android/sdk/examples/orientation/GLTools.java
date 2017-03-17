@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Log;
 
 /**
  * Static class containing OpenGL resources
@@ -59,49 +58,6 @@ public class GLTools {
      * Create shapes and shader programs
      */
     public static void setup() {
-
-        // Define the spherical grid
-        /*
-        GLPrimitive.Builder grid = new GLPrimitive.Builder();
-        int numLon = 8;
-        int numLat = 8;
-        int numLonFine = 36;
-        int numLatFine = 18;
-        // vertical lines
-        for (int lon = 0; lon < numLon; lon++) {
-            float alon = 2.0f * (float) Math.PI * lon / ((float) numLon);
-            float coslon = (float) Math.cos(alon);
-            float sinlon = (float) Math.sin(alon);
-            for (int lat = 0; lat < numLatFine; lat++) {
-                float alat0 = (float) Math.PI * (float) lat / ((float) numLatFine);
-                float alat1 = (float) Math.PI * (float) (lat + 1) / ((float) numLatFine);
-                float coslat0 = (float) Math.cos(alat0);
-                float sinlat0 = (float) Math.sin(alat0);
-                float coslat1 = (float) Math.cos(alat1);
-                float sinlat1 = (float) Math.sin(alat1);
-                grid.addPoint(10.0f * coslon * sinlat0 , 10.0f * coslat0, 10.0f * sinlon * sinlat0);
-                grid.addPoint(10.0f * coslon * sinlat1, 10.0f * coslat1, 10.0f * sinlon * sinlat1);
-            }
-        }
-        // horizontal lines
-        for (int lat = 1; lat < numLat - 1; lat++) {
-            float alat = (float) Math.PI * lat / ((float) numLat);
-            float coslat = (float) Math.cos(alat);
-            float sinlat = (float) Math.sin(alat);
-            for (int lon = 0; lon < numLonFine; lon++) {
-                float alon0 = 2.0f * (float) Math.PI * (float) lon / ((float) numLonFine);
-                float alon1 = 2.0f * (float) Math.PI * (float) (lon + 1) / ((float) numLonFine);
-                float coslon0 = (float) Math.cos(alon0);
-                float sinlon0 = (float) Math.sin(alon0);
-                float coslon1 = (float) Math.cos(alon1);
-                float sinlon1 = (float) Math.sin(alon1);
-                grid.addPoint(10.0f * coslon0 * sinlat , 10.0f * coslat, 10.0f * sinlon0 * sinlat);
-                grid.addPoint(10.0f * coslon1 * sinlat, 10.0f * coslat, 10.0f * sinlon1 * sinlat);
-
-            }
-        }
-        */
-
         // Create programs
         sProgSimple = createProgram(GLTools.sVertexSimple, GLTools.sFragmentSimple);
         GLES20.glLinkProgram(GLTools.sProgSimple);
@@ -112,8 +68,9 @@ public class GLTools {
     /**
      * Create a panoramic sphere containing vertex and texture coordinates. Should be drawn using
      * GL_TRIANGLES. Texture coordinate [0.5, 0.5] corresponds to the negative z-axis, i.e. forward
-     * points towards the center of the texture.
-     * // TODO: what ways does the coordinates increase
+     * points towards the center of the texture. The first texture coordinate increases when
+     * "turning right" meaning the positive x-axis corresponds to [0.75, 0.5]. The positive y-axis
+     * points to the point where the second texture coordinate is one.
      */
     public static GLPrimitive createPanoramaSphere(int latCount, int lonCount, float radius) {
         GLPrimitive.Builder builder = new GLPrimitive.Builder();
@@ -189,6 +146,9 @@ public class GLTools {
 
     // *** Texture related tools *** //
 
+    /**
+     * Load a texture
+     */
     public static int loadTexture(Context context, int resourceId) {
         final int[] textureHandle = new int[1];
 
@@ -198,25 +158,22 @@ public class GLTools {
             throw new RuntimeException("failed to generate texture");
         }
 
+
+        // Load the bitmap and flip it to be consistent with OpenGL texture coordinates
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;   // No pre-scaling
-
-        // Read in the resource
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-
-        // Flip the bitmap to be compatibale with OpenGL coordinates
         Matrix flip = new Matrix();
         flip.postScale(1f, -1f);
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), flip, false);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), flip,
+                false);
 
         // Bind to the texture in OpenGL
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-
-        // Set filtering
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-
-        // Load the bitmap into the bound texture.
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                GLES20.GL_LINEAR);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
         // Recycle the bitmap, since its data has been loaded into OpenGL.
@@ -309,7 +266,14 @@ public class GLTools {
         return quatToVec(quatMult(quatMult(quat, dirQuat), quatTranspose(quat)));
     }
 
-    private static void ensureValidArray(int len, float ... values) {
+    // *** other utilities ** //
+
+    /**
+     * Check that array input is not null and has the correct length.
+     * @param len expected length
+     * @param values float array
+     */
+    public static void ensureValidArray(int len, float [] values) {
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
         }

@@ -9,32 +9,12 @@ import java.util.ArrayList;
 
 /**
  * Contains a primitive shape that can be drawn using GLES20.glDrawArrays
- *
- * TODO: refactor to make more sense...
  */
 class GLPrimitive {
 
     private int mNumVertices;
     private FloatBuffer mPosition;
     private FloatBuffer mTexCoord;
-
-    GLPrimitive(float ... coordinates) {
-
-        if (coordinates == null) {
-            throw new IllegalArgumentException("coordinates cannot be null");
-        }
-        if (coordinates.length % 3 != 0) {
-            throw new IllegalArgumentException("coordinates.length not dividable by three (" +
-                    coordinates.length + ")");
-        }
-        mNumVertices = coordinates.length / 3;
-
-        ByteBuffer bb = ByteBuffer.allocateDirect(coordinates.length * 4);
-        bb.order(ByteOrder.nativeOrder());
-        mPosition = bb.asFloatBuffer();
-        mPosition.put(coordinates);
-        mPosition.position(0);
-    }
 
     GLPrimitive(float [] coordinates, float [] texCoords) {
         if (coordinates == null) {
@@ -86,20 +66,6 @@ class GLPrimitive {
         private ArrayList<Float> mGivenPositions = new ArrayList<>();
         private ArrayList<Float> mGivenTexCoords = new ArrayList<>();
 
-        public Builder addPoint(float ... coordinates) {
-            if (coordinates == null) {
-                throw new IllegalArgumentException("coordinates cannot be null");
-            }
-            if (coordinates.length != 3) {
-                throw new IllegalArgumentException("coordinates.length != 3 (" +
-                        coordinates.length + ")");
-            }
-            for (int i = 0; i< coordinates.length; i++) {
-                mGivenPositions.add(coordinates[i]);
-            }
-            return this;
-        }
-
         public Builder posAndTexCoord(float x, float y, float z, float tx, float ty) {
             mGivenPositions.add(x);
             mGivenPositions.add(y);
@@ -114,14 +80,11 @@ class GLPrimitive {
             for (int i = 0; i < mGivenPositions.size(); i++) {
                 coordinates[i] = mGivenPositions.get(i);
             }
-            if (mGivenTexCoords.size() > 0) {
-                float tex [] = new float[mGivenTexCoords.size()];
-                for (int i = 0; i < mGivenTexCoords.size(); i++) {
-                    tex[i] = mGivenTexCoords.get(i);
-                }
-                return new GLPrimitive(coordinates, tex);
+            float tex [] = new float[mGivenTexCoords.size()];
+            for (int i = 0; i < mGivenTexCoords.size(); i++) {
+                tex[i] = mGivenTexCoords.get(i);
             }
-            return new GLPrimitive(coordinates);
+            return new GLPrimitive(coordinates, tex);
         }
     }
 }

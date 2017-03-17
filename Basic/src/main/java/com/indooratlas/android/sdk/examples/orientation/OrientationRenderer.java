@@ -6,17 +6,18 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.view.Surface;
 import android.view.WindowManager;
-import com.indooratlas.android.sdk.examples.R;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * Renders a panorama view
+ * Renders a panorama view.
  */
 public class OrientationRenderer implements GLSurfaceView.Renderer {
 
     private final Context mContext;
+    private final int mResourceId;
+
     private float mUpX, mUpY;
     private float [] mOrientation = new float[] {1.0f, 0.0f, 0.0f, 0.0f};
     private final float[] mMatrixProjection = new float[16];
@@ -26,20 +27,39 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
     private GLPrimitive mPanoramaShape;
     private int mTexturePanorama = 0;
 
+    /**
+     * Constructor
+     *
+     * @param context Context
+     * @param panoramaResource Resource to use as panorama image
+     */
+    public OrientationRenderer(Context context, int panoramaResource) {
+        mContext = context;
+        mResourceId = panoramaResource;
+    }
+
+    /**
+     * Set orientation. The quaternion received from IndoorAtlas can be given to the method.
+     *
+     * @param quat Unit quaternion.
+     */
     public void setOrientation(double [] quat) {
+        if (quat == null) {
+            throw new IllegalArgumentException("Orientation quaternion cannot be null");
+        }
+        if (quat.length != 4) {
+            throw new IllegalArgumentException("Orientation quaternion needs to have 4 elements");
+        }
         mOrientation = new float[4];
         for (int i = 0; i < 4; i++) {
             mOrientation[i] = (float) quat[i];
         }
     }
 
-    public OrientationRenderer(Context context) {
-        mContext = context;
-    }
-
     @Override
     public void onDrawFrame(GL10 unused) {
 
+        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         float [] quat = mOrientation;
@@ -67,7 +87,6 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glEnableVertexAttribArray(handlePosition);
         GLES20.glEnableVertexAttribArray(handleTexCoord);
-
         GLES20.glUniformMatrix4fv(handleMatrix, 1, false, mMatrixCombined, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTexturePanorama);
@@ -77,7 +96,6 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
 
         GLES20.glDisableVertexAttribArray(handleTexCoord);
         GLES20.glDisableVertexAttribArray(handlePosition);
-
 
     }
 
@@ -122,7 +140,7 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLTools.setup();
         mPanoramaShape = GLTools.createPanoramaSphere(50, 50, 5.0f);
-        mTexturePanorama = GLTools.loadTexture(mContext, R.raw.panorama);
+        mTexturePanorama = GLTools.loadTexture(mContext, mResourceId);
     }
 
 }

@@ -35,7 +35,7 @@ public class OrientationActivity extends AppCompatActivity implements IALocation
 
         mGlView = (GLSurfaceView) findViewById(R.id.gl_view);
         mGlView.setEGLContextClientVersion(2);
-        mRenderer = new OrientationRenderer(this);
+        mRenderer = new OrientationRenderer(this, R.raw.panorama);
         mGlView.setRenderer(mRenderer);
         mGlView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
