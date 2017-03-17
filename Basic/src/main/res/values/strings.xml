@@ -61,7 +61,7 @@
     <string name="text_background_example">Request location updates with a PendingIntent. Updates are received by an IntentService that stores them to a file. Note that you can leave the application and still receive updates. </string>
 
     <!-- Orientation example -->
-    <string name="example_orientation_description">Demonstrates displaying the 3D orientation of the device</string>
+    <string name="example_orientation_description">Demonstrates displaying the 3D orientation of the device. Panorama image credit: ESO (Very Large Telescope ready for action)</string>
     <string name="example_orientation_title">09. Orientation</string>
     <string name="text_bearing_initial">Bearing: no updates</string>
     <string name="text_bearing">Bearing: %1$5.1f\u00b0</string>
