@@ -18,6 +18,7 @@
     <TextView
         android:id="@+id/text_orientation"
         android:text="@string/text_orientation_initial"
+        android:textColor="@color/panorama_text_color"
         android:typeface="monospace"
         android:fontFamily="monospace"
         android:layout_width="match_parent"
@@ -27,6 +28,7 @@
     <TextView
         android:id="@+id/text_heading"
         android:text="@string/text_heading_initial"
+        android:textColor="@color/panorama_text_color"
         android:typeface="monospace"
         android:fontFamily="monospace"
         android:layout_width="match_parent"
@@ -36,6 +38,7 @@
     <TextView
         android:id="@+id/text_bearing"
         android:text="@string/text_bearing_initial"
+        android:textColor="@color/panorama_text_color"
         android:typeface="monospace"
         android:fontFamily="monospace"
         android:layout_width="match_parent"

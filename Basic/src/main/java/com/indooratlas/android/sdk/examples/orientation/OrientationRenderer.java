@@ -121,7 +121,7 @@ public class OrientationRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLTools.setup();
-        mPanoramaShape = GLTools.createPanoramaSphere(20, 20, 5.0f);
+        mPanoramaShape = GLTools.createPanoramaSphere(50, 50, 5.0f);
         mTexturePanorama = GLTools.loadTexture(mContext, R.raw.panorama);
     }
 
