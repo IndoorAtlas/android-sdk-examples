@@ -128,7 +128,7 @@ public class OpenStreetMapOverlay extends Activity {
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
-                Toast.makeText(OpenStreetMapOverlay.this, newId, Toast.LENGTH_SHORT).show();
+                Toast.makeText(OpenStreetMapOverlay.this, region.getName(), Toast.LENGTH_SHORT).show();
             }
         }
 
