@@ -79,6 +79,12 @@
             android:name=".background.LocationStoreService"
             android:exported="false"></service>
 
+        <activity
+            android:name=".osmdroid.OpenStreetMapOverlay"
+            android:label="@string/example_osm_overlay_title"
+            android:screenOrientation="portrait">
+        </activity>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"

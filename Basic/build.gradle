@@ -58,4 +58,8 @@ dependencies {
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
     compile 'com.pubnub:pubnub-android:3.7.5'
     compile 'com.android.support:design:23.0.1'
+
+    // for Open Street Map support
+    compile 'org.osmdroid:osmdroid-android:5.6.4'
+    compile 'com.github.MKergall:osmbonuspack:6.2'
 }

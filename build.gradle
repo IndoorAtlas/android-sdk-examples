@@ -21,11 +21,9 @@ allprojects {
         maven {
             url "http://indooratlas-ltd.bintray.com/mvn-public-alpha"
         }
+        maven {
+            // needed for OSMBonusPack (Open Street Map example)
+            url "https://jitpack.io"
+        }
     }
-
 }
-
-
-
-
-
