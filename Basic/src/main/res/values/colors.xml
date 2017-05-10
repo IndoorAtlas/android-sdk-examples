@@ -5,4 +5,6 @@
     <color name="platform_circle">#ffff0000</color>
     <color name="ia_blue">#ff00a5f5</color>
 
+    <color name="panorama_text_color">#ffff0000</color>
+
 </resources>

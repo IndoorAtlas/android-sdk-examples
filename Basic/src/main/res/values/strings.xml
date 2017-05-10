@@ -52,4 +52,24 @@
     <string name="floor_level">Floor level</string>
     <string name="floor_certainty_percentage">Certainty: %.1f %%</string>
 
+    <!-- Background example -->
+    <string name="example_background_description">Demonstrates running IndoorAtlas location service in the background</string>
+    <string name="example_background_title">08. Background mode</string>
+    <string name="button_start_background">Request location updates</string>
+    <string name="button_stop_background">Remove location updates</string>
+    <string name="button_share_background">Share events</string>
+    <string name="text_background_received">Last received location: %s</string>
+    <string name="button_reset_background">Clear stored events</string>
+    <string name="text_background_example">Request location updates with a PendingIntent. Updates are received by an IntentService that stores them to a file. Note that you can leave the application and still receive updates. </string>
+
+    <!-- Orientation example -->
+    <string name="example_orientation_description">Demonstrates displaying the 3D orientation of the device. Panorama image credit: ESO (Very Large Telescope ready for action)</string>
+    <string name="example_orientation_title">09. Orientation</string>
+    <string name="text_bearing_initial">Bearing: no updates</string>
+    <string name="text_bearing">Bearing: %1$5.1f\u00b0</string>
+    <string name="text_heading_initial">Heading: no updates</string>
+    <string name="text_heading">Heading: %1$5.1f\u00b0</string>
+    <string name="text_orientation_initial">Orient.: no updates</string>
+    <string name="text_orientation">Orient.: [%1$5.2f,%2$5.2f,%3$5.2f,%4$5.2f]</string>
+
 </resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_orientation"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context="com.indooratlas.android.sdk.examples.orientation.OrientationActivity">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/text_orientation"
+        android:text="@string/text_orientation_initial"
+        android:textColor="@color/panorama_text_color"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+
+    <TextView
+        android:id="@+id/text_heading"
+        android:text="@string/text_heading_initial"
+        android:textColor="@color/panorama_text_color"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/text_orientation"/>
+
+    <TextView
+        android:id="@+id/text_bearing"
+        android:text="@string/text_bearing_initial"
+        android:textColor="@color/panorama_text_color"
+        android:typeface="monospace"
+        android:fontFamily="monospace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/text_heading"/>
+
+</RelativeLayout>
