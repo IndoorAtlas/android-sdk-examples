@@ -46,7 +46,6 @@
     <string name="venue_outside">Outside mapped area</string>
     <string name="venue_inside">In venue</string>
     <string name="floor_plan_outside">No floor plan</string>
-    <string name="floor_plan_inside">In floor plan</string>
     <string name="floor_level">Floor level</string>
     <string name="floor_certainty_percentage">Certainty: %.1f %%</string>
 

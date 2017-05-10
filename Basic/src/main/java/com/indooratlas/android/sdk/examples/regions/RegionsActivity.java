@@ -105,7 +105,7 @@ public class RegionsActivity extends FragmentActivity implements IALocationListe
             venue = getString(R.string.venue_inside);
             venueId = mCurrentVenue.getId();
             if (mCurrentFloorPlan != null) {
-                floorPlan = getString(R.string.floor_plan_inside);
+                floorPlan = mCurrentFloorPlan.getName();
                 floorPlanId = mCurrentFloorPlan.getId();
             } else {
                 floorPlan = getString(R.string.floor_plan_outside);
