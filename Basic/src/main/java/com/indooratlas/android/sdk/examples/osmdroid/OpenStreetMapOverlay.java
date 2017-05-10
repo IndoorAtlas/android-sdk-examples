@@ -47,7 +47,7 @@ public class OpenStreetMapOverlay extends Activity {
     private MapView mOsmv;
     private TilesOverlay mTilesOverlay;
     private MapTileProviderBasic mProvider;
-    private RelativeLayout rl;
+    private RelativeLayout mLayout;
 
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null, mBlueDot = null;
@@ -169,22 +169,22 @@ public class OpenStreetMapOverlay extends Activity {
         if (mOsmv == null) {
 
             mOsmv = new MapView(this);
-            this.mOsmv.setTilesScaledToDpi(true);
-            this.mOsmv.setBuiltInZoomControls(true);
-            this.mOsmv.getController().setZoom(18);
+            mOsmv.setTilesScaledToDpi(true);
+            mOsmv.setBuiltInZoomControls(true);
+            mOsmv.getController().setZoom(18);
 
             mProvider = new MapTileProviderBasic(getApplicationContext());
             mProvider.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
 
-            this.mTilesOverlay = new TilesOverlay(mProvider, this.getBaseContext());
-            this.mOsmv.getOverlays().add(this.mTilesOverlay);
+            mTilesOverlay = new TilesOverlay(mProvider, getBaseContext());
+            mOsmv.getOverlays().add(mTilesOverlay);
 
-            rl = new RelativeLayout(this);
-            rl.addView(this.mOsmv, new RelativeLayout.LayoutParams(
+            mLayout = new RelativeLayout(this);
+            mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
                     LayoutParams.FILL_PARENT,
                     LayoutParams.FILL_PARENT));
 
-            this.setContentView(rl);
+            setContentView(mLayout);
         }
 
         // start receiving location updates & monitor region changes
