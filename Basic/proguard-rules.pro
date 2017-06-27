@@ -24,6 +24,7 @@
 -dontwarn android.net.http.**
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
+-dontwarn java.nio.**
 
 # Required by IndoorAtlas SDK
 -keep public class com.indooratlas.algorithm.ClientProcessingManager { *; }
