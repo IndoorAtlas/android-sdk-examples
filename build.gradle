@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.3.1'
     }
 }
 
@@ -20,6 +20,9 @@ allprojects {
         }
         maven {
             url "http://indooratlas-ltd.bintray.com/mvn-public-alpha"
+        }
+        maven {
+            url "http://indooratlas-ltd.bintray.com/mvn-public-beta"
         }
         maven {
             // needed for OSMBonusPack (Open Street Map example)
