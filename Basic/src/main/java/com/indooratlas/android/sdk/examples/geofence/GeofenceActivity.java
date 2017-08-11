@@ -80,14 +80,11 @@ public class GeofenceActivity extends AppCompatActivity implements IALocationLis
         // Assume we have only one geofence (this example)
         IAGeofence geofence = event.getTriggeringGeofences().get(0);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Geofence triggered.");
-        sb.append("Geofence id: " + geofence.getId() + ".");
-        sb.append("Trigger type: " +
+        String sb = "Geofence triggered. Geofence id: " + geofence.getId() + ". Trigger type: " +
                 ((event.getGeofenceTransition() == IAGeofence.GEOFENCE_TRANSITION_ENTER) ?
-                "ENTER" : "EXIT"));
+                        "ENTER" : "EXIT");
 
-        text += "\n" + currentDateandTime + "\t" + sb.toString();
+        text += "\n" + currentDateandTime + "\t" + sb;
         mEventLog.setText(text);
 
         ((ScrollView) findViewById(R.id.event_log_scroll)).fullScroll(View.FOCUS_DOWN);
@@ -118,7 +115,7 @@ public class GeofenceActivity extends AppCompatActivity implements IALocationLis
      * Place a geofence with radius of 10 meters around specified location
      * @param location Location where to put the geofence
      */
-    public void placeNewGeofence(IALocation location) {
+    private void placeNewGeofence(IALocation location) {
 
         // Add a circular geofence by adding points with a 10 m radius clockwise
         double lat_per_meter = 9e-06*Math.cos(Math.PI/180.0*location.getLatitude());
