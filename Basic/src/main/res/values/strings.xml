@@ -71,4 +71,7 @@
     <string name="text_orientation_initial">Orient.: no updates</string>
     <string name="text_orientation">Orient.: [%1$5.2f,%2$5.2f,%3$5.2f,%4$5.2f]</string>
 
+    <string name="example_geofence_description">Demonstrates usage of geofences in IndoorAtlas SDK</string>
+    <string name="example_geofence_title">10. Geofences</string>
+
 </resources>
