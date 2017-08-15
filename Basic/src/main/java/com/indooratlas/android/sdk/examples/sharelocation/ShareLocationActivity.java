@@ -28,6 +28,7 @@ import com.indooratlas.android.sdk.examples.sharelocation.channel.LocationEvent;
 import com.indooratlas.android.sdk.examples.sharelocation.channel.LocationSource;
 import com.indooratlas.android.sdk.examples.sharelocation.channel.pubnub.PubNubLocationChannelImpl;
 import com.indooratlas.android.sdk.examples.sharelocation.view.MultiLocationMapView;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
 import com.indooratlas.android.sdk.resources.IAResourceManager;
@@ -78,6 +79,9 @@ public class ShareLocationActivity extends AppCompatActivity {
 
         setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
                 SharingUtils.randomColor(this)));
+
+        ExampleUtils.shareTraceId(findViewById(R.id.map),ShareLocationActivity.this,
+                mLocationManager);
     }
 
     @Override

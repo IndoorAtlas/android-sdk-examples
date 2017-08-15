@@ -26,6 +26,7 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
@@ -169,6 +170,15 @@ public class MapsOverlayActivity extends FragmentActivity {
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+
+        // Setup long click to share the traceId
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                ExampleUtils.shareText(MapsOverlayActivity.this,
+                        mIALocationManager.getExtraInfo().traceId, "traceId");
+            }
+        });
     }
 
     @Override

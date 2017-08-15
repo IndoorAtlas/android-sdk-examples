@@ -18,6 +18,7 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 
 @SdkExample(description = R.string.example_googlemaps_basic_description)
 public class MapsActivity extends FragmentActivity implements IALocationListener {
@@ -57,6 +58,14 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
                     .getMap();
         }
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
+
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                ExampleUtils.shareText(MapsActivity.this, mIALocationManager.getExtraInfo().traceId,
+                        "traceId");
+            }
+        });
     }
 
     @Override
@@ -65,6 +74,7 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
         if (mIALocationManager != null) {
             mIALocationManager.removeLocationUpdates(this);
         }
+
     }
 
     /**
