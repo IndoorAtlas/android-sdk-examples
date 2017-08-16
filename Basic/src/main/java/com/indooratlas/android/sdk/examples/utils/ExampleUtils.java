@@ -6,8 +6,13 @@ import android.view.View;
 
 import com.indooratlas.android.sdk.IALocationManager;
 
+
 public class ExampleUtils {
 
+    /**
+     * Shares the trace ID of the client. Trace ID can be used under certain conditions by
+     * IndoorAtlas to provide detailed support.
+     */
     public static void shareTraceId(View view, final Context context,
                                     final IALocationManager manager) {
         view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -19,6 +24,9 @@ public class ExampleUtils {
         });
     }
 
+    /**
+     * Use the share tool to share text via Slack, email, WhatsApp etc.
+     */
     public static void shareText(Context context, String text, String title) {
 
         Intent sendIntent = new Intent();
