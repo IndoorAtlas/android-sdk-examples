@@ -29,6 +29,7 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
@@ -110,6 +111,10 @@ public class ImageViewActivity extends FragmentActivity {
             final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
             mIALocationManager.setLocation(location);
         }
+
+        // Setup long click listener for sharing traceId
+        ExampleUtils.shareTraceId(findViewById(R.id.imageView), ImageViewActivity.this,
+                mIALocationManager);
 
     }
 

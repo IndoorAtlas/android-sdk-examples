@@ -22,6 +22,7 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 
 import java.util.Locale;
 
@@ -57,6 +58,10 @@ public class SimpleActivity extends AppCompatActivity
         mLog = (TextView) findViewById(R.id.text);
         mScrollView = (ScrollView) findViewById(R.id.scroller);
         mLocationManager = IALocationManager.create(this);
+
+        // Register long click for sharing traceId
+        ExampleUtils.shareTraceId(mLog, SimpleActivity.this, mLocationManager);
+
     }
 
     @Override
@@ -267,6 +272,7 @@ public class SimpleActivity extends AppCompatActivity
 
                         mLocationManager.removeLocationUpdates(SimpleActivity.this);
                         mLocationManager.requestLocationUpdates(request, SimpleActivity.this);
+
                         log("requestLocationUpdates");
                     }
                 })

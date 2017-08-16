@@ -17,6 +17,7 @@ import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class GeofenceActivity extends AppCompatActivity implements IALocationLis
 
         mManager = IALocationManager.create(this);
         mManager.requestLocationUpdates(IALocationRequest.create(), this);
+
+        // Setup long click listener for sharing traceId
+        ExampleUtils.shareTraceId(findViewById(R.id.layout), GeofenceActivity.this, mManager);
     }
 
     @Override
