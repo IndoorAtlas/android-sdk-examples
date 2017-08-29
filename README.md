@@ -8,8 +8,7 @@ There are also similar examples for iOS in [Objective-C](https://github.com/Indo
 
 * [Getting Started](#getting-started)
     * [Set up your account](#set-up-your-account)
-    * [Get started by using CocoaPods](#get-started-by-using-cocoapods)
-    * [Manual IndoorAtlas framework download](#manual-indooratlas-framework-download)
+    * [Set up your API keys](#set-up-your-api-keys)    
 * [Features](#features)
 * [Documentation](#documentation)
 * [SDK Changelog](#sdk-changelog)
@@ -22,7 +21,7 @@ There are also similar examples for iOS in [Objective-C](https://github.com/Indo
 
 * Set up your [free developer account](https://app.indooratlas.com) in the IndoorAtlas developer portal. Help with getting started is available in the [Quick Start Guide](http://docs.indooratlas.com/quick-start-guide.html).
 * To enable IndoorAtlas indoor positioning in a venue, the venue needs to be fingerprinted with the [IndoorAtlas MapCreator 2](https://play.google.com/store/apps/details?id=com.indooratlas.android.apps.jaywalker) tool.
-* To start developing your own app, create and [API key](https://app.indooratlas.com/apps).
+* To start developing your own app, create an [API key](https://app.indooratlas.com/apps).
 
 ### Set up your API keys
 
