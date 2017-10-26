@@ -1,24 +1,32 @@
 package com.indooratlas.android.sdk.examples.mapsoverlay;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+
+import android.content.Context;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -38,8 +46,19 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
-public class MapsOverlayActivity extends FragmentActivity {
+public class MapsOverlayActivity extends FragmentActivity implements LocationListener {
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
+    private static final int STATE_PLATFORM_LOCATION = 0;
+    private static final int STATE_IA_LOCATION = 1;
+    private int mState = STATE_PLATFORM_LOCATION;
+
+    private static final int IA_FILL_COLOR = 0x801681FB;
+    private static final int IA_STROKE_COLOR = 0x800A78DD;
+    private static final int LS_FILL_COLOR = 0x805DE959;
+    private static final int LS_STROKE_COLOR = 0x8032CD32;
 
     private static final String TAG = "IndoorAtlasExample";
 
@@ -49,7 +68,7 @@ public class MapsOverlayActivity extends FragmentActivity {
     private static final int MAX_DIMENSION = 2048;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private Marker mMarker;
+    private Circle mCircle;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
@@ -78,13 +97,18 @@ public class MapsOverlayActivity extends FragmentActivity {
             }
 
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            if (mMarker == null) {
-                // first location, add marker
-                mMarker = mMap.addMarker(new MarkerOptions().position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(HUE_IABLUE)));
-            } else {
+            if (mCircle == null) {
+                mCircle = mMap.addCircle(new CircleOptions().center(latLng)
+                        .radius(location.getAccuracy())
+                        .fillColor(LS_FILL_COLOR)
+                        .strokeColor(LS_STROKE_COLOR)
+                        .zIndex(1.0f)
+                        .visible(true)
+                        .strokeWidth(5.0f));
+            } else if (mState == STATE_IA_LOCATION) {
                 // move existing markers position to received location
-                mMarker.setPosition(latLng);
+                mCircle.setCenter(latLng);
+                mCircle.setRadius(location.getAccuracy());
             }
 
             // our camera position needs updating if location has significantly changed
@@ -99,7 +123,6 @@ public class MapsOverlayActivity extends FragmentActivity {
      * Listener that changes overlay if needed
      */
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
-
         @Override
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
@@ -116,6 +139,11 @@ public class MapsOverlayActivity extends FragmentActivity {
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
+
+                mState = STATE_IA_LOCATION;
+                mCircle.setFillColor(IA_FILL_COLOR);
+                mCircle.setStrokeColor(IA_STROKE_COLOR);
+                showInfo("Showing IndoorAtlas SDK\'s location output");
             }
             showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
@@ -129,13 +157,62 @@ public class MapsOverlayActivity extends FragmentActivity {
                 // If we enter another floor plan, this one will be removed and another one loaded
                 mGroundOverlay.setTransparency(0.5f);
             }
-            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
+
+            mState = STATE_PLATFORM_LOCATION;
+            mCircle.setFillColor(LS_FILL_COLOR);
+            mCircle.setStrokeColor(LS_STROKE_COLOR);
+            showInfo("Exit " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
                     : "FLOOR_PLAN ") + region.getId());
         }
 
     };
 
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startListeningPlatformLocations();
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if (mMap != null && mState == STATE_PLATFORM_LOCATION) {
+            Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
+                    + "," + location.getLongitude());
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            if (mCircle == null) {
+                mCircle = mMap.addCircle(new CircleOptions().center(latLng)
+                        .radius(location.getAccuracy())
+                        .fillColor(LS_FILL_COLOR)
+                        .strokeColor(LS_STROKE_COLOR)
+                        .zIndex(1.0f)
+                        .visible(true)
+                        .strokeWidth(5.0f));
+            }
+
+            // move existing markers position to received location
+            mCircle.setCenter(latLng);
+            mCircle.setRadius(location.getAccuracy());
+        }
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +225,14 @@ public class MapsOverlayActivity extends FragmentActivity {
         // instantiate IALocationManager and IAResourceManager
         mIALocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
+
+        // Request GPS locations
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+            return;
+        }
+
+        startListeningPlatformLocations();
     }
 
     @Override
@@ -164,7 +249,7 @@ public class MapsOverlayActivity extends FragmentActivity {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
-            mMap.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(false);
         }
 
         // start receiving location updates & monitor region changes
@@ -205,6 +290,7 @@ public class MapsOverlayActivity extends FragmentActivity {
             LatLng center = new LatLng(iaLatLng.latitude, iaLatLng.longitude);
             GroundOverlayOptions fpOverlay = new GroundOverlayOptions()
                     .image(bitmapDescriptor)
+                    .zIndex(0.0f)
                     .position(center, floorPlan.getWidthMeters(), floorPlan.getHeightMeters())
                     .bearing(floorPlan.getBearing());
 
@@ -310,5 +396,13 @@ public class MapsOverlayActivity extends FragmentActivity {
             }
         });
         snackbar.show();
+    }
+
+    private void startListeningPlatformLocations() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        }
     }
 }
