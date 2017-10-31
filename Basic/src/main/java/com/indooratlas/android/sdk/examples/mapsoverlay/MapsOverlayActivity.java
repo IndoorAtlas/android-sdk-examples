@@ -51,9 +51,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
 public class MapsOverlayActivity extends FragmentActivity implements LocationListener {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
-    private static final int STATE_PLATFORM_LOCATION = 0;
-    private static final int STATE_IA_LOCATION = 1;
-    private int mState = STATE_PLATFORM_LOCATION;
+    private boolean mShowIndoorLocation = false;
 
     private static final int IA_FILL_COLOR = 0x801681FB;
     private static final int IA_STROKE_COLOR = 0x800A78DD;
@@ -105,7 +103,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                         .zIndex(1.0f)
                         .visible(true)
                         .strokeWidth(5.0f));
-            } else if (mState == STATE_IA_LOCATION) {
+            } else if (mShowIndoorLocation) {
                 // move existing markers position to received location
                 mCircle.setCenter(latLng);
                 mCircle.setRadius(location.getAccuracy());
@@ -140,7 +138,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                     mGroundOverlay.setTransparency(0.0f);
                 }
 
-                mState = STATE_IA_LOCATION;
+                mShowIndoorLocation = true;
                 mCircle.setFillColor(IA_FILL_COLOR);
                 mCircle.setStrokeColor(IA_STROKE_COLOR);
                 showInfo("Showing IndoorAtlas SDK\'s location output");
@@ -158,7 +156,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 mGroundOverlay.setTransparency(0.5f);
             }
 
-            mState = STATE_PLATFORM_LOCATION;
+            mShowIndoorLocation = false;
             mCircle.setFillColor(LS_FILL_COLOR);
             mCircle.setStrokeColor(LS_STROKE_COLOR);
             showInfo("Exit " + (region.getType() == IARegion.TYPE_VENUE
@@ -182,7 +180,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
     @Override
     public void onLocationChanged(Location location) {
-        if (mMap != null && mState == STATE_PLATFORM_LOCATION) {
+        if (mMap != null && !mShowIndoorLocation) {
             Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
                     + "," + location.getLongitude());
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
