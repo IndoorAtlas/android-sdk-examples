@@ -51,16 +51,8 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
 public class MapsOverlayActivity extends FragmentActivity implements LocationListener {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
-    private boolean mShowIndoorLocation = false;
-
-    private static final int IA_FILL_COLOR = 0x801681FB;
-    private static final int IA_STROKE_COLOR = 0x800A78DD;
-    private static final int LS_FILL_COLOR = 0x805DE959;
-    private static final int LS_STROKE_COLOR = 0x8032CD32;
 
     private static final String TAG = "IndoorAtlasExample";
-
-    private static final float HUE_IABLUE = 200.0f;
 
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
@@ -74,6 +66,27 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private IATask<IAFloorPlan> mFetchFloorPlanTask;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
+    private boolean mShowIndoorLocation = false;
+
+    private void showLocationCircle(LatLng center, double accuracyRadius) {
+        if (mCircle == null) {
+            // location can received before map is initialized, ignoring those updates
+            if (mMap != null) {
+                mCircle = mMap.addCircle(new CircleOptions()
+                        .center(center)
+                        .radius(accuracyRadius)
+                        .fillColor(0x801681FB)
+                        .strokeColor(0x800A78DD)
+                        .zIndex(1.0f)
+                        .visible(true)
+                        .strokeWidth(5.0f));
+            }
+        } else {
+            // move existing markers position to received location
+            mCircle.setCenter(center);
+            mCircle.setRadius(accuracyRadius);
+        }
+    }
 
     /**
      * Listener that handles location change events.
@@ -94,24 +107,15 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 return;
             }
 
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            if (mCircle == null) {
-                mCircle = mMap.addCircle(new CircleOptions().center(latLng)
-                        .radius(location.getAccuracy())
-                        .fillColor(LS_FILL_COLOR)
-                        .strokeColor(LS_STROKE_COLOR)
-                        .zIndex(1.0f)
-                        .visible(true)
-                        .strokeWidth(5.0f));
-            } else if (mShowIndoorLocation) {
-                // move existing markers position to received location
-                mCircle.setCenter(latLng);
-                mCircle.setRadius(location.getAccuracy());
+            final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
+
+            if (mShowIndoorLocation) {
+                showLocationCircle(center, location.getAccuracy());
             }
 
             // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.5f));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 17.5f));
                 mCameraPositionNeedsUpdating = false;
             }
         }
@@ -139,8 +143,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 }
 
                 mShowIndoorLocation = true;
-                mCircle.setFillColor(IA_FILL_COLOR);
-                mCircle.setStrokeColor(IA_STROKE_COLOR);
                 showInfo("Showing IndoorAtlas SDK\'s location output");
             }
             showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
@@ -157,8 +159,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             }
 
             mShowIndoorLocation = false;
-            mCircle.setFillColor(LS_FILL_COLOR);
-            mCircle.setStrokeColor(LS_STROKE_COLOR);
             showInfo("Exit " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
                     : "FLOOR_PLAN ") + region.getId());
@@ -180,23 +180,13 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
     @Override
     public void onLocationChanged(Location location) {
-        if (mMap != null && !mShowIndoorLocation) {
+        if (!mShowIndoorLocation) {
             Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
                     + "," + location.getLongitude());
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            if (mCircle == null) {
-                mCircle = mMap.addCircle(new CircleOptions().center(latLng)
-                        .radius(location.getAccuracy())
-                        .fillColor(LS_FILL_COLOR)
-                        .strokeColor(LS_STROKE_COLOR)
-                        .zIndex(1.0f)
-                        .visible(true)
-                        .strokeWidth(5.0f));
-            }
 
-            // move existing markers position to received location
-            mCircle.setCenter(latLng);
-            mCircle.setRadius(location.getAccuracy());
+            showLocationCircle(
+                    new LatLng(location.getLatitude(), location.getLongitude()),
+                    location.getAccuracy());
         }
     }
 
