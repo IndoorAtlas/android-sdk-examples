@@ -91,6 +91,12 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".imageview_animate.ImageViewAnimateActivity"
+            android:label="@string/example_imageview_animate_title"
+            android:screenOrientation="portrait">
+        </activity>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"

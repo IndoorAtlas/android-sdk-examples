@@ -74,4 +74,7 @@
     <string name="example_geofence_description">Demonstrates usage of geofences in IndoorAtlas SDK</string>
     <string name="example_geofence_title">10. Geofences</string>
 
+    <string name="example_imageview_animate_description"> Demonstrates showing locations on a floor plan displayed with ImageView using simple animations for location and bearing updates.</string>
+    <string name="example_imageview_animate_title"> 11. ImageView with animation</string>
+
 </resources>
