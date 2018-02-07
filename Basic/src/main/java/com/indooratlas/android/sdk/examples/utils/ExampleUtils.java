@@ -1,10 +1,13 @@
 package com.indooratlas.android.sdk.examples.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import com.indooratlas.android.sdk.IALocationManager;
+import com.indooratlas.android.sdk.examples.R;
 
 
 public class ExampleUtils {
@@ -37,4 +40,18 @@ public class ExampleUtils {
         context.startActivity(Intent.createChooser(sendIntent, title));
     }
 
+    /**
+     * Shows a {@link Snackbar} with defined text
+     */
+    public static void showInfo(Activity activity, String text) {
+        final Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), text,
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+    }
 }

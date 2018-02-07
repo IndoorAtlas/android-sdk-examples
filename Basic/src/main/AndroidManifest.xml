@@ -74,22 +74,20 @@
             android:name=".orientation.OrientationActivity"
             android:label="@string/example_orientation_title"
             android:screenOrientation="portrait"/>
-
         <service
             android:name=".background.LocationStoreService"
-            android:exported="false"></service>
-
+            android:exported="false" />
         <activity
             android:name=".osmdroid.OpenStreetMapOverlay"
             android:label="@string/example_osm_overlay_title"
-            android:screenOrientation="portrait">
-        </activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".geofence.GeofenceActivity"
             android:label="@string/example_geofence_title"
-            android:screenOrientation="portrait">
-        </activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".locationsettings.LocationSettingsActivity"
+            android:label="@string/example_location_settings_title" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
