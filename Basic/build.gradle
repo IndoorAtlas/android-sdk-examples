@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
-        minSdkVersion 10
+        minSdkVersion 19
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -50,7 +50,9 @@ android {
 }
 
 dependencies {
-    compile "com.indooratlas.android:indooratlas-android-sdk:2.5.2@aar"
+    compile "com.indooratlas.android:indooratlas-android-sdk:2.7.0-beta-848@aar"
+    compile 'com.indooratlas.android:indooratlas-android-wayfinding:2.7.0-beta-9'
+
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.google.android.gms:play-services-maps:8.1.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.+'

@@ -89,6 +89,12 @@
             android:name=".locationsettings.LocationSettingsActivity"
             android:label="@string/example_location_settings_title" />
 
+        <activity
+            android:name=".wayfinding.WayfindingOverlayActivity"
+            android:label="@string/example_wayfinding_title"
+            android:screenOrientation="portrait">
+        </activity>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"

@@ -89,4 +89,9 @@
     <string name="wifi_background_scanning_enabled">WiFi background scanning is enabled</string>
     <string name="wifi_background_scanning_denied">User denied WiFi background scanning</string>
     <string name="location_provider_available">Location provider enabled</string>
+
+    <string name="example_wayfinding_description">Demonstrates usage of IndoorAtlas Wayfinding</string>
+    <string name="example_wayfinding_title">12. Wayfinding</string>
+
+
 </resources>
