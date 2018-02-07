@@ -71,7 +71,22 @@
     <string name="text_orientation_initial">Orient.: no updates</string>
     <string name="text_orientation">Orient.: [%1$5.2f,%2$5.2f,%3$5.2f,%4$5.2f]</string>
 
+    <!-- Geofence example -->
     <string name="example_geofence_description">Demonstrates usage of geofences in IndoorAtlas SDK</string>
     <string name="example_geofence_title">10. Geofences</string>
 
+    <!-- Radio and location settings example -->
+    <string name="example_location_settings_title">11. Device radio and location settings</string>
+    <string name="example_location_settings_description">Shows how to verify Bluetooth, WiFi and location settings</string>
+    <string name="text_location_settings_example">Example on how to verify current WiFi, Bluetooth and location mode settings for optimal localization performance.</string>
+    <string name="button_check_wifi_setting">Check WiFi background scanning</string>
+    <string name="button_check_bt_setting">Check Bluetooth status</string>
+    <string name="button_check_location_mode">Check location mode</string>
+    <string name="bt_not_supported">Bluetooth is not supported on this hardware platform</string>
+    <string name="bt_enabled">Bluetooth is enabled</string>
+    <string name="bt_denied">User denied use of bluetooth</string>
+    <string name="wifi_not_supported">WiFi is not supported on this hardware platform</string>
+    <string name="wifi_background_scanning_enabled">WiFi background scanning is enabled</string>
+    <string name="wifi_background_scanning_denied">User denied WiFi background scanning</string>
+    <string name="location_provider_available">Location provider enabled</string>
 </resources>
