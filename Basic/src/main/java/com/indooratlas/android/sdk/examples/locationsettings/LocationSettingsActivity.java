@@ -103,7 +103,7 @@ public class LocationSettingsActivity extends AppCompatActivity {
     /**
      * Verify currently selected location mode
      */
-    public void onCheckLocationSetting(View view) {
+    public void onCheckLocationMode(View view) {
 
         // Check also https://developer.android.com/training/location/change-location-settings.html
         // using the LocationRequest adds dependency to Google Play Services SDK.

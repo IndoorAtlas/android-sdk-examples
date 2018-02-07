@@ -40,7 +40,7 @@
     <Button
         android:id="@+id/button_check_location_setting"
         android:text="@string/button_check_location_mode"
-        android:onClick="onCheckLocationSetting"
+        android:onClick="onCheckLocationMode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/button_check_bt_setting"

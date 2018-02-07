@@ -89,5 +89,4 @@
     <string name="wifi_background_scanning_enabled">WiFi background scanning is enabled</string>
     <string name="wifi_background_scanning_denied">User denied WiFi background scanning</string>
     <string name="location_provider_available">Location provider enabled</string>
-    <string name="location_not_enabled">Location provider was not enabled</string>
 </resources>
