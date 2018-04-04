@@ -95,6 +95,11 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".googlemapsindoor.GoogleMapsIndoorActivity"
+            android:label="@string/example_googlemaps_indoor_title"
+            android:screenOrientation="portrait" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"
