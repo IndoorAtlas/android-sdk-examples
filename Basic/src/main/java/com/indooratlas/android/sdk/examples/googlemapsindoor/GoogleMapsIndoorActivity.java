@@ -43,10 +43,19 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
      */
     private static class GoogleMapsFloorLevelMatcher {
 
+        /** Currently focused Google Maps Building */
         private IndoorBuilding mBuilding;
+
+        /** Last detected IndoorAtlas location */
         private IALocation mLastLocation;
+
+        /**
+         * Mapping from floor name (e.g., "E", "M1", "1", "2") to
+         * Google Maps IndoorLevel in the current building
+         */
         private Map<String, IndoorLevel> mNameToLevel;
 
+        /** Set current Google Maps building */
         void setBuilding(IndoorBuilding building) {
             mBuilding = building;
             mNameToLevel = new HashMap<>();
@@ -55,20 +64,27 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
             }
         }
 
+        /** Set currrent IndoorAtlas location */
         void setIALocation(IALocation location) {
             mLastLocation = location;
         }
 
+        /** Is the user on the floor level that is active/visible in Google Maps */
         boolean isIALocationOnActiveLevel() {
             IndoorLevel iaLocationLevel = findIALocationLevel();
             return iaLocationLevel != null && iaLocationLevel.equals(activeGoogleMapsLevel());
         }
 
+        /**
+         * Get the IndoorLevel currently active/visible in Google Maps. This can be
+         * changed by the user using the floor selector UI component in Google Maps
+         */
         private IndoorLevel activeGoogleMapsLevel() {
             if (mBuilding == null) return null;
             return mBuilding.getLevels().get(mBuilding.getActiveLevelIndex());
         }
 
+        /** Find out on which Google Maps IndoorLevel the current IALocation is */
         private IndoorLevel findIALocationLevel() {
             if (mLastLocation == null || !mLastLocation.hasFloorLevel() || mBuilding == null) {
                 return null;
@@ -108,6 +124,8 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
     }
 
     private void updateLocationCircleColor() {
+        // If the user is on the floor that is visible on Google Maps, show a blue circle.
+        // Otherwise show a gray circle
         if (mCircle != null) {
             if (mFloorLevelMatcher.isIALocationOnActiveLevel()) {
                 mCircle.setFillColor(ACTIVE_LEVEL_BLUE_DOT_COLOR);
@@ -151,15 +169,18 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         if (mMap != null) {
             mMap.setOnIndoorStateChangeListener(null);
         }
-
     }
 
+    @Override
     public void onLocationChanged(IALocation location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         showLocationCircle(latLng, location.getAccuracy());
         mFloorLevelMatcher.setIALocation(location);
         updateLocationCircleColor();
 
+        // When the IndoorAtlas SDK detects a floor change, view the corresponding level in
+        // Google Maps, but do not jump back to that level on each update so that the user can
+        // view other levels in using the Google Maps floor selector UI too
         IndoorLevel iaLocationLevel = mFloorLevelMatcher.findIALocationLevel();
         if (iaLocationLevel != null && !iaLocationLevel.equals(mLastAutoActivatedLevel)) {
             mLastAutoActivatedLevel = iaLocationLevel;
