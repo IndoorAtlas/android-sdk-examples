@@ -29,7 +29,7 @@ To run the examples you need to configure your IndoorAtlas API keys. If you do n
 
 Once you have API keys, edit them into `gradle.properties` in the project root level.
 
-## Features
+## Examples
 
 These examples are included in the app:
 
