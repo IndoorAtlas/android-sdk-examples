@@ -34,18 +34,32 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 These examples are included in the app:
 
 * Basic Application: This app contains a number of small examples:
-* Simple Example: This is the hello world of IndoorAtlas SDK. Displays received location updates as log entries.
-* ImageView: Automatically downloads the floor plan that user has entered and displays it using Dave Morrissey's 
+
+* [Simple Example](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/simple): This is the hello world of IndoorAtlas SDK. Displays received location updates as log entries.
+
+* [ImageView](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/imageview): Automatically downloads the floor plan that user has entered and displays it using Dave Morrissey's 
 https://github.com/davemorrissey/subsampling-scale-image-view. This is a great library for handling large images!
-* Google Maps - Basic: This is the hello world of IndoorAtlas SDK + Google Map. Shows received locations on world map. Does not retrieve floor plans.
-* Google Maps - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
-* Location sharing: Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
-* Set credentials: Demonstrates how to set IndoorAtlas credentials from code in runtime.
-* Regions: Demonstrates automatic region changes.
-* Background mode: Demonstrates running IndoorAtlas positioning in the background.
-* Overlay with Open Street Map: Similar to Google maps examples, but uses Open Street Maps instead
-* Orientation: Demonstrates IndoorAtlas 3D Orientation API.
-* Geofences: Demonstrates how to set geofences and receive the geofence events.
+
+* [Google Maps - Basic](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemaps): This is the hello world of IndoorAtlas SDK + Google Map. Shows received locations on world map. Does not retrieve floor plans.
+
+* [Google Maps](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemapsindoor) - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
+
+* [Overlay with Open Street Map](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/osmdroid): Similar to Google maps examples, but uses Open Street Maps instead
+
+
+
+* [Location sharing](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/sharelocation): Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
+
+* [Set credentials](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/credentials): Demonstrates how to set IndoorAtlas credentials from code in runtime.
+
+* [Automatic Venue and Floor Detection](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/regions): Demonstrates automatic region changes i.e. automatic venue detection and floor detection.
+
+* [Background mode](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
+
+* [Orientation](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/orientation): Demonstrates IndoorAtlas 3D Orientation API.
+
+* [Geofences](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/geofence): Demonstrates how to set geofences and receive the geofence events.
+
 
 ## Documentation
 
