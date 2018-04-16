@@ -31,34 +31,92 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 
 ## Examples
 
-These examples are included in the app:
 
-* Basic Application: This app contains a number of small examples:
+### Simple Example
 
 * [Simple Example](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/simple): This is the hello world of IndoorAtlas SDK. Displays received location updates as log entries.
+
+![](/example-screenshots/simple_01.jpg)
+
+
+### Imageview Example
 
 * [ImageView](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/imageview): Automatically downloads the floor plan that user has entered and displays it using Dave Morrissey's 
 https://github.com/davemorrissey/subsampling-scale-image-view. This is a great library for handling large images!
 
+![](/example-screenshots/imageview_02.jpg)
+
+
+### Google Maps - Basic Example
+
 * [Google Maps - Basic](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemaps): This is the hello world of IndoorAtlas SDK + Google Map. Shows received locations on world map. Does not retrieve floor plans.
+
+![](/example-screenshots/googlemaps&#32;-&#32;basic_03.jpg)
+
+
+### Google Maps - Overlay Example
 
 * [Google Maps](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemapsindoor) - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
 
+![](/example-screenshots/googlemaps&#32;-&#32;overlay_04.jpg)
+
+
+### Open Street Map Overlay Example
+
 * [Overlay with Open Street Map](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/osmdroid): Similar to Google maps examples, but uses Open Street Maps instead
 
+![](/example-screenshots/open-street-map_08.jpg)
 
 
-* [Location sharing](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/sharelocation): Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
-
-* [Set credentials](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/credentials): Demonstrates how to set IndoorAtlas credentials from code in runtime.
+### Automatic Venue and Floor Detection Example
 
 * [Automatic Venue and Floor Detection](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/regions): Demonstrates automatic region changes i.e. automatic venue detection and floor detection.
 
+![](/example-screenshots/regions_07.jpg)
+
+
+### Wayfinding Example
+
+* [Wayfinding Example](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/wayfinding/WayfindingOverlayActivity.java#L260): In this example, a wayfinding graph json file is loaded. On the UI, you'll see your current location, and when you tap another point on the floorplan, you'll be shown a wayfinding route to that location. 
+
+* Note: to setup, you need to draw a wayfinding graph for your venue using app.indooratlas.com, export it, and store it to folder android-sdk-examples/Basic/src/main/res/raw
+
+![](/example-screenshots/wayfinding_12.jpg)
+
+
+### Location Sharing aka "Find your friend" Example
+
+* [Location sharing](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/sharelocation): Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
+
+![](/example-screenshots/sharelocation-05.jpg)
+
+
+### Background Positioning Example
+
 * [Background mode](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
+
+![](/example-screenshots/background-mode_08.jpg)
+
+
+### Geofences Example
+
+* [Geofences](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/geofence): Demonstrates how to set geofences and receive the geofence events.
+
+![](/example-screenshots/geofences_10.jpg)
+
+
+### Orientation Example
 
 * [Orientation](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/orientation): Demonstrates IndoorAtlas 3D Orientation API.
 
-* [Geofences](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/geofence): Demonstrates how to set geofences and receive the geofence events.
+![](/example-screenshots/orientation_09.jpg)
+
+
+### Set Credentials from Code Example
+
+* [Set credentials](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/credentials): Demonstrates how to set IndoorAtlas credentials from code in runtime.
+
+![](/example-screenshots/set-credentials_06.jpg)
 
 
 ## Documentation
