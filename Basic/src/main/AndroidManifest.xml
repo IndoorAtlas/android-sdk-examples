@@ -100,6 +100,15 @@
             android:label="@string/example_googlemaps_indoor_title"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".foregroundservice.MainActivity"
+            android:label="@string/example_foregroundservice_title"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".foregroundservice.ForegroundService"
+            android:exported="false" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.indooratlas.android.sdk.examples.fileprovider"

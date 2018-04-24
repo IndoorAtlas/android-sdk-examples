@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.3'
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set";
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars
@@ -50,16 +50,16 @@ android {
 }
 
 dependencies {
-    compile "com.indooratlas.android:indooratlas-android-sdk:2.7.0-beta-848@aar"
-    compile 'com.indooratlas.android:indooratlas-android-wayfinding:2.7.0-beta-9'
+    compile "com.indooratlas.android:indooratlas-android-sdk:2.7.0@aar"
+    compile 'com.indooratlas.android:indooratlas-android-wayfinding:2.7.1'
 
-    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.google.android.gms:play-services-maps:8.1.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.+'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
     compile 'com.pubnub:pubnub-android:3.7.5'
-    compile 'com.android.support:design:23.0.1'
+    compile 'com.android.support:design:26.1.0'
 
     // for Open Street Map support
     compile 'org.osmdroid:osmdroid-android:5.6.4'
