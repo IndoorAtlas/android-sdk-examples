@@ -3,6 +3,10 @@ buildscript {
 
     repositories {
         jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
 
     dependencies {
@@ -27,6 +31,10 @@ allprojects {
         maven {
             // needed for OSMBonusPack (Open Street Map example)
             url "https://jitpack.io"
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
         }
     }
 }
