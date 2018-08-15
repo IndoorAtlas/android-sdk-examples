@@ -6,11 +6,14 @@ import android.support.v4.app.FragmentActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.IndoorBuilding;
 import com.google.android.gms.maps.model.IndoorLevel;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -28,12 +31,13 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
+    private Marker mMarker;
     private IALocationManager mIALocationManager;
     private GoogleMapsFloorLevelMatcher mFloorLevelMatcher;
     private IndoorLevel mLastAutoActivatedLevel;
 
-    private static final int ACTIVE_LEVEL_BLUE_DOT_COLOR = 0x601681FB;
-    private static final int OTHER_LEVEL_BLUE_DOT_COLOR = 0x60808080;
+    private static final int ACTIVE_LEVEL_BLUE_DOT_COLOR = 0x201681FB;
+    private static final int OTHER_LEVEL_BLUE_DOT_COLOR = 0x30808080;
 
     /**
      * Matches Google Maps IndoorLevels to IndoorAtlas floor plans.
@@ -104,7 +108,7 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         }
     }
 
-    private void showLocationCircle(LatLng center, double accuracyRadius) {
+    private void showBlueDot(LatLng center, double accuracyRadius, double bearing) {
         if (mCircle == null) {
             // location can received before map is initialized, ignoring those updates
             if (mMap != null) {
@@ -115,11 +119,19 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
                     .strokeColor(0x00000000)
                     .zIndex(1.0f)
                     .visible(true));
+                mMarker = mMap.addMarker(new MarkerOptions()
+                    .position(center)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_blue_dot))
+                    .anchor(0.5f, 0.5f)
+                    .rotation((float)bearing)
+                    .flat(true));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 17.0f));
             }
         } else {
             mCircle.setCenter(center);
             mCircle.setRadius(accuracyRadius);
+            mMarker.setPosition(center);
+            mMarker.setRotation((float)bearing);
         }
     }
 
@@ -129,8 +141,10 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         if (mCircle != null) {
             if (mFloorLevelMatcher.isIALocationOnActiveLevel()) {
                 mCircle.setFillColor(ACTIVE_LEVEL_BLUE_DOT_COLOR);
+                mMarker.setVisible(true);
             } else {
                 mCircle.setFillColor(OTHER_LEVEL_BLUE_DOT_COLOR);
+                mMarker.setVisible(false);
             }
         }
     }
@@ -174,7 +188,7 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
     @Override
     public void onLocationChanged(IALocation location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        showLocationCircle(latLng, location.getAccuracy());
+        showBlueDot(latLng, location.getAccuracy(), location.getBearing());
         mFloorLevelMatcher.setIALocation(location);
         updateLocationCircleColor();
 

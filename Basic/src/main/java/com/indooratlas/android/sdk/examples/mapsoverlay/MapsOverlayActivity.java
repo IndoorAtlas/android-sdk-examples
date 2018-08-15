@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -59,6 +61,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
+    private Marker mMarker;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
@@ -68,23 +71,31 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
 
-    private void showLocationCircle(LatLng center, double accuracyRadius) {
+    private void showBlueDot(LatLng center, double accuracyRadius, double bearing) {
         if (mCircle == null) {
             // location can received before map is initialized, ignoring those updates
             if (mMap != null) {
                 mCircle = mMap.addCircle(new CircleOptions()
                         .center(center)
                         .radius(accuracyRadius)
-                        .fillColor(0x801681FB)
-                        .strokeColor(0x800A78DD)
+                        .fillColor(0x201681FB)
+                        .strokeColor(0x500A78DD)
                         .zIndex(1.0f)
                         .visible(true)
                         .strokeWidth(5.0f));
+                mMarker = mMap.addMarker(new MarkerOptions()
+                        .position(center)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_blue_dot))
+                        .anchor(0.5f, 0.5f)
+                        .rotation((float)bearing)
+                        .flat(true));
             }
         } else {
             // move existing markers position to received location
             mCircle.setCenter(center);
             mCircle.setRadius(accuracyRadius);
+            mMarker.setPosition(center);
+            mMarker.setRotation((float)bearing);
         }
     }
 
@@ -110,7 +121,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
 
             if (mShowIndoorLocation) {
-                showLocationCircle(center, location.getAccuracy());
+                showBlueDot(center, location.getAccuracy(), location.getBearing());
             }
 
             // our camera position needs updating if location has significantly changed
@@ -184,9 +195,10 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
                     + "," + location.getLongitude());
 
-            showLocationCircle(
+            showBlueDot(
                     new LatLng(location.getLatitude(), location.getLongitude()),
-                    location.getAccuracy());
+                    location.getAccuracy(),
+                    location.getBearing());
         }
     }
 
