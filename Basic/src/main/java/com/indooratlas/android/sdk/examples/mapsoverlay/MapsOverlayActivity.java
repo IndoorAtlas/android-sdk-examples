@@ -30,6 +30,8 @@ import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
+import com.indooratlas.android.sdk.IAOrientationListener;
+import com.indooratlas.android.sdk.IAOrientationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
@@ -55,7 +57,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
-    private Marker mMarker;
+    private Marker mBearingMarker, mHeadingMarker;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
@@ -77,9 +79,15 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                         .zIndex(1.0f)
                         .visible(true)
                         .strokeWidth(5.0f));
-                mMarker = mMap.addMarker(new MarkerOptions()
+                mBearingMarker = mMap.addMarker(new MarkerOptions()
                         .position(center)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_blue_dot))
+                        .anchor(0.5f, 0.5f)
+                        .rotation((float)bearing)
+                        .flat(true));
+                mHeadingMarker = mMap.addMarker(new MarkerOptions()
+                        .position(center)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_red_dot))
                         .anchor(0.5f, 0.5f)
                         .rotation((float)bearing)
                         .flat(true));
@@ -88,8 +96,9 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             // move existing markers position to received location
             mCircle.setCenter(center);
             mCircle.setRadius(accuracyRadius);
-            mMarker.setPosition(center);
-            mMarker.setRotation((float)bearing);
+            mBearingMarker.setPosition(center);
+            mBearingMarker.setRotation((float)bearing);
+            mHeadingMarker.setPosition(center);
         }
     }
 
@@ -123,6 +132,20 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 17.5f));
                 mCameraPositionNeedsUpdating = false;
             }
+        }
+    };
+
+    private IAOrientationListener mOrientationListner = new IAOrientationListener() {
+        @Override
+        public void onHeadingChanged(long ts, double heading) {
+            if (mHeadingMarker != null) {
+                mHeadingMarker.setRotation((float)heading);
+            }
+        }
+
+        @Override
+        public void onOrientationChange(long ts, double[] q) {
+
         }
     };
 
@@ -231,6 +254,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.registerOrientationListener(new IAOrientationRequest(1, -1), mOrientationListner);
 
         // Setup long click to share the traceId
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
@@ -248,6 +272,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterOrientationListener(mOrientationListner);
     }
 
 
