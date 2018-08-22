@@ -77,13 +77,13 @@ public class ListExamplesActivity extends AppCompatActivity {
      */
     private void ensurePermissions() {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // we don't have access to coarse locations, hence we have not access to wifi either
-            // check if this requires explanation to user
+            // We dont have access to FINE_LOCATION (Required by Google Maps example)
+            // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.location_permission_request_title)
@@ -93,7 +93,8 @@ public class ListExamplesActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.d(TAG, "request permissions");
                                 ActivityCompat.requestPermissions(ListExamplesActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                                                Manifest.permission.ACCESS_FINE_LOCATION},
                                         REQUEST_CODE_ACCESS_COARSE_LOCATION);
                             }
                         })
@@ -111,7 +112,8 @@ public class ListExamplesActivity extends AppCompatActivity {
 
                 // ask user for permission
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION},
                         REQUEST_CODE_ACCESS_COARSE_LOCATION);
 
             }
