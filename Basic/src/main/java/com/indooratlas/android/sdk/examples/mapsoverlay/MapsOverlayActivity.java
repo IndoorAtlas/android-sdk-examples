@@ -1,7 +1,5 @@
 package com.indooratlas.android.sdk.examples.mapsoverlay;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -10,7 +8,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -48,11 +45,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
 public class MapsOverlayActivity extends FragmentActivity implements LocationListener {
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
 
@@ -177,18 +171,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
     };
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSION_ACCESS_FINE_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startListeningPlatformLocations();
-                }
-                break;
-            }
-        }
-    }
-
     @Override
     public void onLocationChanged(Location location) {
         if (!mShowIndoorLocation) {
@@ -225,12 +207,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         // instantiate IALocationManager and IAResourceManager
         mIALocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
-
-        // Request GPS locations
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-            return;
-        }
 
         startListeningPlatformLocations();
     }
