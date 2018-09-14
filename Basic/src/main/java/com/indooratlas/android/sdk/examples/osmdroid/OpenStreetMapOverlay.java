@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -21,10 +20,6 @@ import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.sdk.resources.IAResourceManager;
-import com.indooratlas.android.sdk.resources.IAResult;
-import com.indooratlas.android.sdk.resources.IAResultCallback;
-import com.indooratlas.android.sdk.resources.IATask;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
@@ -52,8 +47,6 @@ public class OpenStreetMapOverlay extends Activity {
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null, mBlueDot = null;
     private IALocationManager mIALocationManager;
-    private IAResourceManager mResourceManager;
-    private IATask<IAFloorPlan> mFetchFloorPlanTask;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
 
@@ -124,7 +117,7 @@ public class OpenStreetMapOverlay extends Activity {
                         mGroundOverlay = null;
                     }
                     mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
-                    fetchFloorPlan(newId);
+                    fetchFloorPlanBitmap(region.getFloorPlan());
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
@@ -151,9 +144,8 @@ public class OpenStreetMapOverlay extends Activity {
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        // instantiate IALocationManager and IAResourceManager
+        // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
-        mResourceManager = IAResourceManager.create(this);
     }
 
     @Override
@@ -270,49 +262,4 @@ public class OpenStreetMapOverlay extends Activity {
         request.into(mLoadTarget);
     }
 
-
-    /**
-     * Fetches floor plan data from IndoorAtlas server.
-     */
-    private void fetchFloorPlan(String id) {
-
-        // if there is already running task, cancel it
-        cancelPendingNetworkCalls();
-
-        final IATask<IAFloorPlan> task = mResourceManager.fetchFloorPlanWithId(id);
-
-        task.setCallback(new IAResultCallback<IAFloorPlan>() {
-
-            @Override
-            public void onResult(IAResult<IAFloorPlan> result) {
-
-                if (result.isSuccess() && result.getResult() != null) {
-                    // retrieve bitmap for this floor plan metadata
-                    fetchFloorPlanBitmap(result.getResult());
-                } else {
-                    // ignore errors if this task was already canceled
-                    if (!task.isCancelled()) {
-                        // do something with error
-                        Toast.makeText(OpenStreetMapOverlay.this,
-                                "loading floor plan failed: " + result.getError(), Toast.LENGTH_LONG)
-                                .show();
-                        mOverlayFloorPlan = null;
-                    }
-                }
-            }
-        }, Looper.getMainLooper()); // deliver callbacks using main looper
-
-        // keep reference to task so that it can be canceled if needed
-        mFetchFloorPlanTask = task;
-
-    }
-
-    /**
-     * Helper method to cancel current task if any.
-     */
-    private void cancelPendingNetworkCalls() {
-        if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
-            mFetchFloorPlanTask.cancel();
-        }
-    }
 }

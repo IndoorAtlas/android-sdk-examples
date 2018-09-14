@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -41,26 +40,16 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
-import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.sdk.resources.IAResourceManager;
-import com.indooratlas.android.sdk.resources.IAResult;
-import com.indooratlas.android.sdk.resources.IAResultCallback;
-import com.indooratlas.android.sdk.resources.IATask;
 import com.indooratlas.android.wayfinding.IARoutingLeg;
 import com.indooratlas.android.wayfinding.IAWayfinder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -79,8 +68,6 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
-    private IAResourceManager mResourceManager;
-    private IATask<IAFloorPlan> mFetchFloorPlanTask;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
@@ -173,7 +160,7 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
                         mGroundOverlay = null;
                     }
                     mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
-                    fetchFloorPlan(newId);
+                    fetchFloorPlanBitmap(region.getFloorPlan());
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
@@ -246,9 +233,8 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        // instantiate IALocationManager and IAResourceManager
+        // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
-        mResourceManager = IAResourceManager.create(this);
 
         // Request GPS locations
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -371,50 +357,6 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         }
 
         request.into(mLoadTarget);
-    }
-
-
-    /**
-     * Fetches floor plan data from IndoorAtlas server.
-     */
-    private void fetchFloorPlan(String id) {
-
-        // if there is already running task, cancel it
-        cancelPendingNetworkCalls();
-
-        final IATask<IAFloorPlan> task = mResourceManager.fetchFloorPlanWithId(id);
-
-        task.setCallback(new IAResultCallback<IAFloorPlan>() {
-
-            @Override
-            public void onResult(IAResult<IAFloorPlan> result) {
-
-                if (result.isSuccess() && result.getResult() != null) {
-                    // retrieve bitmap for this floor plan metadata
-                    fetchFloorPlanBitmap(result.getResult());
-                } else {
-                    // ignore errors if this task was already canceled
-                    if (!task.isCancelled()) {
-                        // do something with error
-                        showInfo("Loading floor plan failed: " + result.getError());
-                        mOverlayFloorPlan = null;
-                    }
-                }
-            }
-        }, Looper.getMainLooper()); // deliver callbacks using main looper
-
-        // keep reference to task so that it can be canceled if needed
-        mFetchFloorPlanTask = task;
-
-    }
-
-    /**
-     * Helper method to cancel current task if any.
-     */
-    private void cancelPendingNetworkCalls() {
-        if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
-            mFetchFloorPlanTask.cancel();
-        }
     }
 
     private void showInfo(String text) {
