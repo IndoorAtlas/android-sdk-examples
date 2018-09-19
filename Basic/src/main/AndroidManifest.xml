@@ -105,6 +105,11 @@
             android:label="@string/example_foregroundservice_title"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".lockfloor.LockFloorActivity"
+            android:label="@string/example_lockfloor_title"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".foregroundservice.ForegroundService"
             android:exported="false" />

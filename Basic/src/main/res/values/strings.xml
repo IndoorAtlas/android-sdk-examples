@@ -98,5 +98,8 @@
     <string name="example_foregroundservice_description">Demonstrates IndoorAtlas background positioning using a foreground service.</string>
     <string name="example_foregroundservice_title">14. Foreground Service</string>
 
+    <string name="example_lockfloor_description">Demonstrates how locking positioning to specific floor or indoors is achieved.</string>
+    <string name="example_lockfloor_title">15. Lock floor and Indoors </string>
+
 
 </resources>
