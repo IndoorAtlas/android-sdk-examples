@@ -3,9 +3,7 @@ package com.indooratlas.android.sdk.examples.wayfinding;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,11 +14,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -38,24 +34,26 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.IARoute;
+import com.indooratlas.android.sdk.IAWayfindingListener;
+import com.indooratlas.android.sdk.IAWayfindingRequest;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.wayfinding.IARoutingLeg;
-import com.indooratlas.android.wayfinding.IAWayfinder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 @SdkExample(description = R.string.example_wayfinding_description)
 public class WayfindingOverlayActivity extends FragmentActivity implements LocationListener,
-        GoogleMap.OnMapClickListener, OnMapReadyCallback {
+        GoogleMap.OnMapClickListener {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -71,18 +69,20 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
-
-    private IAWayfinder mWayfinder;
-    private LatLng mLocation;
-
-    private LatLng mDestination;
     private Marker mDestinationMarker;
+    private List<Polyline> mPolylines = new ArrayList<>();
+    private IARoute mCurrentRoute;
 
-    private Polyline mPath;
-    private Polyline mPathCurrent;
-    private IARoutingLeg[] mCurrentRoute;
+    private IAWayfindingRequest mWayfindingDestination;
+    private IAWayfindingListener mWayfindingListener = new IAWayfindingListener() {
+        @Override
+        public void onWayfindingUpdate(IARoute route) {
+            mCurrentRoute = route;
+            updateRouteVisualization();
+        }
+    };
 
-    private Integer mFloor;
+    private int mFloor;
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
@@ -125,12 +125,11 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
 
             final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
 
-            mFloor = location.getFloorLevel();
-            mLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            if (mWayfinder != null) {
-                mWayfinder.setLocation(mLocation.latitude, mLocation.longitude, mFloor);
+            final int newFloor = location.getFloorLevel();
+            if (mFloor != newFloor) {
+                updateRouteVisualization();
             }
-            updateRoute();
+            mFloor = newFloor;
 
             if (mShowIndoorLocation) {
                 showLocationCircle(center, location.getAccuracy());
@@ -236,6 +235,9 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
 
+        // disable indoor-outdoor detection (assume we're indoors)
+        mIALocationManager.lockIndoors(true);
+
         // Request GPS locations
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
@@ -243,38 +245,35 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         }
 
         startListeningPlatformLocations();
-
-        String graphJSON = loadGraphJSON();
-        if (graphJSON == null) {
-            Toast.makeText(this, "Could not find wayfinding_graph.json from raw " +
-                    "resources folder. Cannot do wayfinding.", Toast.LENGTH_LONG).show();
-        } else {
-            mWayfinder = IAWayfinder.create(this, graphJSON);
-        }
-
-        // Try to obtain the map from the SupportMapFragment.
-        ((SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map))
-                .getMapAsync(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         // remember to clean up after ourselves
         mIALocationManager.destroy();
-        if (mWayfinder != null) {
-            mWayfinder.close();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            mMap.setMyLocationEnabled(false);
+        }
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+
+        if (mWayfindingDestination != null) {
+            mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+        }
+
+        mMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -282,15 +281,13 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         super.onPause();
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
+
+        if (mWayfindingDestination != null) {
+            mIALocationManager.removeWayfindingUpdates();
+        }
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMyLocationEnabled(false);
-        mMap.setOnMapClickListener(this);
-    }
 
     /**
      * Sets bitmap of floor plan as ground overlay on Google Maps
@@ -379,31 +376,18 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         }
     }
 
-    /**
-     * Load "wayfinding_graph.json" from raw resources folder of the app module
-     * @return
-     */
-    private String loadGraphJSON() {
-        try {
-            Resources res = getResources();
-            int resourceIdentifier = res.getIdentifier("wayfinding_graph", "raw", this.getPackageName());
-            InputStream in_s = res.openRawResource(resourceIdentifier);
-
-            byte[] b = new byte[in_s.available()];
-            in_s.read(b);
-            return new String(b);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not find wayfinding_graph.json from raw resources folder");
-            return null;
-        }
-
-    }
-
     @Override
     public void onMapClick(LatLng point) {
         if (mMap != null) {
 
-            mDestination = point;
+            mWayfindingDestination = new IAWayfindingRequest.Builder()
+                    .withFloor(mFloor)
+                    .withLatitude(point.latitude)
+                    .withLongitude(point.longitude)
+                    .build();
+
+            mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+
             if (mDestinationMarker == null) {
                 mDestinationMarker = mMap.addMarker(new MarkerOptions()
                         .position(point)
@@ -411,69 +395,46 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
             } else {
                 mDestinationMarker.setPosition(point);
             }
-            if (mWayfinder != null) {
-                mWayfinder.setDestination(point.latitude, point.longitude, mFloor);
-            }
-            Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
-                    mDestination.longitude + "), floor=" + mFloor);
-
-            updateRoute();
+            Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
+                    mWayfindingDestination.getLongitude() + "), floor=" +
+                    mWayfindingDestination.getFloor());
         }
-    }
-
-    private void updateRoute() {
-        if (mLocation == null || mDestination == null || mWayfinder == null) {
-            return;
-        }
-        Log.d(TAG, "Updating the wayfinding route");
-
-        mCurrentRoute = mWayfinder.getRoute();
-        if (mCurrentRoute == null || mCurrentRoute.length == 0) {
-            // Wrong credentials or invalid wayfinding graph
-            return;
-        }
-        if (mPath != null) {
-            // Remove old path if any
-            clearOldPath();
-        }
-        visualizeRoute(mCurrentRoute);
     }
 
     /**
      * Clear the visualizations for the wayfinding paths
      */
-    private void clearOldPath() {
-        mPath.remove();
-        mPathCurrent.remove();
+    private void clearRouteVisualization() {
+        for (Polyline pl : mPolylines) {
+            pl.remove();
+        }
+        mPolylines.clear();
     }
 
     /**
-     * Visualize the IndoorAtlas Wayfinding path on top of the Google Maps.
-     * @param legs Array of IARoutingLeg objects returned from IAWayfinder.getRoute()
+     * Visualize the IndoorAtlas Wayfinding route on top of the Google Maps.
      */
-    private void visualizeRoute(IARoutingLeg[] legs) {
-        // optCurrent will contain the wayfinding path in the current floor and opt will contain the
-        // whole path, including parts in other floors.
-        PolylineOptions opt = new PolylineOptions();
-        PolylineOptions optCurrent = new PolylineOptions();
+    private void updateRouteVisualization() {
 
-        for (IARoutingLeg leg : legs) {
+        clearRouteVisualization();
+
+        if (mCurrentRoute == null) {
+            return;
+        }
+
+        for (IARoute.Leg leg : mCurrentRoute.getLegs()) {
+            PolylineOptions opt = new PolylineOptions();
             opt.add(new LatLng(leg.getBegin().getLatitude(), leg.getBegin().getLongitude()));
-            if (leg.getBegin().getFloor() == mFloor && leg.getEnd().getFloor() == mFloor) {
-                optCurrent.add(
-                        new LatLng(leg.getBegin().getLatitude(), leg.getBegin().getLongitude()));
-                optCurrent.add(
-                        new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
-            }
-        }
-        optCurrent.color(Color.RED);
-        if (legs.length > 0) {
-            IARoutingLeg leg = legs[legs.length-1];
             opt.add(new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
+
+            // Here wayfinding path in different floor than current location is visualized in
+            // a semi-transparent color
+            if (leg.getBegin().getFloor() == mFloor && leg.getEnd().getFloor() == mFloor) {
+                opt.color(0xFF0000FF);
+            } else {
+                opt.color(0x300000FF);
+            }
+            mPolylines.add(mMap.addPolyline(opt));
         }
-        // Here wayfinding path in different floor than current location is visualized in blue and
-        // path in current floor is visualized in red
-        mPath = mMap.addPolyline(opt);
-        mPathCurrent = mMap.addPolyline(optCurrent);
     }
 }
