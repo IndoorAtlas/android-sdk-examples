@@ -278,29 +278,28 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private void fetchFloorPlanBitmap(final IAFloorPlan floorPlan) {
 
         final String url = floorPlan.getUrl();
+        mLoadTarget = new Target() {
 
-        if (mLoadTarget == null) {
-            mLoadTarget = new Target() {
-
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
-                            + bitmap.getHeight());
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
+                        + bitmap.getHeight());
+                if (mOverlayFloorPlan != null && floorPlan.getId().equals(mOverlayFloorPlan.getId())) {
                     setupGroundOverlay(floorPlan, bitmap);
                 }
+            }
 
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    // N/A
-                }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                // N/A
+            }
 
-                @Override
-                public void onBitmapFailed(Drawable placeHolderDraweble) {
-                    showInfo("Failed to load bitmap");
-                    mOverlayFloorPlan = null;
-                }
-            };
-        }
+            @Override
+            public void onBitmapFailed(Drawable placeHolderDrawable) {
+                showInfo("Failed to load bitmap");
+                mOverlayFloorPlan = null;
+            }
+        };
 
         RequestCreator request = Picasso.with(this).load(url);
 

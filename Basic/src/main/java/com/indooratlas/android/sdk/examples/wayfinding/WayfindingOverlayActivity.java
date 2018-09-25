@@ -176,19 +176,14 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
         @Override
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                final String newId = region.getId();
-                // Are we entering a new floor plan or coming back the floor plan we just left?
-                if (mGroundOverlay == null || !region.equals(mOverlayFloorPlan)) {
-                    mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
-                    if (mGroundOverlay != null) {
-                        mGroundOverlay.remove();
-                        mGroundOverlay = null;
-                    }
-                    mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
-                    fetchFloorPlanBitmap(region.getFloorPlan());
-                } else {
-                    mGroundOverlay.setTransparency(0.0f);
+                Log.d(TAG, "enter floor plan " + region.getId());
+                mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
+                if (mGroundOverlay != null) {
+                    mGroundOverlay.remove();
+                    mGroundOverlay = null;
                 }
+                mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
+                fetchFloorPlanBitmap(region.getFloorPlan());
             }
         }
 
@@ -295,32 +290,37 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
      */
     private void fetchFloorPlanBitmap(final IAFloorPlan floorPlan) {
 
-        final String url = floorPlan.getUrl();
-
-        if (mLoadTarget == null) {
-            mLoadTarget = new Target() {
-
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
-                            + bitmap.getHeight());
-                    if (mOverlayFloorPlan != null && floorPlan.getId().equals(mOverlayFloorPlan.getId())) {
-                        setupGroundOverlay(floorPlan, bitmap);
-                    }
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    // N/A
-                }
-
-                @Override
-                public void onBitmapFailed(Drawable placeHolderDraweble) {
-                    showInfo("Failed to load bitmap");
-                    mOverlayFloorPlan = null;
-                }
-            };
+        if (floorPlan == null) {
+            Log.e(TAG, "null floor plan in fetchFloorPlanBitmap");
+            return;
         }
+
+        final String url = floorPlan.getUrl();
+        Log.d(TAG, "loading floor plan bitmap from "+url);
+
+        mLoadTarget = new Target() {
+
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
+                        + bitmap.getHeight());
+                if (mOverlayFloorPlan != null && floorPlan.getId().equals(mOverlayFloorPlan.getId())) {
+                    Log.d(TAG, "showing overlay");
+                    setupGroundOverlay(floorPlan, bitmap);
+                }
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                // N/A
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable placeHolderDrawable) {
+                showInfo("Failed to load bitmap");
+                mOverlayFloorPlan = null;
+            }
+        };
 
         RequestCreator request = Picasso.with(this).load(url);
 
