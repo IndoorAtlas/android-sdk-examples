@@ -374,7 +374,16 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
     }
 
     private boolean hasArrivedToDestination(IARoute route) {
-        return route.getLegs().size() == 1 && route.getLegs().get(0).getLength() < 10.0;
+        // empty routes are only returned when there is a problem, for example,
+        // missing or disconnected routing graph
+        if (route.getLegs().size() == 0) {
+            return false;
+        }
+
+        final double FINISH_THRESHOLD_METERS = 8.0;
+        double routeLength = 0;
+        for (IARoute.Leg leg : route.getLegs()) routeLength += leg.getLength();
+        return routeLength < FINISH_THRESHOLD_METERS;
     }
 
     /**
