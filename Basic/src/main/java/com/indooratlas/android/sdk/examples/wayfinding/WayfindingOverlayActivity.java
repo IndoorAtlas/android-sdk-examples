@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -50,7 +51,8 @@ import java.util.List;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 @SdkExample(description = R.string.example_wayfinding_description)
-public class WayfindingOverlayActivity extends FragmentActivity implements GoogleMap.OnMapClickListener {
+public class WayfindingOverlayActivity extends FragmentActivity
+        implements GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -59,6 +61,7 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
     private static final int MAX_DIMENSION = 2048;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+
     private Circle mCircle;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
@@ -213,6 +216,11 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
             return;
         }
+
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map))
+                .getMapAsync(this);
     }
 
     @Override
@@ -226,12 +234,6 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
     @Override
     protected void onResume() {
         super.onResume();
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            mMap.setMyLocationEnabled(false);
-        }
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
@@ -244,8 +246,6 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
         if (mWayfindingDestination != null) {
             mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
         }
-
-        mMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -261,6 +261,13 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Googl
         }
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        // do not show Google's outdoor location
+        mMap.setMyLocationEnabled(false);
+        mMap.setOnMapClickListener(this);
+    }
 
     /**
      * Sets bitmap of floor plan as ground overlay on Google Maps
