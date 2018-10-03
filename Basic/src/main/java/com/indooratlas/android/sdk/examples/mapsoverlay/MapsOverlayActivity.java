@@ -16,6 +16,7 @@ import android.content.Context;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -46,7 +47,7 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
-public class MapsOverlayActivity extends FragmentActivity implements LocationListener {
+public class MapsOverlayActivity extends FragmentActivity implements LocationListener, OnMapReadyCallback {
 
     private static final String TAG = "IndoorAtlasExample";
 
@@ -209,6 +210,11 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         mResourceManager = IAResourceManager.create(this);
 
         startListeningPlatformLocations();
+
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map))
+                .getMapAsync(this);
     }
 
     @Override
@@ -221,25 +227,10 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     @Override
     protected void onResume() {
         super.onResume();
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            mMap.setMyLocationEnabled(false);
-        }
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
-
-        // Setup long click to share the traceId
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                ExampleUtils.shareText(MapsOverlayActivity.this,
-                        mIALocationManager.getExtraInfo().traceId, "traceId");
-            }
-        });
     }
 
     @Override
@@ -250,6 +241,21 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        // do not show Google's outdoor location
+        mMap.setMyLocationEnabled(false);
+
+        // Setup long click to share the traceId
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                ExampleUtils.shareText(MapsOverlayActivity.this,
+                        mIALocationManager.getExtraInfo().traceId, "traceId");
+            }
+        });
+    }
 
     /**
      * Sets bitmap of floor plan as ground overlay on Google Maps

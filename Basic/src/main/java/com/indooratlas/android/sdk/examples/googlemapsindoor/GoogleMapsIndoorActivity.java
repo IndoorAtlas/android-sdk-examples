@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 @SdkExample(description = R.string.example_googlemaps_indoor_description)
 public class GoogleMapsIndoorActivity extends FragmentActivity implements
-        IALocationListener, GoogleMap.OnIndoorStateChangeListener {
+        IALocationListener, GoogleMap.OnIndoorStateChangeListener, OnMapReadyCallback {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
@@ -155,6 +156,11 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         setContentView(R.layout.activity_maps);
         mIALocationManager = IALocationManager.create(this);
         mFloorLevelMatcher = new GoogleMapsFloorLevelMatcher();
+
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map))
+                .getMapAsync(this);
     }
 
     @Override
@@ -166,12 +172,10 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if (mMap == null) {
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
+        if (mMap != null) {
             mMap.setOnIndoorStateChangeListener(this);
         }
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
     }
 
     @Override
@@ -183,6 +187,12 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         if (mMap != null) {
             mMap.setOnIndoorStateChangeListener(null);
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setOnIndoorStateChangeListener(this);
     }
 
     @Override
