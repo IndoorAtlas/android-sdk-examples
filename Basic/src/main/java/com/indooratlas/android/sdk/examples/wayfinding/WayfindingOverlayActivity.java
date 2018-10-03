@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -65,7 +66,7 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 @SdkExample(description = R.string.example_wayfinding_description)
 public class WayfindingOverlayActivity extends FragmentActivity implements LocationListener,
-        GoogleMap.OnMapClickListener {
+        GoogleMap.OnMapClickListener, OnMapReadyCallback {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -265,6 +266,10 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
             mWayfinder = IAWayfinder.create(this, graphJSON);
         }
 
+        // Try to obtain the map from the SupportMapFragment.
+        ((SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map))
+                .getMapAsync(this);
     }
 
     @Override
@@ -280,18 +285,10 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
     @Override
     protected void onResume() {
         super.onResume();
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            mMap.setMyLocationEnabled(false);
-        }
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
-
-        mMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -302,6 +299,12 @@ public class WayfindingOverlayActivity extends FragmentActivity implements Locat
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMyLocationEnabled(false);
+        mMap.setOnMapClickListener(this);
+    }
 
     /**
      * Sets bitmap of floor plan as ground overlay on Google Maps
