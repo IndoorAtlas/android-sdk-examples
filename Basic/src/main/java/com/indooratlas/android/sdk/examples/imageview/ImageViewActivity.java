@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -33,10 +32,6 @@ import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.sdk.resources.IAResourceManager;
-import com.indooratlas.android.sdk.resources.IAResult;
-import com.indooratlas.android.sdk.resources.IAResultCallback;
-import com.indooratlas.android.sdk.resources.IATask;
 
 import java.io.File;
 
@@ -51,8 +46,6 @@ public class ImageViewActivity extends FragmentActivity {
     private static final float dotRadius = 1.0f;
 
     private IALocationManager mIALocationManager;
-    private IAResourceManager mFloorPlanManager;
-    private IATask<IAFloorPlan> mPendingAsyncResult;
     private IAFloorPlan mFloorPlan;
     private BlueDotView mImageView;
     private long mDownloadId;
@@ -79,7 +72,7 @@ public class ImageViewActivity extends FragmentActivity {
                 String id = region.getId();
                 Log.d(TAG, "floorPlan changed to " + id);
                 Toast.makeText(ImageViewActivity.this, id, Toast.LENGTH_SHORT).show();
-                fetchFloorPlan(id);
+                fetchFloorPlan(region.getFloorPlan());
             }
         }
 
@@ -101,7 +94,6 @@ public class ImageViewActivity extends FragmentActivity {
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
-        mFloorPlanManager = IAResourceManager.create(this);
 
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find
@@ -143,8 +135,7 @@ public class ImageViewActivity extends FragmentActivity {
     }
 
     /**
-     * Methods for fetching floor plan data and bitmap image.
-     * Method {@link #fetchFloorPlan(String id)} fetches floor plan data including URL to bitmap
+     * Methods for fetching bitmap image.
      */
 
      /*  Broadcast receiver for floor plan image download */
@@ -184,60 +175,32 @@ public class ImageViewActivity extends FragmentActivity {
     /**
      * Fetches floor plan data from IndoorAtlas server. Some room for cleaning up!!
      */
-    private void fetchFloorPlan(String id) {
-        cancelPendingNetworkCalls();
-        final IATask<IAFloorPlan> asyncResult = mFloorPlanManager.fetchFloorPlanWithId(id);
-        mPendingAsyncResult = asyncResult;
-        if (mPendingAsyncResult != null) {
-            mPendingAsyncResult.setCallback(new IAResultCallback<IAFloorPlan>() {
-                @Override
-                public void onResult(IAResult<IAFloorPlan> result) {
-                    Log.d(TAG, "fetch floor plan result:" + result);
-                    if (result.isSuccess() && result.getResult() != null) {
-                        mFloorPlan = result.getResult();
-                        String fileName = mFloorPlan.getId() + ".img";
-                        String filePath = Environment.getExternalStorageDirectory() + "/"
-                                + Environment.DIRECTORY_DOWNLOADS + "/" + fileName;
-                        File file = new File(filePath);
-                        if (!file.exists()) {
-                            DownloadManager.Request request =
-                                    new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
-                            request.setDescription("IndoorAtlas floor plan");
-                            request.setTitle("Floor plan");
-                            // requires android 3.2 or later to compile
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                request.allowScanningByMediaScanner();
-                                request.setNotificationVisibility(DownloadManager.
-                                        Request.VISIBILITY_HIDDEN);
-                            }
-                            request.setDestinationInExternalPublicDir(Environment.
-                                    DIRECTORY_DOWNLOADS, fileName);
+    private void fetchFloorPlan(IAFloorPlan floorPlan) {
+        mFloorPlan = floorPlan;
+        String fileName = mFloorPlan.getId() + ".img";
+        String filePath = Environment.getExternalStorageDirectory() + "/"
+                + Environment.DIRECTORY_DOWNLOADS + "/" + fileName;
+        File file = new File(filePath);
+        if (!file.exists()) {
+            DownloadManager.Request request =
+                    new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
+            request.setDescription("IndoorAtlas floor plan");
+            request.setTitle("Floor plan");
+            // requires android 3.2 or later to compile
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                request.allowScanningByMediaScanner();
+                request.setNotificationVisibility(DownloadManager.
+                        Request.VISIBILITY_HIDDEN);
+            }
+            request.setDestinationInExternalPublicDir(Environment.
+                    DIRECTORY_DOWNLOADS, fileName);
 
-                            mDownloadId = mDownloadManager.enqueue(request);
-                        } else {
-                            showFloorPlanImage(filePath);
-                        }
-                    } else {
-                        // do something with error
-                        if (!asyncResult.isCancelled()) {
-                            Toast.makeText(ImageViewActivity.this,
-                                    (result.getError() != null
-                                            ? "error loading floor plan: " + result.getError()
-                                            : "access to floor plan denied"), Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    }
-                }
-            }, Looper.getMainLooper()); // deliver callbacks in main thread
+            mDownloadId = mDownloadManager.enqueue(request);
+        } else {
+            showFloorPlanImage(filePath);
         }
-    }
 
-    private void cancelPendingNetworkCalls() {
-        if (mPendingAsyncResult != null && !mPendingAsyncResult.isCancelled()) {
-            mPendingAsyncResult.cancel();
-        }
     }
-
 
     private void ensurePermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)

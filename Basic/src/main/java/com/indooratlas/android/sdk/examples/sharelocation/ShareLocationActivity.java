@@ -31,10 +31,6 @@ import com.indooratlas.android.sdk.examples.sharelocation.view.MultiLocationMapV
 import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.sdk.resources.IAResourceManager;
-import com.indooratlas.android.sdk.resources.IAResult;
-import com.indooratlas.android.sdk.resources.IAResultCallback;
-import com.indooratlas.android.sdk.resources.IATask;
 
 /**
  * Simple example of sharing ones location with others on the same map. Uses PubNub cloud service
@@ -49,8 +45,6 @@ public class ShareLocationActivity extends AppCompatActivity {
 
     private IALocationManager mLocationManager;
 
-    private IAResourceManager mResourceManager;
-
     private LocationChannel mLocationChannel;
 
     private LocationSource mMyLocationSource;
@@ -58,8 +52,6 @@ public class ShareLocationActivity extends AppCompatActivity {
     private View mCoordinatorLayout;
 
     private MultiLocationMapView mMapView;
-
-    private IATask<IAFloorPlan> mFetchFloorPlanTask;
 
     private String mCustomChannelName;
 
@@ -71,7 +63,6 @@ public class ShareLocationActivity extends AppCompatActivity {
         mMapView = (MultiLocationMapView) findViewById(R.id.map);
 
         mLocationManager = IALocationManager.create(this);
-        mResourceManager = IAResourceManager.create(this);
 
         mLocationChannel = new PubNubLocationChannelImpl(
                 getString(R.string.pubnub_publish_key),
@@ -223,36 +214,6 @@ public class ShareLocationActivity extends AppCompatActivity {
     }
 
     /**
-     * Start loading floor plan bitmap
-     */
-    private void updateMapBitmap(IARegion region) {
-
-        if (region.getType() != IARegion.TYPE_FLOOR_PLAN) {
-            return;
-        }
-
-        if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
-            mFetchFloorPlanTask.cancel();
-        }
-
-        final IATask<IAFloorPlan> task = mResourceManager.fetchFloorPlanWithId(region.getId());
-        mFetchFloorPlanTask = task;
-        task.setCallback(new IAResultCallback<IAFloorPlan>() {
-            @Override
-            public void onResult(IAResult<IAFloorPlan> result) {
-                if (result.isSuccess() && result.getResult() != null) {
-                    mMapView.setFloorPlan(result.getResult());
-                } else {
-                    if (!task.isCancelled()) {
-                        showError(getString(R.string.error_loading_floor_plan));
-                    }
-                }
-            }
-        }, Looper.getMainLooper());
-
-    }
-
-    /**
      * Handle events related to location changes.
      */
     private IALocationListener mLocationChangeHandler = new IALocationListenerSupport() {
@@ -277,7 +238,7 @@ public class ShareLocationActivity extends AppCompatActivity {
             Log.d(SharingUtils.TAG, "onEnterRegion: " + region);
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN && !hasCustomChannel()) {
                 setChannel(region.getId(), false); // set automatically selected channel
-                updateMapBitmap(region);
+                mMapView.setFloorPlan(region.getFloorPlan());
             }
         }
 

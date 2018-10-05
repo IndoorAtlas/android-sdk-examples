@@ -6,7 +6,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -38,10 +37,6 @@ import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-import com.indooratlas.android.sdk.resources.IAResourceManager;
-import com.indooratlas.android.sdk.resources.IAResult;
-import com.indooratlas.android.sdk.resources.IAResultCallback;
-import com.indooratlas.android.sdk.resources.IATask;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
@@ -60,8 +55,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
-    private IAResourceManager mResourceManager;
-    private IATask<IAFloorPlan> mFetchFloorPlanTask;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
@@ -143,7 +136,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                         mGroundOverlay = null;
                     }
                     mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
-                    fetchFloorPlan(newId);
+                    fetchFloorPlanBitmap(region.getFloorPlan());
                 } else {
                     mGroundOverlay.setTransparency(0.0f);
                 }
@@ -205,9 +198,8 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        // instantiate IALocationManager and IAResourceManager
+        // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
-        mResourceManager = IAResourceManager.create(this);
 
         startListeningPlatformLocations();
 
@@ -286,29 +278,28 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private void fetchFloorPlanBitmap(final IAFloorPlan floorPlan) {
 
         final String url = floorPlan.getUrl();
+        mLoadTarget = new Target() {
 
-        if (mLoadTarget == null) {
-            mLoadTarget = new Target() {
-
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
-                            + bitmap.getHeight());
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
+                        + bitmap.getHeight());
+                if (mOverlayFloorPlan != null && floorPlan.getId().equals(mOverlayFloorPlan.getId())) {
                     setupGroundOverlay(floorPlan, bitmap);
                 }
+            }
 
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                    // N/A
-                }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                // N/A
+            }
 
-                @Override
-                public void onBitmapFailed(Drawable placeHolderDraweble) {
-                    showInfo("Failed to load bitmap");
-                    mOverlayFloorPlan = null;
-                }
-            };
-        }
+            @Override
+            public void onBitmapFailed(Drawable placeHolderDrawable) {
+                showInfo("Failed to load bitmap");
+                mOverlayFloorPlan = null;
+            }
+        };
 
         RequestCreator request = Picasso.with(this).load(url);
 
@@ -322,50 +313,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         }
 
         request.into(mLoadTarget);
-    }
-
-
-    /**
-     * Fetches floor plan data from IndoorAtlas server.
-     */
-    private void fetchFloorPlan(String id) {
-
-        // if there is already running task, cancel it
-        cancelPendingNetworkCalls();
-
-        final IATask<IAFloorPlan> task = mResourceManager.fetchFloorPlanWithId(id);
-
-        task.setCallback(new IAResultCallback<IAFloorPlan>() {
-
-            @Override
-            public void onResult(IAResult<IAFloorPlan> result) {
-
-                if (result.isSuccess() && result.getResult() != null) {
-                    // retrieve bitmap for this floor plan metadata
-                    fetchFloorPlanBitmap(result.getResult());
-                } else {
-                    // ignore errors if this task was already canceled
-                    if (!task.isCancelled()) {
-                        // do something with error
-                        showInfo("Loading floor plan failed: " + result.getError());
-                        mOverlayFloorPlan = null;
-                    }
-                }
-            }
-        }, Looper.getMainLooper()); // deliver callbacks using main looper
-
-        // keep reference to task so that it can be canceled if needed
-        mFetchFloorPlanTask = task;
-
-    }
-
-    /**
-     * Helper method to cancel current task if any.
-     */
-    private void cancelPendingNetworkCalls() {
-        if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
-            mFetchFloorPlanTask.cancel();
-        }
     }
 
     private void showInfo(String text) {

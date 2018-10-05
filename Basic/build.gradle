@@ -50,8 +50,7 @@ android {
 }
 
 dependencies {
-    compile "com.indooratlas.android:indooratlas-android-sdk:2.8.3@aar"
-    compile 'com.indooratlas.android:indooratlas-android-wayfinding:2.8.0'
+    compile "com.indooratlas.android:indooratlas-android-sdk:2.9.0-beta-931@aar"
 
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.google.android.gms:play-services-maps:8.1.0'
