@@ -31,6 +31,9 @@ import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
+import com.indooratlas.android.sdk.IARoute;
+import com.indooratlas.android.sdk.IAWayfindingListener;
+import com.indooratlas.android.sdk.IAWayfindingRequest;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
@@ -86,6 +89,148 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             mMarker.setRotation((float)bearing);
         }
     }
+
+    private static class CoordinateUtils {
+        private static final double EARTH_RADIUS_METERS = 6.371e6;
+        static final double METERS_PER_LAT_DEGREE = EARTH_RADIUS_METERS * Math.PI / 180.0;
+
+        private static double metersPerLonDegree(double lat) {
+            return METERS_PER_LAT_DEGREE * Math.cos(lat / 180.0 * Math.PI);
+        }
+
+        static double enuYToLatitude(double originLat, double y) {
+            return originLat + y / METERS_PER_LAT_DEGREE;
+        }
+
+        static double enuXToLongitude(double originLat, double originLon, double x) {
+            return originLon + x / metersPerLonDegree(originLat);
+        }
+    }
+
+    private static class ConstrainNearRoutingGraphLocationFilter implements IALocationListener, IAWayfindingListener {
+
+        /** keep the location closer to this distance from the wayfinding graph */
+        private double mDistanceToGraphMeters = 0.5;
+
+        /** do not constrain if the location farther than this from the wayfinding graph */
+        private double mMaxSnapDistanceMeters = 30.0;
+
+        private static final int N_SEARCH_POINTS = 3;
+        private static final double[] SEARCH_X = new double[N_SEARCH_POINTS];
+        private static final double[] SEARCH_Y = new double[N_SEARCH_POINTS];
+
+        static {
+            for (int i = 0; i < N_SEARCH_POINTS; ++i) {
+                double angle = 2*Math.PI / N_SEARCH_POINTS * i;
+                SEARCH_X[i] = Math.cos(angle);
+                SEARCH_Y[i] = Math.sin(angle);
+            }
+        }
+
+        private IAWayfindingRequest currentSearchPoint() {
+            return new IAWayfindingRequest.Builder()
+                    .withFloor(mCurrentLocation.getFloorLevel())
+                    .withLatitude(CoordinateUtils.enuYToLatitude(
+                            mCurrentLocation.getLatitude(),
+                            SEARCH_Y[mSearchPointIndex]*mMaxSnapDistanceMeters))
+                    .withLongitude(CoordinateUtils.enuXToLongitude(
+                            mCurrentLocation.getLatitude(),
+                            mCurrentLocation.getLongitude(),
+                            SEARCH_X[mSearchPointIndex]*mMaxSnapDistanceMeters))
+                    .build();
+        }
+
+        private int mSearchPointIndex;
+        private IALocation mCurrentLocation;
+        private IALocationManager mLocationManager;
+        private IALocationListener mListener;
+
+        @Override
+        public void onWayfindingUpdate(IARoute route) {
+            if (route.getLegs().size() < 2) {
+                requestNextWayfindingUpdate();
+            } else {
+                IARoute.Leg projection = route.getLegs().get(0);
+                if (projection.getLength() > mMaxSnapDistanceMeters) {
+                    onProjectionFailed();
+                }
+                mLocationManager.removeWayfindingUpdates();
+                onProjectionToGraph(projection);
+            }
+        }
+
+        private void requestNextWayfindingUpdate() {
+            if (mSearchPointIndex < N_SEARCH_POINTS) {
+                mLocationManager.requestWayfindingUpdates(currentSearchPoint(), this);
+                mSearchPointIndex++;
+            } else {
+                mLocationManager.removeWayfindingUpdates();
+                onProjectionFailed();
+            }
+        }
+
+        /**
+         * @param projectionToGraph a routing leg whose begin point is the current unconstrained
+         *                          location and end point is its projection (closest point) on the
+         *                          wayfinding graph
+         */
+        private void onProjectionToGraph(IARoute.Leg projectionToGraph) {
+            // constrain location to graph
+            final IALocation constrained;
+            final double distance = projectionToGraph.getLength();
+            if (distance < mDistanceToGraphMeters) {
+                constrained = mCurrentLocation;
+            } else {
+                final double ratio = 1.0 - mDistanceToGraphMeters / distance;
+                final IARoute.Point end = projectionToGraph.getEnd();
+                // create a copy of current location and change lat & long
+                constrained = mCurrentLocation.newBuilder()
+                        .withLatitude(mCurrentLocation.getLatitude()*(1.0 - ratio) + end.getLatitude()*ratio)
+                        .withLongitude(mCurrentLocation.getLongitude()*(1.0 - ratio) + end.getLongitude()*ratio)
+                        .withAccuracy((float)(mCurrentLocation.getAccuracy() + ratio*distance))
+                        .build();
+            }
+            mListener.onLocationChanged(constrained);
+        }
+
+        /**
+         * called when the not find projection to graph could not be found or its length
+         * was larger than the allowed maximum mMaxSnapDistanceMeters
+         */
+        private void onProjectionFailed() {
+            // return unconstrained location
+            mListener.onLocationChanged(mCurrentLocation);
+        }
+
+        @Override
+        public void onLocationChanged(IALocation iaLocation) {
+            mSearchPointIndex = 0;
+            mCurrentLocation = iaLocation;
+            requestNextWayfindingUpdate();
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+            mListener.onStatusChanged(s, i, bundle);
+        }
+
+        public void start() {
+            mLocationManager.requestLocationUpdates(IALocationRequest.create(), this);
+        }
+
+        public void stop() {
+            mLocationManager.removeLocationUpdates(this);
+            mLocationManager.removeWayfindingUpdates();
+        }
+
+        ConstrainNearRoutingGraphLocationFilter(IALocationManager locationManager, IALocationListener listener) {
+            mLocationManager = locationManager;
+            mListener = listener;
+        }
+
+    }
+
+    private ConstrainNearRoutingGraphLocationFilter mLocationFilter;
 
     /**
      * Listener that handles location change events.
@@ -200,6 +345,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
         // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
+        mLocationFilter = new ConstrainNearRoutingGraphLocationFilter(mIALocationManager, mListener);
 
         startListeningPlatformLocations();
 
@@ -221,7 +367,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         super.onResume();
 
         // start receiving location updates & monitor region changes
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
+        mLocationFilter.start();
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
@@ -229,7 +375,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     protected void onPause() {
         super.onPause();
         // unregister location & region changes
-        mIALocationManager.removeLocationUpdates(mListener);
+        mLocationFilter.stop();
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
