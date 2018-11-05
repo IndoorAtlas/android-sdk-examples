@@ -30,10 +30,10 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import org.osmdroid.bonuspack.overlays.GroundOverlay;
-import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 @SdkExample(description = R.string.example_osm_overlay_description)
@@ -54,6 +54,7 @@ public class OpenStreetMapOverlay extends Activity {
     private GroundOverlay mBlueDot = null;
 
     private RotationGestureOverlay mRotationGestureOverlay;
+    private CopyrightOverlay mCopyrightOverlay;
 
     private IALocationManager mIALocationManager;
     private Target mLoadTarget;
@@ -167,27 +168,7 @@ public class OpenStreetMapOverlay extends Activity {
         super.onResume();
         ensurePermissions();
 
-        if (mOsmv == null) {
-
-            mOsmv = new MapView(this);
-            mOsmv.setTilesScaledToDpi(true);
-            mOsmv.setBuiltInZoomControls(true);
-            mOsmv.getController().setZoom(18.0);
-
-            mRotationGestureOverlay = new RotationGestureOverlay(mOsmv);
-            mRotationGestureOverlay.setEnabled(true);
-            mOsmv.getOverlayManager().add(mRotationGestureOverlay);
-            mOsmv.setMultiTouchControls(true);
-
-            mOsmv.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
-
-            mLayout = new RelativeLayout(this);
-            mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
-                    LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT));
-
-            setContentView(mLayout);
-        }
+        initOsmMapView();
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
@@ -224,6 +205,35 @@ public class OpenStreetMapOverlay extends Activity {
             mGroundOverlay = overlay;
 
             mOsmv.getOverlayManager().add(mGroundOverlay);
+        }
+    }
+
+    private void initOsmMapView(){
+        if (mOsmv == null) {
+
+            mOsmv = new MapView(this);
+            mOsmv.setTilesScaledToDpi(true);
+
+            mOsmv.getController().setZoom(18.0);
+
+            // Enable zoom and rotation controls
+            mRotationGestureOverlay = new RotationGestureOverlay(mOsmv);
+            mRotationGestureOverlay.setEnabled(true);
+            mOsmv.getOverlayManager().add(mRotationGestureOverlay);
+            mOsmv.setMultiTouchControls(true);
+            mOsmv.setBuiltInZoomControls(true);
+
+            mCopyrightOverlay = new CopyrightOverlay(this);
+            mOsmv.getOverlayManager().add(mCopyrightOverlay);
+
+            mOsmv.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+
+            mLayout = new RelativeLayout(this);
+            mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+
+            setContentView(mLayout);
         }
     }
 
