@@ -34,6 +34,7 @@ import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 @SdkExample(description = R.string.example_osm_overlay_description)
 public class OpenStreetMapOverlay extends Activity {
@@ -46,11 +47,14 @@ public class OpenStreetMapOverlay extends Activity {
     private static final int MAX_DIMENSION = 2048;
 
     private MapView mOsmv;
-    private MapTileProviderBasic mProvider;
     private RelativeLayout mLayout;
 
     private IARegion mOverlayFloorPlan = null;
-    private GroundOverlay mGroundOverlay = null, mBlueDot = null;
+    private GroundOverlay mGroundOverlay = null;
+    private GroundOverlay mBlueDot = null;
+
+    private RotationGestureOverlay mRotationGestureOverlay;
+
     private IALocationManager mIALocationManager;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
@@ -112,7 +116,6 @@ public class OpenStreetMapOverlay extends Activity {
         @Override
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                final String newId = region.getId();
                 // Are we entering a new floor plan or coming back the floor plan we just left?
                 if (mGroundOverlay == null || !region.equals(mOverlayFloorPlan)) {
                     mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
@@ -171,7 +174,12 @@ public class OpenStreetMapOverlay extends Activity {
             mOsmv.setBuiltInZoomControls(true);
             mOsmv.getController().setZoom(18.0);
 
-           mOsmv.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+            mRotationGestureOverlay = new RotationGestureOverlay(mOsmv);
+            mRotationGestureOverlay.setEnabled(true);
+            mOsmv.getOverlayManager().add(mRotationGestureOverlay);
+            mOsmv.setMultiTouchControls(true);
+
+            mOsmv.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
 
             mLayout = new RelativeLayout(this);
             mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
