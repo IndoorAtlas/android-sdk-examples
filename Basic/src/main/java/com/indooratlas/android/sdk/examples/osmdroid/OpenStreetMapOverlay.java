@@ -84,13 +84,13 @@ public class OpenStreetMapOverlay extends Activity {
 
             } else {
                 // move existing markers position to received location
-                mOsmv.getOverlays().remove(mBlueDot);
+                mOsmv.getOverlayManager().remove(mBlueDot);
             }
             mBlueDot.setPosition(geoPoint);
             mBlueDot.setDimensions(location.getAccuracy(), location.getAccuracy());
 
             // add to top
-            mOsmv.getOverlays().add(mBlueDot);
+            mOsmv.getOverlayManager().add(mBlueDot);
 
             // our camera position needs updating if location has significantly changed
 
@@ -117,7 +117,7 @@ public class OpenStreetMapOverlay extends Activity {
                 if (mGroundOverlay == null || !region.equals(mOverlayFloorPlan)) {
                     mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
                     if (mGroundOverlay != null) {
-                        mOsmv.getOverlays().remove(mGroundOverlay);
+                        mOsmv.getOverlayManager().remove(mGroundOverlay);
                         mGroundOverlay = null;
                     }
                     mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
@@ -201,7 +201,7 @@ public class OpenStreetMapOverlay extends Activity {
     private void setupGroundOverlay(IAFloorPlan floorPlan, Bitmap bitmap) {
 
         if (mGroundOverlay != null) {
-            mOsmv.getOverlays().remove(mGroundOverlay);
+            mOsmv.getOverlayManager().remove(mGroundOverlay);
         }
 
         if (mOsmv != null) {
@@ -215,7 +215,7 @@ public class OpenStreetMapOverlay extends Activity {
 
             mGroundOverlay = overlay;
 
-            mOsmv.getOverlays().add(mGroundOverlay);
+            mOsmv.getOverlayManager().add(mGroundOverlay);
         }
     }
 
