@@ -221,7 +221,7 @@ public class OpenStreetMapOverlay extends Activity {
             mRotationGestureOverlay.setEnabled(true);
             mOsmv.getOverlayManager().add(mRotationGestureOverlay);
             mOsmv.setMultiTouchControls(true);
-            mOsmv.setBuiltInZoomControls(true);
+            mOsmv.setBuiltInZoomControls(false); // gestures fill this role
 
             mCopyrightOverlay = new CopyrightOverlay(this);
             mOsmv.getOverlayManager().add(mCopyrightOverlay);
