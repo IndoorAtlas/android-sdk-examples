@@ -61,6 +61,6 @@ dependencies {
     compile 'com.android.support:design:26.1.0'
 
     // for Open Street Map support
-    compile 'org.osmdroid:osmdroid-android:5.6.4'
-    compile 'com.github.MKergall:osmbonuspack:6.2'
+    compile 'org.osmdroid:osmdroid-android:6.0.2'
+    compile 'com.github.MKergall:osmbonuspack:6.5.2'
 }

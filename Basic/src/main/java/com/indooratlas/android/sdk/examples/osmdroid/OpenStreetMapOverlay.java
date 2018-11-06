@@ -1,10 +1,15 @@
 package com.indooratlas.android.sdk.examples.osmdroid;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -25,27 +30,32 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import org.osmdroid.bonuspack.overlays.GroundOverlay;
-import org.osmdroid.tileprovider.MapTileProviderBasic;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.TilesOverlay;
+import org.osmdroid.views.overlay.CopyrightOverlay;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 @SdkExample(description = R.string.example_osm_overlay_description)
 public class OpenStreetMapOverlay extends Activity {
 
     private static final String TAG = "IndoorAtlasExample";
 
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
+
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
 
     private MapView mOsmv;
-    private TilesOverlay mTilesOverlay;
-    private MapTileProviderBasic mProvider;
     private RelativeLayout mLayout;
 
     private IARegion mOverlayFloorPlan = null;
-    private GroundOverlay mGroundOverlay = null, mBlueDot = null;
+    private GroundOverlay mGroundOverlay = null;
+    private GroundOverlay mBlueDot = null;
+
+    private RotationGestureOverlay mRotationGestureOverlay;
+    private CopyrightOverlay mCopyrightOverlay;
+
     private IALocationManager mIALocationManager;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
@@ -79,14 +89,13 @@ public class OpenStreetMapOverlay extends Activity {
 
             } else {
                 // move existing markers position to received location
-                //mBlueDot.setPosition(geoPoint);
-                mOsmv.getOverlays().remove(mBlueDot);
+                mOsmv.getOverlayManager().remove(mBlueDot);
             }
             mBlueDot.setPosition(geoPoint);
             mBlueDot.setDimensions(location.getAccuracy(), location.getAccuracy());
 
             // add to top
-            mOsmv.getOverlays().add(mBlueDot);
+            mOsmv.getOverlayManager().add(mBlueDot);
 
             // our camera position needs updating if location has significantly changed
 
@@ -108,12 +117,11 @@ public class OpenStreetMapOverlay extends Activity {
         @Override
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
-                final String newId = region.getId();
                 // Are we entering a new floor plan or coming back the floor plan we just left?
                 if (mGroundOverlay == null || !region.equals(mOverlayFloorPlan)) {
                     mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
                     if (mGroundOverlay != null) {
-                        mOsmv.getOverlays().remove(mGroundOverlay);
+                        mOsmv.getOverlayManager().remove(mGroundOverlay);
                         mGroundOverlay = null;
                     }
                     mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
@@ -158,26 +166,9 @@ public class OpenStreetMapOverlay extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mOsmv == null) {
+        ensurePermissions();
 
-            mOsmv = new MapView(this);
-            mOsmv.setTilesScaledToDpi(true);
-            mOsmv.setBuiltInZoomControls(true);
-            mOsmv.getController().setZoom(18);
-
-            mProvider = new MapTileProviderBasic(getApplicationContext());
-            mProvider.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
-
-            mTilesOverlay = new TilesOverlay(mProvider, getBaseContext());
-            mOsmv.getOverlays().add(mTilesOverlay);
-
-            mLayout = new RelativeLayout(this);
-            mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
-                    LayoutParams.FILL_PARENT,
-                    LayoutParams.FILL_PARENT));
-
-            setContentView(mLayout);
-        }
+        initOsmMapView();
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
@@ -199,7 +190,7 @@ public class OpenStreetMapOverlay extends Activity {
     private void setupGroundOverlay(IAFloorPlan floorPlan, Bitmap bitmap) {
 
         if (mGroundOverlay != null) {
-            mOsmv.getOverlays().remove(mGroundOverlay);
+            mOsmv.getOverlayManager().remove(mGroundOverlay);
         }
 
         if (mOsmv != null) {
@@ -213,7 +204,36 @@ public class OpenStreetMapOverlay extends Activity {
 
             mGroundOverlay = overlay;
 
-            mOsmv.getOverlays().add(mGroundOverlay);
+            mOsmv.getOverlayManager().add(mGroundOverlay);
+        }
+    }
+
+    private void initOsmMapView(){
+        if (mOsmv == null) {
+
+            mOsmv = new MapView(this);
+            mOsmv.setTilesScaledToDpi(true);
+
+            mOsmv.getController().setZoom(18.0);
+
+            // Enable zoom and rotation controls
+            mRotationGestureOverlay = new RotationGestureOverlay(mOsmv);
+            mRotationGestureOverlay.setEnabled(true);
+            mOsmv.getOverlayManager().add(mRotationGestureOverlay);
+            mOsmv.setMultiTouchControls(true);
+            mOsmv.setBuiltInZoomControls(false); // gestures fill this role
+
+            mCopyrightOverlay = new CopyrightOverlay(this);
+            mOsmv.getOverlayManager().add(mCopyrightOverlay);
+
+            mOsmv.setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE);
+
+            mLayout = new RelativeLayout(this);
+            mLayout.addView(mOsmv, new RelativeLayout.LayoutParams(
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT));
+
+            setContentView(mLayout);
         }
     }
 
@@ -259,6 +279,36 @@ public class OpenStreetMapOverlay extends Activity {
         }
 
         request.into(mLoadTarget);
+    }
+
+
+    /**
+     * Checks that we have access to required information, if not ask for users permission. Storage
+     * permissions needed for storing the map tile cache.
+     */
+    private void ensurePermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        switch (requestCode) {
+            case REQUEST_CODE_WRITE_EXTERNAL_STORAGE:
+
+                if (grantResults.length == 0
+                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, R.string.storage_permission_denied_message_osm,
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 
 }
