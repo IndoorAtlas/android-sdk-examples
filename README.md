@@ -79,7 +79,7 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 
 * [Wayfinding Example](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/wayfinding/WayfindingOverlayActivity.java#L260): In this example, a wayfinding graph json file is loaded. On the UI, you'll see your current location, and when you tap another point on the floorplan, you'll be shown a wayfinding route to that location. 
 
-* Note: to setup, you need to draw a wayfinding graph for your venue using app.indooratlas.com, export it, and store it to folder android-sdk-examples/Basic/src/main/res/raw
+* Note: to setup, you need to draw a wayfinding graph for your venue using app.indooratlas.com and save it. Obviously you also need to fingerprint the venue and generate a map. 
 
 ![](/example-screenshots/wayfinding_12.jpg)
 
