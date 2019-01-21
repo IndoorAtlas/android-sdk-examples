@@ -83,8 +83,25 @@ public class OrientationActivity extends AppCompatActivity implements IALocation
 
     @Override
     public void onOrientationChange(long timestamp, double[] orientation) {
-        mTextOrientation.setText(getString(R.string.text_orientation, orientation[0],
-                orientation[1], orientation[2], orientation[3]));
+        final double qw = orientation[0];
+        final double qx = orientation[1];
+        final double qy = orientation[2];
+        final double qz = orientation[3];
+
+        // Compute Euler angles
+        final double pitch = Math.atan2(2.0 * (qw * qx + qy * qz), 1.0 - 2.0 * (qx * qx + qy * qy));
+        final double roll =  Math.asin(2.0 * (qw * qy - qz * qx));
+
+        // Yaw is the same as heading but in radians and ranges from -PI to PI when computed
+        // like this. It may also differ from the last heading value because change thresholds
+        // defined in registerOrientationListener may trigger at different times
+        final double yaw = -Math.atan2(2.0 * (qw * qz + qx * qy), 1.0 - 2.0 * (qy * qy + qz * qz));
+
+        mTextOrientation.setText(getString(R.string.text_orientation,
+                Math.toDegrees(yaw),
+                Math.toDegrees(pitch),
+                Math.toDegrees(roll)));
+
         mRenderer.setOrientation(orientation);
         mGlView.requestRender();
     }
