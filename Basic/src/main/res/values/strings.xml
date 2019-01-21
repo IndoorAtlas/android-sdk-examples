@@ -72,7 +72,7 @@
     <string name="text_heading_initial">Heading: no updates</string>
     <string name="text_heading">Heading: %1$5.1f\u00b0</string>
     <string name="text_orientation_initial">Orient.: no updates</string>
-    <string name="text_orientation">Orient.: [%1$5.2f,%2$5.2f,%3$5.2f,%4$5.2f]</string>
+    <string name="text_orientation">Yaw: %1$5.2f, Pitch: %2$5.2f, Roll: %3$5.2f</string>
 
     <!-- Geofence example -->
     <string name="example_geofence_description">Demonstrates usage of geofences in IndoorAtlas SDK</string>
