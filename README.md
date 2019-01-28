@@ -91,9 +91,16 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 ![](/example-screenshots/sharelocation-05.jpg)
 
 
-### Background Positioning Example
+### Foreground Service Positioning Example
 
-* [Background mode](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
+* [Foreground Service Positioning Example](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/foregroundservice): Demonstrates running IndoorAtlas positioning when the app is in the background, using an Android Foreground Service.
+
+![](/example-screenshots/foreground-service_14.png)
+
+
+### Positioning using Pernding Intents
+
+* [Positioning using Pernding Intents](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
 
 ![](/example-screenshots/background-mode_08.jpg)
 
