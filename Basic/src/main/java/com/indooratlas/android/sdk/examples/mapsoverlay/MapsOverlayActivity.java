@@ -52,7 +52,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private static final String TAG = "IndoorAtlasExample";
 
     /* used to decide when bitmap should be downscaled */
-    private static final int MAX_DIMENSION = 2048;
+    private static final int MAX_DIMENSION = 1024;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
