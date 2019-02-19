@@ -36,14 +36,6 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
         setContentView(R.layout.activity_maps);
         mIALocationManager = IALocationManager.create(this);
 
-        // optional setup of floor plan id
-        // if setLocation is not called, then location manager tries to find  location automatically
-        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
-        if (!TextUtils.isEmpty(floorPlanId)) {
-            final IALocation FLOOR_PLAN_ID = IALocation.from(IARegion.floorPlan(floorPlanId));
-            mIALocationManager.setLocation(FLOOR_PLAN_ID);
-        }
-
         // Try to obtain the map from the SupportMapFragment.
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
