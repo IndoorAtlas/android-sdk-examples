@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
@@ -111,10 +110,6 @@ public class SimpleActivity extends AppCompatActivity
         mLocationManager.removeLocationUpdates(this);
     }
 
-    public void setLocation(View view) {
-        askLocation();
-    }
-
     @Override
     public void onLocationChanged(IALocation location) {
         log(String.format(Locale.US, "%f,%f, accuracy: %.2f, certainty: %.2f",
@@ -189,37 +184,6 @@ public class SimpleActivity extends AppCompatActivity
                 : 0d;
         mLog.append(String.format(Locale.US, "\n[%06.2f]: %s", duration, msg));
         mScrollView.smoothScrollBy(0, mLog.getBottom());
-    }
-
-    /**
-     * Shows AlertDialog with text entry widget. This example assumes that input is a floor plan
-     * identifier, i.e. UUID which is displayed in IndoorAtlas developer site next to floor plan's
-     * map. See Developer documents for more info: http://docs.indooratlas.com
-     */
-    private void askLocation() {
-
-        final EditText editText = new EditText(this);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_set_location_title)
-                .setView(editText)
-                .setCancelable(true)
-                .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            final String text = editText.getText().toString();
-                            final IARegion region = IARegion.floorPlan(text);
-                            mLocationManager.setLocation(IALocation.from(region));
-                            log("setLocation: " + text);
-                        } catch (Exception e) {
-                            Toast.makeText(SimpleActivity.this,
-                                    getString(R.string.error_could_not_set_location, e.toString()),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).show();
-
     }
 
     private void setLocationRequestOptions() {
