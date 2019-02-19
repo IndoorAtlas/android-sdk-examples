@@ -74,6 +74,15 @@ public class PubNubLocationChannelImpl implements LocationChannel {
         }
     }
 
+    public void publish(String channelName, LocationEvent event) {
+        try {
+            Log.d("PubnubLocationChannel", "mPubNub : "+mPubNub +", mCurrentChannel = "+mCurrentChannel);
+            mPubNub.publish(channelName, ConversionUtils.toJSON(event), false, mCallback);
+        } catch (JSONException e) {
+            throw new IllegalStateException("conversion failed", e);
+        }
+    }
+
     @Override
     public void publish(LocationEvent event) {
         try {

@@ -34,6 +34,10 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
+import com.indooratlas.android.sdk.examples.sharelocation.SharingUtils;
+import com.indooratlas.android.sdk.examples.sharelocation.channel.LocationEvent;
+import com.indooratlas.android.sdk.examples.sharelocation.channel.LocationSource;
+import com.indooratlas.android.sdk.examples.sharelocation.channel.pubnub.PubNubLocationChannelImpl;
 import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
@@ -65,6 +69,12 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
+
+    private PubNubLocationChannelImpl mLocationChannel;
+    private LocationSource mMyLocationSource;
+    private static final String CHANNEL = "wearos-mikko";
+    private IARegion mCurrentVenue;
+
 
     private void showBlueDot(LatLng center, double accuracyRadius, double bearing) {
         if (mCircle == null) {
@@ -105,8 +115,15 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         @Override
         public void onLocationChanged(IALocation location) {
 
+            Log.d(TAG, "onLocationChanged TraceID: " + mIALocationManager.getExtraInfo().traceId);
+
             Log.d(TAG, "new location received with coordinates: " + location.getLatitude()
                     + "," + location.getLongitude());
+
+            // Push to Pubnub
+            final LocationEvent event = new LocationEvent(mMyLocationSource, location);
+            mLocationChannel.publish(CHANNEL, event);
+
 
             if (mMap == null) {
                 // location received before map is initialized, ignoring update here
@@ -133,6 +150,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
         @Override
         public void onEnterRegion(IARegion region) {
+            Log.d(TAG, "onEnterRegion : "+region);
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
                 final String newId = region.getId();
                 // Are we entering a new floor plan or coming back the floor plan we just left?
@@ -151,6 +169,16 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 mShowIndoorLocation = true;
                 showInfo("Showing IndoorAtlas SDK\'s location output");
             }
+            else if (region.getType() == IARegion.TYPE_VENUE) {
+                if (mCurrentVenue == null) {
+                    Log.d(TAG, "onEnterRegion locking indoors to venue i.e. setLocation: "
+                            +region);
+                    // lock to the first detected venue
+                    mIALocationManager.setLocation(new IALocation.Builder()
+                            .withRegion(region).build());
+                }
+                mCurrentVenue = region;
+            }
             showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
                     : "FLOOR_PLAN ") + region.getId());
@@ -158,6 +186,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
         @Override
         public void onExitRegion(IARegion region) {
+            Log.d(TAG, "onEexitRegion : "+region);
             if (mGroundOverlay != null) {
                 // Indicate we left this floor plan but leave it there for reference
                 // If we enter another floor plan, this one will be removed and another one loaded
@@ -211,11 +240,25 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
         startListeningPlatformLocations();
 
+        mLocationChannel = new PubNubLocationChannelImpl(
+                "pub-c-39df9f27-51b8-4a14-b024-b017342ef7f6",
+                "sub-c-02d66ec8-2df0-11e9-9c9e-8a7ac53a5eef");
+
+        setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
+                SharingUtils.randomColor(this)));
+
+
         // Try to obtain the map from the SupportMapFragment.
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
                 .getMapAsync(this);
     }
+
+    private void setMyLocationSource(LocationSource source) {
+        mMyLocationSource = source;
+        setTitle(getString(R.string.title_my_name, source.name));
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -238,7 +281,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         super.onPause();
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
     }
 
     @Override
@@ -251,8 +294,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                ExampleUtils.shareText(MapsOverlayActivity.this,
-                        mIALocationManager.getExtraInfo().traceId, "traceId");
+                Log.d(TAG, "onMapLongClick TraceID: " + mIALocationManager.getExtraInfo().traceId);
             }
         });
     }

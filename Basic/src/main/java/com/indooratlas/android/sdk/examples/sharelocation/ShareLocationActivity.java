@@ -47,6 +47,8 @@ import com.indooratlas.android.sdk.resources.IATask;
         title = R.string.example_sharelocation_title)
 public class ShareLocationActivity extends AppCompatActivity {
 
+    private static final String TAG = "ShareLocationActivity";
+
     private IALocationManager mLocationManager;
 
     private IAResourceManager mResourceManager;
@@ -70,12 +72,16 @@ public class ShareLocationActivity extends AppCompatActivity {
         mCoordinatorLayout = findViewById(R.id.coordinatorLayout);
         mMapView = (MultiLocationMapView) findViewById(R.id.map);
 
+
         mLocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
 
         mLocationChannel = new PubNubLocationChannelImpl(
                 getString(R.string.pubnub_publish_key),
                 getString(R.string.pubnub_subscribe_key));
+
+        Log.d(TAG, "Created PubNub channel.");
+        setChannel("wearos-mikko", true);
 
         setMyLocationSource(new LocationSource(SharingUtils.defaultIdentity(),
                 SharingUtils.randomColor(this)));
