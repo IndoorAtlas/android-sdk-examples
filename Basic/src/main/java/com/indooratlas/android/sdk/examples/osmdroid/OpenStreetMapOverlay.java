@@ -180,7 +180,7 @@ public class OpenStreetMapOverlay extends Activity {
         super.onPause();
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
     }
 
 
