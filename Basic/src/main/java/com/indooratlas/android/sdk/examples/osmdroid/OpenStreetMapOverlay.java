@@ -217,6 +217,8 @@ public class OpenStreetMapOverlay extends Activity {
             mOsmv = new MapView(this);
             mOsmv.setTilesScaledToDpi(true);
 
+            // Sets up the user agent to prevent being banned from OSM servers:
+            // load(...) sets up default values, such as populating userAgent with packageName
             Configuration.getInstance().load(
                     this, PreferenceManager.getDefaultSharedPreferences(this));
 
