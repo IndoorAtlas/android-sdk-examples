@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -30,8 +31,10 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import org.osmdroid.bonuspack.overlays.GroundOverlay;
+import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
@@ -214,6 +217,11 @@ public class OpenStreetMapOverlay extends Activity {
             mOsmv = new MapView(this);
             mOsmv.setTilesScaledToDpi(true);
 
+            // Sets up the user agent to prevent being banned from OSM servers:
+            // load(...) sets up default values, such as populating userAgent with packageName
+            Configuration.getInstance().load(
+                    this, PreferenceManager.getDefaultSharedPreferences(this));
+
             mOsmv.getController().setZoom(18.0);
 
             // Enable zoom and rotation controls
@@ -221,7 +229,8 @@ public class OpenStreetMapOverlay extends Activity {
             mRotationGestureOverlay.setEnabled(true);
             mOsmv.getOverlayManager().add(mRotationGestureOverlay);
             mOsmv.setMultiTouchControls(true);
-            mOsmv.setBuiltInZoomControls(false); // gestures fill this role
+            // gestures fill this role
+            mOsmv.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
 
             mCopyrightOverlay = new CopyrightOverlay(this);
             mOsmv.getOverlayManager().add(mCopyrightOverlay);
