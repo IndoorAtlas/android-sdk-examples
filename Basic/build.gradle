@@ -6,10 +6,10 @@ android {
     buildToolsVersion '26.0.3'
 
     // note: use gradle.properties in project root level to set your api credentials
-    def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set";
-    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set";
-    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set";
-    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set";
+    def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
+    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
+    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set"
+    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set"
 
 
     defaultConfig {
@@ -50,17 +50,17 @@ android {
 }
 
 dependencies {
-    compile "com.indooratlas.android:indooratlas-android-sdk:3.0.0-beta-1021@aar"
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.0.0-beta-1021@aar"
 
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.google.android.gms:play-services-maps:8.1.0'
-    compile 'com.google.maps.android:android-maps-utils:0.3.+'
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
-    compile 'com.pubnub:pubnub-android:3.7.5'
-    compile 'com.android.support:design:26.1.0'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.google.android.gms:play-services-maps:8.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.3.+'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
+    implementation 'com.pubnub:pubnub-android:3.7.5'
+    implementation 'com.android.support:design:26.1.0'
 
     // for Open Street Map support
-    compile 'org.osmdroid:osmdroid-android:6.0.2'
-    compile 'com.github.MKergall:osmbonuspack:6.5.2'
+    implementation 'org.osmdroid:osmdroid-android:6.0.3'
+    implementation 'com.github.MKergall:osmbonuspack:6.5.2'
 }
