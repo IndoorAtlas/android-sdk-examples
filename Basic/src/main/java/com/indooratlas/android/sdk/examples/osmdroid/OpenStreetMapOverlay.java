@@ -34,6 +34,7 @@ import org.osmdroid.bonuspack.overlays.GroundOverlay;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.CopyrightOverlay;
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
@@ -226,7 +227,8 @@ public class OpenStreetMapOverlay extends Activity {
             mRotationGestureOverlay.setEnabled(true);
             mOsmv.getOverlayManager().add(mRotationGestureOverlay);
             mOsmv.setMultiTouchControls(true);
-            mOsmv.setBuiltInZoomControls(false); // gestures fill this role
+            // gestures fill this role
+            mOsmv.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.NEVER);
 
             mCopyrightOverlay = new CopyrightOverlay(this);
             mOsmv.getOverlayManager().add(mCopyrightOverlay);
