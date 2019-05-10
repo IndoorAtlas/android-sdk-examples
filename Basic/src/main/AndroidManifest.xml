@@ -82,10 +82,6 @@
             android:label="@string/example_osm_overlay_title"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".geofence.GeofenceActivity"
-            android:label="@string/example_geofence_title"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".geofence.GeofenceMapsOverlayActivity"
             android:label="@string/example_googlemaps_overlay_geofencing_title"
             android:screenOrientation="portrait" />
