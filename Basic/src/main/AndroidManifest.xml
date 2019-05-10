@@ -86,6 +86,11 @@
             android:label="@string/example_geofence_title"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".geofence.GeofenceMapsOverlayActivity"
+            android:label="@string/example_googlemaps_overlay_geofencing_title"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".locationsettings.LocationSettingsActivity"
             android:label="@string/example_location_settings_title" />
 
