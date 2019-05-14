@@ -109,7 +109,7 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 
 * [Geofences](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/geofence): Demonstrates how to set geofences and receive the geofence events.
 
-![](/example-screenshots/geofences_10.jpg)
+![](/example-screenshots/geofences_10.png)
 
 
 ### Orientation Example

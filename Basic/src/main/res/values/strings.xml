@@ -9,10 +9,12 @@
     <string name="example_googlemaps_basic_title">03. Google Maps - Basic</string>
     <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
     <string name="example_googlemaps_overlay_title">04. Google Maps - Overlay</string>
+    <string name="example_googlemaps_overlay_geofencing_title">11. Geofences on Google Maps Overlay</string>
     <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS).</string>
-    <string name="example_osm_overlay_title">08. Overlay with Open Street Map</string>
+    <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS). Geofences work outdoors as well. </string>
+    <string name="example_osm_overlay_title">10. Overlay with Open Street Map</string>
     <string name="example_osm_overlay_description">Maps overlay with Open Street Map</string>
-    <string name="example_googlemaps_indoor_title">13. Google Indoor Maps</string>
+    <string name="example_googlemaps_indoor_title">14. Google Indoor Maps</string>
     <string name="example_googlemaps_indoor_description">Demonstrates using IndoorAtlas locations on Google Indoor Maps</string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
@@ -76,10 +78,10 @@
 
     <!-- Geofence example -->
     <string name="example_geofence_description">Demonstrates usage of geofences in IndoorAtlas SDK</string>
-    <string name="example_geofence_title">10. Geofences</string>
+    <string name="example_geofence_title">11. Geofences</string>
 
     <!-- Radio and location settings example -->
-    <string name="example_location_settings_title">11. Device radio and location settings</string>
+    <string name="example_location_settings_title">12. Device radio and location settings</string>
     <string name="example_location_settings_description">Shows how to verify Bluetooth, WiFi and location settings</string>
     <string name="text_location_settings_example">Example on how to verify current WiFi, Bluetooth and location mode settings for optimal localization performance.</string>
     <string name="button_check_wifi_setting">Check WiFi background scanning</string>
@@ -94,13 +96,13 @@
     <string name="location_provider_available">Location provider enabled</string>
 
     <string name="example_wayfinding_description">Demonstrates usage of IndoorAtlas Wayfinding</string>
-    <string name="example_wayfinding_title">12. Wayfinding</string>
+    <string name="example_wayfinding_title">13. Wayfinding</string>
 
     <string name="example_foregroundservice_description">Demonstrates IndoorAtlas background positioning using a foreground service.</string>
-    <string name="example_foregroundservice_title">14. Foreground Service</string>
+    <string name="example_foregroundservice_title">15. Foreground Service</string>
 
     <string name="example_lockfloor_description">Demonstrates how locking positioning to specific floor or indoors is achieved.</string>
-    <string name="example_lockfloor_title">15. Lock floor and Indoors </string>
+    <string name="example_lockfloor_title">16. Lock floor and Indoors </string>
 
 
 </resources>
