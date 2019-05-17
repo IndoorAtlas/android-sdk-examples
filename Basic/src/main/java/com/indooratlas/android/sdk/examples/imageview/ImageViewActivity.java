@@ -149,7 +149,7 @@ public class ImageViewActivity extends FragmentActivity {
                 if (status == DownloadManager.STATUS_SUCCESSFUL) {
                     // process download
                     String filePath = c.getString(c.getColumnIndex(
-                            DownloadManager.COLUMN_LOCAL_FILENAME));
+                            DownloadManager.COLUMN_LOCAL_URI));
                     showFloorPlanImage(filePath);
                 }
             }

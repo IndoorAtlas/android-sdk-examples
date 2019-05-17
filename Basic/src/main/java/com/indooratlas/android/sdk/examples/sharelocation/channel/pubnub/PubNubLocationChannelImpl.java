@@ -77,7 +77,9 @@ public class PubNubLocationChannelImpl implements LocationChannel {
     @Override
     public void publish(LocationEvent event) {
         try {
-            mPubNub.publish(mCurrentChannel, ConversionUtils.toJSON(event), false, mCallback);
+            if(mCurrentChannel != null && event != null) {
+                mPubNub.publish(mCurrentChannel, ConversionUtils.toJSON(event), false, mCallback);
+            }
         } catch (JSONException e) {
             throw new IllegalStateException("conversion failed", e);
         }
