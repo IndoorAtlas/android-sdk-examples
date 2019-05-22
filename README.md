@@ -56,7 +56,7 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 
 ### Google Maps - Overlay Example
 
-* [Google Maps](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemapsindoor) - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
+* [Google Maps](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/mapsoverlay) - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
 
 ![](/example-screenshots/googlemaps&#32;-&#32;overlay_04.jpg)
 
