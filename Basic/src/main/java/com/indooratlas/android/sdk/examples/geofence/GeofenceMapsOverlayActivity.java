@@ -71,6 +71,8 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     private HashMap<LatLng, Circle> mGeofenceCircles = new HashMap<>();
     private List<IAGeofence> mTriggeredGeofences = new ArrayList<>();
 
+    private static int mRunningGeofenceId = 0;
+
     private boolean mGuideShown = false;
 
     @Override
@@ -122,10 +124,12 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
             Log.d(TAG, "Geofence: " + lat + ", " + lon);
         }
 
-        Log.d(TAG, "Creating a geofence with id \"My geofence\"");
+
+        String geofenceId = "My geofence "+mRunningGeofenceId++;
+        Log.d(TAG, "Creating a geofence with id \"" + geofenceId + "\"");
         IAGeofence geofence = new IAGeofence.Builder()
                 .withEdges(edges)
-                .withId("My geofence")
+                .withId(geofenceId)
                 .withTransitionType(IAGeofence.GEOFENCE_TRANSITION_ENTER |
                         IAGeofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
