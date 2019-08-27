@@ -56,6 +56,8 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
 
+    private static final double GEOFENCE_RADIUS_METERS = 5.0;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
     private Marker mMarker;
@@ -112,7 +114,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
      */
     private void placeNewGeofence(LatLng latLng) {
         // Add a circular geofence by adding points with a 5 m radius clockwise
-        final double radius = 5.0;
+        final double radius = GEOFENCE_RADIUS_METERS;
         final int edgeCount = 12;
         final double EARTH_RADIUS_METERS = 6.371e6;
         final double latPerMeter = 1.0/(EARTH_RADIUS_METERS * Math.PI/180);
@@ -203,7 +205,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
                 } else {
                     Circle c = mMap.addCircle(new CircleOptions()
                             .center(geofence)
-                            .radius(4) // hardcoded geofence radius
+                            .radius(GEOFENCE_RADIUS_METERS) // hardcoded geofence radius
                             .fillColor(color)
                             .strokeColor(0x31515724)
                             .zIndex(1.0f)
