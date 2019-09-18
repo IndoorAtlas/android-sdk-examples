@@ -56,6 +56,8 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
 
+    private static final double GEOFENCE_RADIUS_METERS = 5.0;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
     private Marker mMarker;
@@ -108,24 +110,25 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     /**
      * Place a geofence with radius of 10 meters around specified location
      *
-     * @param latlon LatLng where to put the geofence
+     * @param latLng LatLng where to put the geofence
      */
-    private void placeNewGeofence(LatLng latlon) {
-
-        // Add a circular geofence by adding points with a 10 m radius clockwise
-        double lat_per_meter = 9e-06 * Math.cos(Math.PI / 180.0 * latlon.latitude);
-        double lon_per_meter = 9e-06;
+    private void placeNewGeofence(LatLng latLng) {
+        // Add a circular geofence by adding points with a 5 m radius clockwise
+        final double radius = GEOFENCE_RADIUS_METERS;
+        final int edgeCount = 12;
+        final double EARTH_RADIUS_METERS = 6.371e6;
+        final double latPerMeter = 1.0/(EARTH_RADIUS_METERS * Math.PI/180);
+        final double lonPerMeter = latPerMeter / Math.cos(Math.PI / 180.0 * latLng.latitude);
 
         ArrayList<double[]> edges = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            double lat = latlon.latitude + 10 * lat_per_meter * Math.sin(-2 * Math.PI * i / 10);
-            double lon = latlon.longitude + 10 * lon_per_meter * Math.cos(-2 * Math.PI * i / 10);
+        for (int i = 0; i < edgeCount; i++) {
+            double angle = -2 * Math.PI * i / edgeCount;
+            double lat = latLng.latitude + radius * latPerMeter * Math.sin(angle);
+            double lon = latLng.longitude + radius * lonPerMeter * Math.cos(angle);
             edges.add(new double[]{lat, lon});
-            Log.d(TAG, "Geofence: " + lat + ", " + lon);
         }
 
-
-        String geofenceId = "My geofence "+mRunningGeofenceId++;
+        String geofenceId = "My geofence " + mRunningGeofenceId++;
         Log.d(TAG, "Creating a geofence with id \"" + geofenceId + "\"");
         IAGeofence geofence = new IAGeofence.Builder()
                 .withEdges(edges)
@@ -140,7 +143,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
                 .withInitialTrigger(IAGeofenceRequest.INITIAL_TRIGGER_ENTER)
                 .build(), this);
 
-        mGeofences.put(latlon, geofence);
+        mGeofences.put(latLng, geofence);
 
         Toast.makeText(this,
                 "New geofence set!",
@@ -202,7 +205,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
                 } else {
                     Circle c = mMap.addCircle(new CircleOptions()
                             .center(geofence)
-                            .radius(4) // hardcoded geofence radius
+                            .radius(GEOFENCE_RADIUS_METERS) // hardcoded geofence radius
                             .fillColor(color)
                             .strokeColor(0x31515724)
                             .zIndex(1.0f)
@@ -464,10 +467,16 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     }
 
     private void startListeningPlatformLocations() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+        try{
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager != null) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            }
+        } catch (SecurityException e) {
+            Toast.makeText(this, "Platform location permissions not granted",
+                    Toast.LENGTH_LONG).show();
         }
+
     }
 }
