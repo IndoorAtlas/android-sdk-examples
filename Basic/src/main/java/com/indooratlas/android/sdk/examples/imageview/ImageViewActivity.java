@@ -13,10 +13,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +25,8 @@ import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
+import com.indooratlas.android.sdk.IAOrientationListener;
+import com.indooratlas.android.sdk.IAOrientationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
@@ -59,8 +61,22 @@ public class ImageViewActivity extends FragmentActivity {
                 IALatLng latLng = new IALatLng(location.getLatitude(), location.getLongitude());
                 PointF point = mFloorPlan.coordinateToPoint(latLng);
                 mImageView.setDotCenter(point);
+                mImageView.setUncertaintyRadius(
+                        mFloorPlan.getMetersToPixels() * location.getAccuracy());
                 mImageView.postInvalidate();
             }
+        }
+    };
+
+    private IAOrientationListener mOrientationListener = new IAOrientationListener() {
+        @Override
+        public void onHeadingChanged(long timestamp, double heading) {
+            mImageView.setHeading(heading - mFloorPlan.getBearing());
+        }
+
+        @Override
+        public void onOrientationChange(long l, double[] doubles) {
+            // No-op
         }
     };
 
@@ -90,7 +106,7 @@ public class ImageViewActivity extends FragmentActivity {
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        mImageView = (BlueDotView) findViewById(R.id.imageView);
+        mImageView = findViewById(R.id.imageView);
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
@@ -114,6 +130,8 @@ public class ImageViewActivity extends FragmentActivity {
         // starts receiving location updates
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+        IAOrientationRequest orientationRequest = new IAOrientationRequest(10f, 10f);
+        mIALocationManager.registerOrientationListener(orientationRequest, mOrientationListener);
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
@@ -122,6 +140,7 @@ public class ImageViewActivity extends FragmentActivity {
         super.onPause();
         mIALocationManager.removeLocationUpdates(mLocationListener);
         mIALocationManager.unregisterRegionListener(mRegionListener);
+        mIALocationManager.unregisterOrientationListener(mOrientationListener);
         unregisterReceiver(onComplete);
     }
 
@@ -129,7 +148,7 @@ public class ImageViewActivity extends FragmentActivity {
      * Methods for fetching bitmap image.
      */
 
-     /*  Broadcast receiver for floor plan image download */
+    /*  Broadcast receiver for floor plan image download */
     private BroadcastReceiver onComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -159,7 +178,7 @@ public class ImageViewActivity extends FragmentActivity {
 
     private void showFloorPlanImage(String filePath) {
         Log.w(TAG, "showFloorPlanImage: " + filePath);
-        mImageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius);
+        mImageView.setDotRadius(mFloorPlan.getMetersToPixels() * dotRadius);
         mImageView.setImage(ImageSource.uri(filePath));
     }
 
@@ -177,12 +196,6 @@ public class ImageViewActivity extends FragmentActivity {
                     new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
             request.setDescription("IndoorAtlas floor plan");
             request.setTitle("Floor plan");
-            // requires android 3.2 or later to compile
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                request.allowScanningByMediaScanner();
-                request.setNotificationVisibility(DownloadManager.
-                        Request.VISIBILITY_HIDDEN);
-            }
             request.setDestinationInExternalPublicDir(Environment.
                     DIRECTORY_DOWNLOADS, fileName);
 
@@ -190,7 +203,6 @@ public class ImageViewActivity extends FragmentActivity {
         } else {
             showFloorPlanImage(filePath);
         }
-
     }
 
     private void ensurePermissions() {
@@ -203,22 +215,17 @@ public class ImageViewActivity extends FragmentActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        switch (requestCode) {
-            case REQUEST_CODE_WRITE_EXTERNAL_STORAGE:
-
-                if (grantResults.length == 0
-                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.storage_permission_denied_message,
-                            Toast.LENGTH_LONG).show();
-                    finish();
-                }
-                break;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length == 0
+                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, R.string.storage_permission_denied_message,
+                        Toast.LENGTH_LONG).show();
+                finish();
+            }
         }
-
     }
-
 
 }
 

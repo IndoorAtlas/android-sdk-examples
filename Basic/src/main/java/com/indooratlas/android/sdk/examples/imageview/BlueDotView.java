@@ -1,11 +1,12 @@
 package com.indooratlas.android.sdk.examples.imageview;
 
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.indooratlas.android.sdk.examples.R;
@@ -16,15 +17,27 @@ import com.indooratlas.android.sdk.examples.R;
  */
 public class BlueDotView extends SubsamplingScaleImageView {
 
-    private float radius = 1.0f;
+    private float uncertaintyRadius = 1.0f;
+    private float dotRadius = 1.0f;
     private PointF dotCenter = null;
+    private double heading = -1.0;
+    private SmoothEstimate smoothEstimate = new SmoothEstimate();
+    Paint paint = new Paint();
 
-    public void setRadius(float radius) {
-        this.radius = radius;
+    public void setUncertaintyRadius(float uncertaintyRadius) {
+        this.uncertaintyRadius = uncertaintyRadius;
+    }
+
+    public void setDotRadius(float dotRadius) {
+        this.dotRadius = dotRadius;
     }
 
     public void setDotCenter(PointF dotCenter) {
         this.dotCenter = dotCenter;
+    }
+
+    public void setHeading(double heading) {
+        this.heading = heading;
     }
 
     public BlueDotView(Context context) {
@@ -37,9 +50,16 @@ public class BlueDotView extends SubsamplingScaleImageView {
     }
 
     private void initialise() {
+        Log.d("BluedotView", "Initialize");
         setWillNotDraw(false);
         setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_CENTER);
+
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(getResources().getColor(R.color.ia_blue));
     }
+
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -50,13 +70,53 @@ public class BlueDotView extends SubsamplingScaleImageView {
         }
 
         if (dotCenter != null) {
-            PointF vPoint = sourceToViewCoord(dotCenter);
-            float scaledRadius = getScale() * radius;
-            Paint paint = new Paint();
-            paint.setAntiAlias(true);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(getResources().getColor(R.color.ia_blue));
-            canvas.drawCircle(vPoint.x, vPoint.y, scaledRadius, paint);
+            // Update smooth estimate. Note: map degrees to radians
+            smoothEstimate.update(dotCenter.x, dotCenter.y,
+                    (float)((heading)/180.0 * Math.PI), System.currentTimeMillis());
+
+            PointF vPoint = sourceToViewCoord(smoothEstimate.getX(), smoothEstimate.getY());
+
+            // Paint uncertainty circle
+            float scaledUncertaintyRadius = getScale() * uncertaintyRadius;
+            paint.setAlpha(30);
+            canvas.drawCircle(vPoint.x, vPoint.y, scaledUncertaintyRadius, paint);
+
+            // Paint center point
+            float scaledDotRadius = getScale() * dotRadius;
+            paint.setAlpha(90);
+            canvas.drawCircle(vPoint.x, vPoint.y, scaledDotRadius, paint);
+
+            // Paint heading triangle if available
+            if (heading != -1.0) {
+                paint.setAlpha(255);
+                Path triangle = headingTriangle(vPoint.x, vPoint.y,
+                        // Note: Rotate up-pointing angle to right (for unit circle)
+                        smoothEstimate.getHeading() - (float)Math.PI/2,
+                        scaledDotRadius);
+                canvas.drawPath(triangle, paint);
+            }
         }
+
+        postInvalidate();
+    }
+
+    // Trigonometric (unit circle) computation of the heading arrow triangle
+    private static Path headingTriangle(float x, float y, float headingRadians, float scale){
+        double a = headingRadians;
+        double r = scale;
+        float x1 = (float)(x + 0.9*r*Math.cos(a));
+        float y1 = (float)(y + 0.9*r*Math.sin(a));
+        float x2 = (float)(x + 0.2*r*Math.cos(a + 0.5*Math.PI));
+        float y2 = (float)(y + 0.2*r*Math.sin(a + 0.5*Math.PI));
+        float x3 = (float)(x + 0.2*r*Math.cos(a - 0.5*Math.PI));
+        float y3 = (float)(y + 0.2*r*Math.sin(a - 0.5*Math.PI));
+
+        Path triangle = new Path();
+        triangle.moveTo(x1, y1);
+        triangle.lineTo(x2, y2);
+        triangle.lineTo(x3, y3);
+        triangle.lineTo(x1, y1);
+
+        return triangle;
     }
 }
