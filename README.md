@@ -99,9 +99,9 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 ![](/example-screenshots/foreground-service_14.png)
 
 
-### Positioning using Pernding Intents
+### Positioning using Pending Intents
 
-* [Positioning using Pernding Intents](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
+* [Positioning using Pending Intents](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
 
 ![](/example-screenshots/background-mode_08.jpg)
 
