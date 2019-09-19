@@ -137,6 +137,6 @@ The IndoorAtlas SDK API documentation is available in the documentation portal: 
 
 ## License
 
-Copyright 2015-2017 IndoorAtlas Ltd. The IndoorAtlas SDK Examples are released under the Apache License. See the [LICENSE.md](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/LICENSE.md) file for details.
+Copyright 2015-2019 IndoorAtlas Ltd. The IndoorAtlas SDK Examples are released under the Apache License. See the [LICENSE.md](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/LICENSE.md) file for details.
 
 
