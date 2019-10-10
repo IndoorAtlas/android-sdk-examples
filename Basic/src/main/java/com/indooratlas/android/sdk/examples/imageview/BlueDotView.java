@@ -70,14 +70,17 @@ public class BlueDotView extends SubsamplingScaleImageView {
         }
 
         if (dotCenter != null) {
-            // Update smooth estimate. Note: map degrees to radians
-            smoothEstimate.update(dotCenter.x, dotCenter.y,
-                    (float)((heading)/180.0 * Math.PI), System.currentTimeMillis());
+            // Update smooth estimate
+            smoothEstimate.update(
+                    dotCenter.x, dotCenter.y,
+                    (float)((heading)/180.0 * Math.PI), // Map degrees to radians
+                    uncertaintyRadius,
+                    System.currentTimeMillis());
 
             PointF vPoint = sourceToViewCoord(smoothEstimate.getX(), smoothEstimate.getY());
 
             // Paint uncertainty circle
-            float scaledUncertaintyRadius = getScale() * uncertaintyRadius;
+            float scaledUncertaintyRadius = getScale() * smoothEstimate.getRadius();
             paint.setAlpha(30);
             canvas.drawCircle(vPoint.x, vPoint.y, scaledUncertaintyRadius, paint);
 

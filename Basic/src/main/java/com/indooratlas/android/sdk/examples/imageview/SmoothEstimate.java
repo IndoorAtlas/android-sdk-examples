@@ -12,6 +12,7 @@ public class SmoothEstimate {
     private float x = 0f;
     private float y = 0f;
     private float a = 0f; // Heading in radians
+    private float r = 0f; // Uncertainty radius
     private long t = -1; // -1 stands for uninitialized
     private double smoothnessInMs;
 
@@ -37,20 +38,23 @@ public class SmoothEstimate {
      * @param x x coordinate
      * @param y y coordinate
      * @param a Heading in radians
+     * @param r Estimate uncertainty radius
      * @param t Timestamp in milliseconds
      */
-    public void update(float x, float y, float a, long t) {
+    public void update(float x, float y, float a, float r, long t) {
         if (this.t != -1) {
             long dt = t - this.t;
             this.t = t;
             float ratio = (float) Math.pow(smoothnessInMs, dt);
             this.x = ratio * this.x + (1f - ratio) * x;
             this.y = ratio * this.y + (1f - ratio) * y;
+            this.r = ratio * this.r + (1f - ratio) * r;
             this.a = weightedAngle(this.a, a, ratio, 1f - ratio);
         } else {
             this.x = x;
             this.y = y;
             this.a = a;
+            this.r = r;
             this.t = t;
         }
     }
@@ -65,6 +69,10 @@ public class SmoothEstimate {
 
     public float getHeading() {
         return a;
+    }
+
+    public float getRadius() {
+        return r;
     }
 
     private static float weightedAngle(float a1, float a2, float w1, float w2) {
