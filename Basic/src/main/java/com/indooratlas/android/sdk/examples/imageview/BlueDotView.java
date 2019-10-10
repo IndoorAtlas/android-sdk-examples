@@ -100,10 +100,15 @@ public class BlueDotView extends SubsamplingScaleImageView {
         postInvalidate();
     }
 
-    // Trigonometric (unit circle) computation of the heading arrow triangle
-    private static Path headingTriangle(float x, float y, float headingRadians, float scale){
-        double a = headingRadians;
-        double r = scale;
+    /**
+     * Trigonometric (unit circle) computation of the heading arrow triangle
+     * @param x X coordinate of the estimate (circle) center
+     * @param y Y coordinate of the estimate (circle) center
+     * @param a Heading angle in radians (zero pointing right)
+     * @param r Radius of the estimate circle
+     * @return Path representing the heading triangle
+     */
+    private static Path headingTriangle(float x, float y, float a, float r){
         float x1 = (float)(x + 0.9*r*Math.cos(a));
         float y1 = (float)(y + 0.9*r*Math.sin(a));
         float x2 = (float)(x + 0.2*r*Math.cos(a + 0.5*Math.PI));
