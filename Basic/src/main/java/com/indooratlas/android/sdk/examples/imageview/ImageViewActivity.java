@@ -70,7 +70,9 @@ public class ImageViewActivity extends FragmentActivity {
     private IAOrientationListener mOrientationListener = new IAOrientationListener() {
         @Override
         public void onHeadingChanged(long timestamp, double heading) {
-            mImageView.setHeading(heading - mFloorPlan.getBearing());
+            if (mFloorPlan != null) {
+                mImageView.setHeading(heading - mFloorPlan.getBearing());
+            }
         }
 
         @Override
@@ -158,6 +160,12 @@ public class ImageViewActivity extends FragmentActivity {
             }
             Log.w(TAG, "Image download completed");
             Bundle extras = intent.getExtras();
+
+            if (extras == null) {
+                Log.w(TAG, "Extras null: can't show floor plan");
+                return;
+            }
+
             DownloadManager.Query q = new DownloadManager.Query();
             q.setFilterById(extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID));
             Cursor c = mDownloadManager.query(q);
