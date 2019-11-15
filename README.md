@@ -25,7 +25,7 @@ There are also similar examples for iOS in [Objective-C](https://github.com/Indo
 
 ### Set up your API keys
 
-To run the examples you need to configure your IndoorAtlas API keys. If you do not have keys yet, go to https://app.indooratlas.com and sign up.
+To run the examples you need to configure your IndoorAtlas API keys. If you do not have keys yet, go to <https://app.indooratlas.com> and sign up.
 
 Once you have API keys, edit them into `gradle.properties` in the project root level.
 
@@ -42,7 +42,8 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 ### Imageview Example
 
 * [ImageView](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/imageview): Automatically downloads the floor plan that user has entered and displays it using Dave Morrissey's 
-https://github.com/davemorrissey/subsampling-scale-image-view. This is a great library for handling large images!
+<https://github.com/davemorrissey/subsampling-scale-image-view>. This is a great library for handling large images! The example also demonstrates smoothly animating the blue dot and how to set up OrientationListener for obtaining device heading
+ information.
 
 ![](/example-screenshots/imageview_02.jpg)
 
@@ -98,9 +99,9 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 ![](/example-screenshots/foreground-service_14.png)
 
 
-### Positioning using Pernding Intents
+### Positioning using Pending Intents
 
-* [Positioning using Pernding Intents](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
+* [Positioning using Pending Intents](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/background): Demonstrates running IndoorAtlas positioning in the background.
 
 ![](/example-screenshots/background-mode_08.jpg)
 
@@ -128,14 +129,14 @@ https://github.com/davemorrissey/subsampling-scale-image-view. This is a great l
 
 ## Documentation
 
-The IndoorAtlas SDK API documentation is available in the documentation portal: http://docs.indooratlas.com/android/
+The IndoorAtlas SDK API documentation is available in the documentation portal: <http://docs.indooratlas.com/android/>
 
 ## SDK Changelog
 
-http://docs.indooratlas.com/android/CHANGELOG.html
+<http://docs.indooratlas.com/android/CHANGELOG.html>
 
 ## License
 
-Copyright 2015-2017 IndoorAtlas Ltd. The IndoorAtlas SDK Examples are released under the Apache License. See the [LICENSE.md](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/LICENSE.md) file for details.
+Copyright 2015-2019 IndoorAtlas Ltd. The IndoorAtlas SDK Examples are released under the Apache License. See the [LICENSE.md](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/LICENSE.md) file for details.
 
 
