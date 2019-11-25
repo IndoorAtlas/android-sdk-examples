@@ -133,20 +133,20 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         IAGeofence geofence = new IAGeofence.Builder()
                 .withEdges(edges)
                 .withId(geofenceId)
-                .withTransitionType(IAGeofence.GEOFENCE_TRANSITION_ENTER |
-                        IAGeofence.GEOFENCE_TRANSITION_EXIT)
                 .build();
+
 
         Log.i(TAG, "New geofence registered: " + geofence);
         mIALocationManager.addGeofences(new IAGeofenceRequest.Builder()
+                .withCloudGeofences(true) // listen also geofences defined in app.indooratlas.com
                 .withGeofence(geofence)
-                .withInitialTrigger(IAGeofenceRequest.INITIAL_TRIGGER_ENTER)
                 .build(), this);
 
         mGeofences.put(latLng, geofence);
 
         Toast.makeText(this,
-                "New geofence set!",
+                "New geofence set! Listening also triggers for " +
+                        "geofences defined in app.indooratlas.com",
                 Toast.LENGTH_LONG).show();
     }
 
