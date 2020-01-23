@@ -172,6 +172,8 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+        // enable indoor-outdoor mode, required since SDK 3.2
+        mIALocationManager.lockIndoors(false);
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
         if (mMap != null) {
             mMap.setOnIndoorStateChangeListener(this);

@@ -173,6 +173,8 @@ public class OpenStreetMapOverlay extends Activity {
 
         initOsmMapView();
 
+        // enable indoor-outdoor mode, required since SDK 3.2
+        mIALocationManager.lockIndoors(false);
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);

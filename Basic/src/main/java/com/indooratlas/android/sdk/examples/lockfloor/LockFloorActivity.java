@@ -241,10 +241,10 @@ public class LockFloorActivity extends AppCompatActivity
         builder.show();
     }
 
-    public void lockIndoors(View view) {
+    public void unlockIndoors(View view) {
         if (mLocationManager != null) {
-            mLocationManager.lockIndoors(true);
-            log("Locking indoors");
+            mLocationManager.lockIndoors(false);
+            log("Unlocking indoors (enabling indoor-outdoor mode)");
         }
     }
 

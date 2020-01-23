@@ -20,14 +20,14 @@
             android:layout_height="wrap_content"
             android:layout_weight=".3"
             android:onClick="lockFloor"
-            android:text="Set floor lock"/>
+            android:text="Lock floor" />
 
         <Button
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".3"
-            android:onClick="lockIndoors"
-            android:text="Set indoor lock"/>
+            android:onClick="unlockIndoors"
+            android:text="Unlock indoors" />
 
     </LinearLayout>
 

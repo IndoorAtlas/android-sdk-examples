@@ -2,7 +2,6 @@ package com.indooratlas.android.sdk.examples.googlemaps;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,7 +15,6 @@ import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
-import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
@@ -51,6 +49,8 @@ public class MapsActivity extends FragmentActivity implements IALocationListener
     @Override
     protected void onResume() {
         super.onResume();
+        // enable indoor-outdoor mode, required since SDK 3.2
+        mIALocationManager.lockIndoors(false);
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
     }
 
