@@ -220,6 +220,8 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     protected void onResume() {
         super.onResume();
 
+        // enable indoor-outdoor mode, required since SDK 3.2
+        mIALocationManager.lockIndoors(false);
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);

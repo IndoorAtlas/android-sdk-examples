@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -207,15 +206,6 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
-
-        // disable indoor-outdoor detection (assume we're indoors)
-        mIALocationManager.lockIndoors(true);
-
-        // Request GPS locations
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-            return;
-        }
 
         // Try to obtain the map from the SupportMapFragment.
         ((SupportMapFragment) getSupportFragmentManager()

@@ -8,7 +8,7 @@
     <string name="example_imageview_description">Demonstrates showing locations on a floor plan displayed with ImageView.</string>
     <string name="example_googlemaps_basic_title">03. Google Maps - Basic</string>
     <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
-    <string name="example_googlemaps_overlay_title">04. Google Maps - Overlay</string>
+    <string name="example_googlemaps_overlay_title">04. Google Maps - Indoor-outdoor</string>
     <string name="example_googlemaps_overlay_geofencing_title">11. Geofences on Google Maps Overlay</string>
     <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS).</string>
     <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS). Geofences work outdoors as well. </string>
