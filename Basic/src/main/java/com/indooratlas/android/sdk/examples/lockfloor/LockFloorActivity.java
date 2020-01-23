@@ -125,21 +125,6 @@ public class LockFloorActivity extends AppCompatActivity
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         switch (status) {
-            case IALocationManager.STATUS_CALIBRATION_CHANGED:
-                String quality = "unknown";
-                switch (extras.getInt("quality")) {
-                    case IALocationManager.CALIBRATION_POOR:
-                        quality = "Poor";
-                        break;
-                    case IALocationManager.CALIBRATION_GOOD:
-                        quality = "Good";
-                        break;
-                    case IALocationManager.CALIBRATION_EXCELLENT:
-                        quality = "Excellent";
-                        break;
-                }
-                log("Calibration change. Quality: " + quality);
-                break;
             case IALocationManager.STATUS_AVAILABLE:
                 log("onStatusChanged: Available");
                 break;
