@@ -1,7 +1,5 @@
 package com.indooratlas.android.sdk.examples.wayfinding;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -31,6 +29,7 @@ import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IAOrientationListener;
 import com.indooratlas.android.sdk.IAOrientationRequest;
+import com.indooratlas.android.sdk.IAPOI;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.IARoute;
 import com.indooratlas.android.sdk.IAWayfindingListener;
@@ -40,6 +39,7 @@ import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
+import com.indooratlas.android.sdk.resources.IAVenue;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
@@ -47,12 +47,9 @@ import com.squareup.picasso.Target;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 @SdkExample(description = R.string.example_wayfinding_description)
 public class WayfindingOverlayActivity extends FragmentActivity
         implements GoogleMap.OnMapClickListener, OnMapReadyCallback {
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
 
@@ -69,6 +66,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private Marker mDestinationMarker;
     private Marker mHeadingMarker;
+    private IAVenue mVenue;
+    private List<Marker> mPoIMarkers = new ArrayList<>();
     private List<Polyline> mPolylines = new ArrayList<>();
     private IARoute mCurrentRoute;
 
@@ -176,7 +175,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
      */
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
         @Override
-        public void onEnterRegion(IARegion region) {
+        public void onEnterRegion(final IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
                 Log.d(TAG, "enter floor plan " + region.getId());
                 mCameraPositionNeedsUpdating = true; // entering new fp, need to move camera
@@ -186,6 +185,9 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 }
                 mOverlayFloorPlan = region; // overlay will be this (unless error in loading)
                 fetchFloorPlanBitmap(region.getFloorPlan());
+                setupPoIs(mVenue.getPOIs(), region.getFloorPlan().getFloorLevel());
+            } else if (region.getType() == IARegion.TYPE_VENUE) {
+                mVenue = region.getVenue();
             }
         }
 
@@ -257,6 +259,38 @@ public class WayfindingOverlayActivity extends FragmentActivity
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
         mMap.setOnMapClickListener(this);
+
+        // disable various Google maps UI elements that do not work indoors
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // ignore clicks to artificial wayfinding target markers
+                if (marker == mDestinationMarker) return false;
+
+                setWayfindingTarget(marker.getPosition(), false);
+                // do not consume the event so that the popup with marker name is displayed
+                return false;
+            }
+        });
+    }
+
+    private void setupPoIs(List<IAPOI> pois, int currentFloorLevel) {
+        Log.d(TAG, pois.size() + " PoI(s)");
+        // remove any existing markers
+        for (Marker m : mPoIMarkers) {
+            m.remove();
+        }
+        mPoIMarkers.clear();
+        for (IAPOI poi : pois) {
+            if (poi.getFloor() == currentFloorLevel) {
+                mPoIMarkers.add(mMap.addMarker(new MarkerOptions()
+                        .title(poi.getName())
+                        .position(new LatLng(poi.getLocation().latitude, poi.getLocation().longitude))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))));
+            }
+        }
     }
 
     /**
@@ -347,27 +381,40 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     @Override
     public void onMapClick(LatLng point) {
-        if (mMap != null) {
-
-            mWayfindingDestination = new IAWayfindingRequest.Builder()
-                    .withFloor(mFloor)
-                    .withLatitude(point.latitude)
-                    .withLongitude(point.longitude)
-                    .build();
-
-            mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
-
-            if (mDestinationMarker == null) {
-                mDestinationMarker = mMap.addMarker(new MarkerOptions()
-                        .position(point)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-            } else {
-                mDestinationMarker.setPosition(point);
-            }
-            Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
-                    mWayfindingDestination.getLongitude() + "), floor=" +
-                    mWayfindingDestination.getFloor());
+        if (mPoIMarkers.isEmpty()) {
+            // if PoIs exist, only allow wayfinding to PoI markers
+            setWayfindingTarget(point, true);
         }
+    }
+
+    private void setWayfindingTarget(LatLng point, boolean addMarker) {
+        if (mMap == null) {
+            Log.w(TAG, "map not loaded yet");
+            return;
+        }
+
+        mWayfindingDestination = new IAWayfindingRequest.Builder()
+                .withFloor(mFloor)
+                .withLatitude(point.latitude)
+                .withLongitude(point.longitude)
+                .build();
+
+        mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+
+        if (mDestinationMarker != null) {
+            mDestinationMarker.remove();
+            mDestinationMarker = null;
+        }
+
+        if (addMarker) {
+            mDestinationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(point)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        }
+        Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
+                mWayfindingDestination.getLongitude() + "), floor=" +
+                mWayfindingDestination.getFloor());
+
     }
 
     private boolean hasArrivedToDestination(IARoute route) {
