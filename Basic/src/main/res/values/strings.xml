@@ -95,8 +95,8 @@
     <string name="wifi_background_scanning_denied">User denied WiFi background scanning</string>
     <string name="location_provider_available">Location provider enabled</string>
 
-    <string name="example_wayfinding_description">Demonstrates usage of IndoorAtlas Wayfinding</string>
-    <string name="example_wayfinding_title">13. Wayfinding</string>
+    <string name="example_wayfinding_description">Demonstrates usage of IndoorAtlas Wayfinding &amp; PoIs</string>
+    <string name="example_wayfinding_title">13. Wayfinding &amp; PoIs</string>
 
     <string name="example_foregroundservice_description">Demonstrates IndoorAtlas background positioning using a foreground service.</string>
     <string name="example_foregroundservice_title">15. Foreground Service</string>
