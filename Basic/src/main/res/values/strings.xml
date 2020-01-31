@@ -10,8 +10,8 @@
     <string name="example_googlemaps_basic_description">Demonstrates showing location on GoogleMap</string>
     <string name="example_googlemaps_overlay_title">04. Google Maps - Indoor-outdoor</string>
     <string name="example_googlemaps_overlay_geofencing_title">11. Geofences on Google Maps Overlay</string>
-    <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS).</string>
-    <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Shows both IndoorAtlas location and platform location (GPS). Geofences work outdoors as well. </string>
+    <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Indoor-outdoor detection is enabled, automatically switches between IndoorAtlas and GPS</string>
+    <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Indoor-outdoor detection is enabled, automatically switches between IndoorAtlas and GPS. Geofences work outdoors as well. </string>
     <string name="example_osm_overlay_title">10. Overlay with Open Street Map</string>
     <string name="example_osm_overlay_description">Maps overlay with Open Street Map</string>
     <string name="example_googlemaps_indoor_title">14. Google Indoor Maps</string>
