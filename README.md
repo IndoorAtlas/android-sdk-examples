@@ -48,13 +48,6 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 ![](/example-screenshots/imageview_02.jpg)
 
 
-### Google Maps - Basic Example
-
-* [Google Maps - Basic](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/googlemaps): This is the hello world of IndoorAtlas SDK + Google Map. Shows received locations on world map. Does not retrieve floor plans.
-
-![](/example-screenshots/googlemaps&#32;-&#32;basic_03.jpg)
-
-
 ### Google Maps - Overlay Example
 
 * [Google Maps](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/mapsoverlay) - Overlay: Just like *Google Maps - Basic* but demonstrates how to place floor plan on world map by coordinates.
