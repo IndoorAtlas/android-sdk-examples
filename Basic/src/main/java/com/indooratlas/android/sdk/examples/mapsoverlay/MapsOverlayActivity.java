@@ -4,14 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-
-import android.content.Context;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -201,8 +198,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
 
-        startListeningPlatformLocations();
-
         // Try to obtain the map from the SupportMapFragment.
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
@@ -222,8 +217,22 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
         // enable indoor-outdoor mode, required since SDK 3.2
         mIALocationManager.lockIndoors(false);
-        // start receiving location updates & monitor region changes
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
+
+        IALocationRequest locReq = IALocationRequest.create();
+
+        // --- choose positioning mode
+
+        // default mode
+        locReq.setPriority(IALocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Low power mode: Uses less power, but has lower accuracy use e.g. for background tracking
+        //locReq.setPriority(IALocationRequest.PRIORITY_LOW_POWER);
+
+        // Cart mode: Use when device is mounted to a shopping cart or similar platform with wheels
+        //locReq.setPriority(IALocationRequest.PRIORITY_CART_MODE);
+
+        // --- start receiving location updates & monitor region changes
+        mIALocationManager.requestLocationUpdates(locReq, mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
@@ -327,13 +336,5 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
             }
         });
         snackbar.show();
-    }
-
-    private void startListeningPlatformLocations() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-        }
     }
 }
