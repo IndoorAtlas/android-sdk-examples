@@ -146,7 +146,6 @@ public class ListExamplesActivity extends AppCompatActivity {
 
         ExamplesAdapter(Context context) {
             mExamples = listActivities(context);
-            Collections.sort(mExamples);
         }
 
 
