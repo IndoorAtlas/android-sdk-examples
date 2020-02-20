@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -19,7 +19,15 @@ import android.widget.Toast;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
+import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
+import com.indooratlas.android.sdk.resources.IAFloorPlan;
+
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class ForegroundService extends Service {
 
@@ -36,6 +44,7 @@ public class ForegroundService extends Service {
     private static final String LOG_TAG = "IAForegroundExample";
 
     private NotificationCompat.Builder mBuilder;
+    private String mReportEndpoint;
 
     @Override
     public void onCreate() {
@@ -53,6 +62,10 @@ public class ForegroundService extends Service {
                 .setContentTitle("IndoorAtlas Foreground Service Example")
                 .setTicker("IndoorAtlas Foreground Service Example")
                 .setSmallIcon(R.drawable.ic_launcher);
+
+        // set this as backgroundReportEndPoint in gradle.properties to enable reporting
+        // locations collected by the Foreground Service to an external backend
+        mReportEndpoint = getString(R.string.background_report_endpoint);
     }
 
     @Override
@@ -64,6 +77,10 @@ public class ForegroundService extends Service {
             NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+            if (!mReportEndpoint.isEmpty())
+                new PostLocationToBackendTask(mReportEndpoint).execute(location);
+
             return START_STICKY;
         }
 
@@ -150,5 +167,63 @@ public class ForegroundService extends Service {
     public IBinder onBind(Intent intent) {
         // Used only in case if services are bound (Bound Services).
         return null;
+    }
+
+    private static class PostLocationToBackendTask extends AsyncTask<IALocation, Void, Void> {
+        String mEndPoint;
+        PostLocationToBackendTask(String endPoint) {
+            mEndPoint = endPoint;
+        }
+
+        @Override
+        protected Void doInBackground(IALocation... iaLocations) {
+            IALocation location = iaLocations[0];
+
+            try {
+                URL url = new URL(mEndPoint);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept","application/json");
+                conn.setDoOutput(true);
+                conn.setDoInput(false);
+
+                JSONObject jsonPayload = new JSONObject()
+                        .put("location", new JSONObject()
+                                .put("coordinates", new JSONObject()
+                                        .put("lat", location.getLatitude())
+                                        .put("lon", location.getLongitude()))
+                                .put("accuracy", location.getAccuracy())
+                                .put("floorNumber", location.getFloorLevel()));
+
+                if (location.getRegion() != null && location.getRegion().getFloorPlan() != null) {
+                    IAFloorPlan floorPlan = location.getRegion().getFloorPlan();
+                    jsonPayload.put("context", new JSONObject()
+                            .put("indooratlas", new JSONObject()
+                                    .put("floorPlanId", floorPlan.getId())));
+
+                }
+
+                Log.d(LOG_TAG, "put JSON " + jsonPayload.toString() + " to " + url.toString());
+
+                DataOutputStream os = new DataOutputStream(conn.getOutputStream());
+                os.writeBytes(jsonPayload.toString());
+                os.flush();
+                os.close();
+
+                final int responseCode = conn.getResponseCode();
+                if (responseCode >= 200 && responseCode < 300) {
+                    Log.d(LOG_TAG, "PUT success " + responseCode);
+                }
+                else {
+                    Log.e(LOG_TAG, "PUT failed with " + responseCode + " " + conn.getResponseMessage());
+                }
+
+                conn.disconnect();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
     }
 }
