@@ -10,6 +10,7 @@ android {
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
     def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set"
     def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set"
+    def backgroundReportEndPoint = project.properties['backgroundReportEndPoint'] ?: ""
 
 
     defaultConfig {
@@ -23,6 +24,7 @@ android {
         resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
         resValue "string", "pubnub_publish_key", pubNubPublishKey
         resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
+        resValue "string", "background_report_endpoint", backgroundReportEndPoint
     }
 
     signingConfigs {
