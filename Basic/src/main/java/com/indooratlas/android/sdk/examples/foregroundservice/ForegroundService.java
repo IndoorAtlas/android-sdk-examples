@@ -18,6 +18,7 @@ import android.util.Log;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
+import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 
@@ -45,8 +46,8 @@ public class ForegroundService extends Service {
 
     private static final String LOG_TAG = "IAForegroundExample";
 
-    private NotificationCompat.Builder mBuilder;
     private String mReportEndpoint;
+    private Bitmap mLargeIconBitmap;
 
     @Override
     public void onCreate() {
@@ -60,25 +61,41 @@ public class ForegroundService extends Service {
                             NotificationManager.IMPORTANCE_LOW);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        mBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                .setContentTitle("IndoorAtlas Foreground Service Example")
-                .setTicker("IndoorAtlas Foreground Service Example")
-                .setSmallIcon(R.drawable.ic_launcher);
 
         // set this as backgroundReportEndPoint in gradle.properties to enable reporting
         // locations collected by the Foreground Service to an external backend
         mReportEndpoint = getString(R.string.background_report_endpoint);
+        mLargeIconBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_launcher);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         IALocation location = IALocation.from(intent);
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (notificationManager == null) {
+            Log.e(LOG_TAG, "No notification manager");
+            return super.onStartCommand(intent, flags, startId);
+        }
+
         if (location != null) {
             Log.i(LOG_TAG, "Got IA Location: " + location);
-            mBuilder.setContentText(location.getLatitude() + ", " + location.getLongitude());
-            NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+            // Running: build a notification with Stop & Pause buttons and coordinates as text
+            NotificationCompat.Builder notificationBuilder = buildNotification(true)
+                    .setContentText(
+                            location.getLatitude() + ", " +
+                            location.getLongitude());
+
+            // Use floor plan ID, if available, as content text
+            IARegion region = location.getRegion();
+            if (region != null && region.getFloorPlan() != null) {
+                notificationBuilder.setContentTitle(region.getFloorPlan().getName());
+            }
+
+            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
 
             if (!mReportEndpoint.isEmpty())
                 new PostLocationToBackendTask(mReportEndpoint).execute(location);
@@ -86,45 +103,23 @@ public class ForegroundService extends Service {
             return START_STICKY;
         }
 
-
         if (intent.getAction().equals(ForegroundService.STARTFOREGROUND_ACTION)) {
-            Log.i(LOG_TAG, "Received Start Foreground Intent ");
-
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            notificationIntent.setAction(ForegroundService.MAIN_ACTION);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-            PendingIntent pendingNotivationIntent = PendingIntent.getActivity(this, 0,
-                    notificationIntent, 0);
-
-            Bitmap icon = BitmapFactory.decodeResource(getResources(),
-                    R.drawable.ic_launcher);
-
-            Notification notification = mBuilder
-                    .setLargeIcon(icon)
-                    .setContentIntent(pendingNotivationIntent)
-                    .setOngoing(true)
-                    .addAction(android.R.drawable.ic_media_pause,
-                            "Pause", buildPendingIntentWithAction(ForegroundService.PAUSE_ACTION))
-                    .addAction(android.R.drawable.ic_media_play, "Start",
-                            buildPendingIntentWithAction(ForegroundService.START_ACTION))
-                    .addAction(android.R.drawable.ic_media_ff, "Stop",
-                            buildPendingIntentWithAction(ForegroundService.STOP_ACTION)).build();
-
-
-            startForeground(NOTIFICATION_ID, notification);
+            Log.i(LOG_TAG, "Received Start Foreground Intent");
+            // Automatically also start positioning + build a notification with a Pause button
+            startForeground(NOTIFICATION_ID, buildNotification(true).build());
+            startPositioning();
             return START_STICKY;
 
         } else if (intent.getAction().equals(ForegroundService.PAUSE_ACTION)) {
             Log.i(LOG_TAG, "Clicked Pause: stopping positioning");
+            // Paused: build a notification with a Start button
             stopPositioning();
+            notificationManager.notify(NOTIFICATION_ID, buildNotification(false).build());
         } else if (intent.getAction().equals(ForegroundService.START_ACTION)) {
-
-            Log.i(LOG_TAG, "Clicked Start: started positioning");
-            IALocationManager manager = IALocationManager.create(this);
-            manager.requestLocationUpdates(IALocationRequest.create(), buildPendingIntent());
-            manager.destroy();
+            Log.i(LOG_TAG, "Clicked Start: starting positioning");
+            // Started: build a notification with a Pause button
+            notificationManager.notify(NOTIFICATION_ID, buildNotification(true).build());
+            startPositioning();
         } else if (intent.getAction().equals(ForegroundService.STOP_ACTION) ||
                 intent.getAction().equals(ForegroundService.STOPFOREGROUND_ACTION)) {
             Log.i(LOG_TAG, "Clicked Stop or received stop intent: stopping positioning and service");
@@ -145,6 +140,43 @@ public class ForegroundService extends Service {
     public IBinder onBind(Intent intent) {
         // Used only in case if services are bound (Bound Services).
         return null;
+    }
+
+    private NotificationCompat.Builder buildNotification(boolean running) {
+        Intent openMainActivityIntent = new Intent(this, MainActivity.class);
+        openMainActivityIntent.setAction(ForegroundService.MAIN_ACTION);
+        openMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setContentTitle(running ? "No floor plan context" : "Paused")
+                .setTicker("IndoorAtlas Foreground Service Example")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setLargeIcon(mLargeIconBitmap)
+                .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(this, 0,
+                        openMainActivityIntent, 0))
+                .addAction(android.R.drawable.ic_media_ff, "Stop",
+                        buildPendingIntentWithAction(ForegroundService.STOP_ACTION));
+
+        if (running) {
+            // Currently running: add pause buttons
+            builder.addAction(android.R.drawable.ic_media_pause, "Pause",
+                    buildPendingIntentWithAction(ForegroundService.PAUSE_ACTION));
+        } else {
+            // add start button
+            builder.addAction(android.R.drawable.ic_media_play, "Start",
+                    buildPendingIntentWithAction(ForegroundService.START_ACTION));
+        }
+
+        return builder;
+    }
+
+    private void startPositioning() {
+        IALocationManager manager = IALocationManager.create(this);
+        manager.requestLocationUpdates(IALocationRequest.create(), buildPendingIntent());
+        manager.destroy();
     }
 
     private void stopPositioning() {

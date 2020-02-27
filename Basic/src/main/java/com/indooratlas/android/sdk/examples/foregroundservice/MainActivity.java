@@ -1,6 +1,5 @@
 package com.indooratlas.android.sdk.examples.foregroundservice;
 
-import android.Manifest;
 import android.content.Intent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -14,21 +13,10 @@ import com.indooratlas.android.sdk.examples.SdkExample;
 @SdkExample(description = R.string.example_foregroundservice_description)
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private final int CODE_PERMISSIONS = 1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foreground);
-
-        String[] neededPermissions = {
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN
-        };
-        ActivityCompat.requestPermissions( this, neededPermissions, CODE_PERMISSIONS );
 
         Button startButton = findViewById(R.id.button1);
         Button stopButton = findViewById(R.id.button2);
@@ -37,7 +25,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // buttons for positioning
         startButton.setOnClickListener(this);
         stopButton.setOnClickListener(this);
-
     }
 
     @Override
@@ -60,12 +47,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
     }
 }
