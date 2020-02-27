@@ -19,14 +19,17 @@ import android.widget.Toast;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
-import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 public class ForegroundService extends Service {
@@ -220,8 +223,10 @@ public class ForegroundService extends Service {
                 }
 
                 conn.disconnect();
-            } catch (Exception e) {
+            } catch (MalformedURLException | JSONException | ProtocolException e) {
                 throw new RuntimeException(e);
+            } catch (IOException e) {
+                Log.w(LOG_TAG, "Failed to report location (maybe bad network): " + e.getMessage());
             }
             return null;
         }
