@@ -54,16 +54,6 @@
     <string name="floor_level">Floor level</string>
     <string name="floor_certainty_percentage">Certainty: %.1f %%</string>
 
-    <!-- Background example -->
-    <string name="example_background_description">Demonstrates running IndoorAtlas location service in the background</string>
-    <string name="example_background_title">Background mode</string>
-    <string name="button_start_background">Request location updates</string>
-    <string name="button_stop_background">Remove location updates</string>
-    <string name="button_share_background">Share events</string>
-    <string name="text_background_received">Last received location: %s</string>
-    <string name="button_reset_background">Clear stored events</string>
-    <string name="text_background_example">Request location updates with a PendingIntent. Updates are received by an IntentService that stores them to a file. Note that you can leave the application and still receive updates. </string>
-
     <!-- Orientation example -->
     <string name="example_orientation_description">Demonstrates displaying the 3D orientation of the device. Panorama image credit: ESO (Very Large Telescope ready for action)</string>
     <string name="example_orientation_title">Orientation</string>
@@ -96,8 +86,8 @@
     <string name="example_wayfinding_description">Demonstrates usage of IndoorAtlas Wayfinding &amp; PoIs</string>
     <string name="example_wayfinding_title">Wayfinding &amp; PoIs</string>
 
-    <string name="example_foregroundservice_description">Demonstrates IndoorAtlas background positioning using a foreground service.</string>
-    <string name="example_foregroundservice_title">Foreground Service</string>
+    <string name="example_foregroundservice_description">Demonstrates IndoorAtlas background positioning using a Foreground Service.</string>
+    <string name="example_foregroundservice_title">Background mode (Foreground Service)</string>
 
     <string name="example_lockfloor_description">Demonstrates how locking positioning to specific floor or indoors is achieved.</string>
     <string name="example_lockfloor_title">Lock floor and Indoors </string>
