@@ -21,6 +21,7 @@ import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
+import com.indooratlas.android.sdk.resources.IAVenue;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-public class ForegroundService extends Service {
+public class ForegroundService extends Service implements IARegion.Listener {
 
     public static final String MAIN_ACTION = "main_action";
     public static final String PAUSE_ACTION = "pause_positioning_action";
@@ -48,6 +49,8 @@ public class ForegroundService extends Service {
 
     private String mReportEndpoint;
     private Bitmap mLargeIconBitmap;
+    private IALocationManager mIALocationManager;
+    private IAVenue mCurrentVenue = null;
 
     @Override
     public void onCreate() {
@@ -71,6 +74,11 @@ public class ForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent == null) {
+            Log.d(LOG_TAG,"Null intent");
+            return super.onStartCommand(intent, flags, startId);
+        }
+
         IALocation location = IALocation.from(intent);
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -91,14 +99,19 @@ public class ForegroundService extends Service {
 
             // Use floor plan ID, if available, as content text
             IARegion region = location.getRegion();
+            String title = mCurrentVenue != null ? (mCurrentVenue.getName() + " - ") : "";
             if (region != null && region.getFloorPlan() != null) {
-                notificationBuilder.setContentTitle(region.getFloorPlan().getName());
+                title += region.getFloorPlan().getName();
+                notificationBuilder.setContentTitle(title);
             }
 
             notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
 
+            // Get IA trace ID
+            String traceId = mIALocationManager != null ? mIALocationManager.getExtraInfo().traceId : null;
+
             if (!mReportEndpoint.isEmpty())
-                new PostLocationToBackendTask(mReportEndpoint).execute(location);
+                new PostLocationToBackendTask(mReportEndpoint, mCurrentVenue, traceId).execute(location);
 
             return START_STICKY;
         }
@@ -134,6 +147,10 @@ public class ForegroundService extends Service {
     @Override
     public void onDestroy() {
         Log.d(LOG_TAG, "service onDestroy");
+        if (mIALocationManager != null) {
+            mIALocationManager.destroy();
+            mIALocationManager = null;
+        }
     }
 
     @Override
@@ -174,15 +191,22 @@ public class ForegroundService extends Service {
     }
 
     private void startPositioning() {
-        IALocationManager manager = IALocationManager.create(this);
-        manager.requestLocationUpdates(IALocationRequest.create(), buildPendingIntent());
-        manager.destroy();
+        if (mIALocationManager == null) {
+            mIALocationManager = IALocationManager.create(this);
+            mIALocationManager.registerRegionListener(this);
+        }
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), buildPendingIntent());
     }
 
     private void stopPositioning() {
-        IALocationManager manager = IALocationManager.create(this);
-        manager.removeLocationUpdates(buildPendingIntent());
-        manager.destroy();
+        mCurrentVenue = null;
+        if (mIALocationManager == null) {
+            mIALocationManager = IALocationManager.create(this);
+            mIALocationManager.unregisterRegionListener(this);
+        }
+        mIALocationManager.removeLocationUpdates(buildPendingIntent());
+        mIALocationManager.destroy();
+        mIALocationManager = null;
     }
 
     private PendingIntent buildPendingIntent() {
@@ -196,10 +220,30 @@ public class ForegroundService extends Service {
         return PendingIntent.getService(this, 0, intent, 0);
     }
 
+    @Override
+    public void onEnterRegion(IARegion iaRegion) {
+        if (iaRegion.getType() == IARegion.TYPE_VENUE) {
+            mCurrentVenue = iaRegion.getVenue();
+        }
+    }
+
+    @Override
+    public void onExitRegion(IARegion iaRegion) {
+        if (iaRegion.getType() == IARegion.TYPE_VENUE) {
+            mCurrentVenue = null;
+        }
+
+    }
+
     private static class PostLocationToBackendTask extends AsyncTask<IALocation, Void, Void> {
-        String mEndPoint;
-        PostLocationToBackendTask(String endPoint) {
+        final String mEndPoint;
+        final String mTraceId;
+        final String mVenueId;
+
+        PostLocationToBackendTask(String endPoint, IAVenue currentVenue, String traceId) {
             mEndPoint = endPoint;
+            mTraceId = traceId;
+            mVenueId = currentVenue == null ? null : currentVenue.getId();
         }
 
         @Override
@@ -223,12 +267,23 @@ public class ForegroundService extends Service {
                                 .put("accuracy", location.getAccuracy())
                                 .put("floorNumber", location.getFloorLevel()));
 
+                JSONObject iaContext = new JSONObject();
                 if (location.getRegion() != null && location.getRegion().getFloorPlan() != null) {
                     IAFloorPlan floorPlan = location.getRegion().getFloorPlan();
-                    jsonPayload.put("context", new JSONObject()
-                            .put("indooratlas", new JSONObject()
-                                    .put("floorPlanId", floorPlan.getId())));
+                    iaContext.put("floorPlanId", floorPlan.getId());
+                }
 
+                if (mVenueId != null) {
+                    iaContext.put("venueId", mVenueId);
+                }
+
+                if (mTraceId != null) {
+                    iaContext.put("traceId", mTraceId);
+                }
+
+                if (iaContext.keys().hasNext()) {
+                    jsonPayload.put("context", new JSONObject()
+                            .put("indooratlas", iaContext));
                 }
 
                 Log.d(LOG_TAG, "put JSON " + jsonPayload.toString() + " to " + url.toString());
