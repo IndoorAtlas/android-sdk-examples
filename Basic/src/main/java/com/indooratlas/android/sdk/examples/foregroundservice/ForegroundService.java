@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -28,10 +29,13 @@ import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class ForegroundService extends Service implements IARegion.Listener {
 
@@ -68,6 +72,19 @@ public class ForegroundService extends Service implements IARegion.Listener {
         // set this as backgroundReportEndPoint in gradle.properties to enable reporting
         // locations collected by the Foreground Service to an external backend
         mReportEndpoint = getString(R.string.background_report_endpoint);
+        if (!mReportEndpoint.isEmpty()) {
+            // Append the bluetooth of the device to the reported data to serve as an example ID
+            try {
+                String urlSuffix = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+                mReportEndpoint += "/" + URLEncoder
+                        .encode(urlSuffix, StandardCharsets.UTF_8.toString())
+                        .replace("+", "%20"); // escape space differently in path
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
         mLargeIconBitmap = BitmapFactory.decodeResource(getResources(),
                 R.drawable.ic_launcher);
     }
