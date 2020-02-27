@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -96,80 +95,73 @@ public class ForegroundService extends Service {
             notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+            PendingIntent pendingNotivationIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0);
-
-            Intent previousIntent = new Intent(this, ForegroundService.class);
-            previousIntent.setAction(ForegroundService.PAUSE_ACTION);
-            PendingIntent ppauseIntent = PendingIntent.getService(this, 0,
-                    previousIntent, 0);
-
-            Intent playIntent = new Intent(this, ForegroundService.class);
-            playIntent.setAction(ForegroundService.START_ACTION);
-            PendingIntent pplayIntent = PendingIntent.getService(this, 0,
-                    playIntent, 0);
-
-            Intent nextIntent = new Intent(this, ForegroundService.class);
-            nextIntent.setAction(ForegroundService.STOP_ACTION);
-            PendingIntent pstopIntent = PendingIntent.getService(this, 0,
-                    nextIntent, 0);
 
             Bitmap icon = BitmapFactory.decodeResource(getResources(),
                     R.drawable.ic_launcher);
 
             Notification notification = mBuilder
                     .setLargeIcon(icon)
-                    .setContentIntent(pendingIntent)
+                    .setContentIntent(pendingNotivationIntent)
                     .setOngoing(true)
                     .addAction(android.R.drawable.ic_media_pause,
-                            "Pause", ppauseIntent)
+                            "Pause", buildPendingIntentWithAction(ForegroundService.PAUSE_ACTION))
                     .addAction(android.R.drawable.ic_media_play, "Start",
-                            pplayIntent)
+                            buildPendingIntentWithAction(ForegroundService.START_ACTION))
                     .addAction(android.R.drawable.ic_media_ff, "Stop",
-                            pstopIntent).build();
+                            buildPendingIntentWithAction(ForegroundService.STOP_ACTION)).build();
 
 
             startForeground(NOTIFICATION_ID, notification);
+            return START_STICKY;
 
         } else if (intent.getAction().equals(ForegroundService.PAUSE_ACTION)) {
-            IALocationManager manager = IALocationManager.create(this);
-            PendingIntent stopIntent = PendingIntent.getService(this, 0,
-                    new Intent(this, ForegroundService.class), 0);
-            manager.removeLocationUpdates(stopIntent);
-            manager.destroy();
-
-            Log.i(LOG_TAG, "Clicked Pause ");
+            Log.i(LOG_TAG, "Clicked Pause: stopping positioning");
+            stopPositioning();
         } else if (intent.getAction().equals(ForegroundService.START_ACTION)) {
+
+            Log.i(LOG_TAG, "Clicked Start: started positioning");
             IALocationManager manager = IALocationManager.create(this);
-            PendingIntent requestIntent = PendingIntent.getService(this, 0,
-                    new Intent(this, ForegroundService.class), 0);
-            manager.requestLocationUpdates(IALocationRequest.create(), requestIntent);
+            manager.requestLocationUpdates(IALocationRequest.create(), buildPendingIntent());
             manager.destroy();
-
-            Log.i(LOG_TAG, "Clicked Start");
-        } else if (intent.getAction().equals(ForegroundService.STOP_ACTION)) {
-            stopForeground(true);
-            stopSelf();
-
-            Log.i(LOG_TAG, "Clicked Stop");
-        } else if (intent.getAction().equals(ForegroundService.STOPFOREGROUND_ACTION)) {
-            Log.i(LOG_TAG, "Received Stop Foreground Intent");
+        } else if (intent.getAction().equals(ForegroundService.STOP_ACTION) ||
+                intent.getAction().equals(ForegroundService.STOPFOREGROUND_ACTION)) {
+            Log.i(LOG_TAG, "Clicked Stop or received stop intent: stopping positioning and service");
+            stopPositioning();
             stopForeground(true);
             stopSelf();
         }
-		return START_STICKY;
+
+		return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        Log.d(LOG_TAG, "service onDestroy");
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {
         // Used only in case if services are bound (Bound Services).
         return null;
+    }
+
+    private void stopPositioning() {
+        IALocationManager manager = IALocationManager.create(this);
+        manager.removeLocationUpdates(buildPendingIntent());
+        manager.destroy();
+    }
+
+    private PendingIntent buildPendingIntent() {
+        return PendingIntent.getService(this, 0,
+                new Intent(this, ForegroundService.class), 0);
+    }
+
+    private PendingIntent buildPendingIntentWithAction(String action) {
+        Intent intent = new Intent(this, ForegroundService.class);
+        intent.setAction(action);
+        return PendingIntent.getService(this, 0, intent, 0);
     }
 
     private static class PostLocationToBackendTask extends AsyncTask<IALocation, Void, Void> {
