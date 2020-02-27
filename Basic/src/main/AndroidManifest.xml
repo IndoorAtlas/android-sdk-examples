@@ -63,15 +63,13 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/example_regions_title" />
         <activity
-            android:name=".background.BackgroundActivity"
-            android:label="@string/example_background_title" />
+            android:name=".foregroundservice.MainActivity"
+            android:label="@string/example_foregroundservice_title"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".orientation.OrientationActivity"
             android:label="@string/example_orientation_title"
             android:screenOrientation="portrait"/>
-        <service
-            android:name=".background.LocationStoreService"
-            android:exported="false" />
         <activity
             android:name=".osmdroid.OpenStreetMapOverlay"
             android:label="@string/example_osm_overlay_title"
@@ -94,11 +92,6 @@
         <activity
             android:name=".googlemapsindoor.GoogleMapsIndoorActivity"
             android:label="@string/example_googlemaps_indoor_title"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".foregroundservice.MainActivity"
-            android:label="@string/example_foregroundservice_title"
             android:screenOrientation="portrait" />
 
         <activity
