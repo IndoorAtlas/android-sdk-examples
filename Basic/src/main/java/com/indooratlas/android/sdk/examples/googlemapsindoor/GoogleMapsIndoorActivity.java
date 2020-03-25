@@ -174,7 +174,11 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
         super.onResume();
         // enable indoor-outdoor mode, required since SDK 3.2
         mIALocationManager.lockIndoors(false);
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), this);
+        // Create location request and choose positioning mode (default: High accuracy)
+        IALocationRequest locReq = IALocationRequest.create();
+        // locReq.setPriority(IALocationRequest.PRIORITY_CART_MODE);    // Uncomment for cart mode
+        // locReq.setPriority(IALocationRequest.PRIORITY_LOW_POWER);    // Uncomment for low power mode
+        mIALocationManager.requestLocationUpdates(locReq, this);
         if (mMap != null) {
             mMap.setOnIndoorStateChangeListener(this);
         }
