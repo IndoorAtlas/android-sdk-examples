@@ -266,6 +266,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     private IARegion.Listener mRegionListener = new IARegion.Listener() {
         @Override
         public void onEnterRegion(IARegion region) {
+            Log.d(TAG, "trace ID:" + mIALocationManager.getExtraInfo().traceId);
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
 
 
@@ -379,7 +380,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
 
-        // Setup long click to share the traceId
+        // Setup long click to add a dynamic geofence
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
