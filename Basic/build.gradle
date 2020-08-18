@@ -52,7 +52,12 @@ android {
 }
 
 dependencies {
-    implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.3@aar"
+    if ((project.properties['isEmbedded'] ?: 'false').toBoolean()) {
+        println("in-sources SDK build")
+        implementation project(path: ':sdk')
+    } else {
+        implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.3@aar"
+    }
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.google.android.gms:play-services-maps:8.1.0'
