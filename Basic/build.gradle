@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -52,7 +52,7 @@ android {
 }
 
 dependencies {
-    implementation "com.indooratlas.android:indooratlas-android-sdk:3.2.1@aar"
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.3@aar"
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.google.android.gms:play-services-maps:8.1.0'
