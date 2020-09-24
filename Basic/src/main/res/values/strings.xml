@@ -33,8 +33,6 @@
     <string name="menu_set_channel">Set channel</string>
     <string name="channel_dialog_title">Channel name</string>
     <string name="error_setting_channel">Setting channel failed: %s</string>
-    <string name="example_sharelocation_description">Demonstrates sharing ones location via 3rd party cloud service.</string>
-    <string name="example_sharelocation_title">Location sharing</string>
     <string name="menu_change_color">Change color</string>
     <string name="example_credentials_title">Set credentials</string>
     <string name="example_credentials_description">Demonstrates setting credentials from code</string>

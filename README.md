@@ -71,13 +71,6 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 ![](/example-screenshots/wayfinding_12.jpg)
 
 
-### Location Sharing aka "Find your friend" Example
-
-* [Location sharing](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/sharelocation): Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
-
-![](/example-screenshots/sharelocation-05.jpg)
-
-
 ### Foreground Service Positioning Example
 
 * [Foreground Service Positioning Example](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/foregroundservice): Demonstrates running IndoorAtlas positioning when the app is in the background, using an Android Foreground Service.

@@ -8,8 +8,6 @@ android {
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
-    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set"
-    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set"
     def backgroundReportEndPoint = project.properties['backgroundReportEndPoint'] ?: ""
 
 
@@ -22,8 +20,6 @@ android {
         // avoid getting errors from malformed string resources if secret contains '%' chars
         resValue "string", "indooratlas_api_key", apiKey
         resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
-        resValue "string", "pubnub_publish_key", pubNubPublishKey
-        resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
         resValue "string", "background_report_endpoint", backgroundReportEndPoint
     }
 
@@ -59,6 +55,5 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:0.3.+'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
-    implementation 'com.pubnub:pubnub-android:3.7.5'
     implementation 'com.android.support:design:26.1.0'
 }
