@@ -55,13 +55,6 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 ![](/example-screenshots/googlemaps&#32;-&#32;overlay_04.jpg)
 
 
-### Open Street Map Overlay Example
-
-* [Overlay with Open Street Map](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/osmdroid): Similar to Google maps examples, but uses Open Street Maps instead
-
-![](/example-screenshots/open-street-map_08.jpg)
-
-
 ### Automatic Venue and Floor Detection Example
 
 * [Automatic Venue and Floor Detection](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/regions): Demonstrates automatic region changes i.e. automatic venue detection and floor detection.
@@ -76,13 +69,6 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 * Note: to setup, you need to draw a wayfinding graph for your venue using app.indooratlas.com and save it. Obviously you also need to fingerprint the venue and generate a map. 
 
 ![](/example-screenshots/wayfinding_12.jpg)
-
-
-### Location Sharing aka "Find your friend" Example
-
-* [Location sharing](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/sharelocation): Demonstrates sharing location via 3rd party cloud service. Can be used as an example of an multidot application.
-
-![](/example-screenshots/sharelocation-05.jpg)
 
 
 ### Foreground Service Positioning Example

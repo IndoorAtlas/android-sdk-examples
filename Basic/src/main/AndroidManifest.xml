@@ -52,10 +52,6 @@
             android:label="@string/example_googlemaps_overlay_title"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".sharelocation.ShareLocationActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/example_sharelocation_title" />
-        <activity
             android:name=".credentials.CredentialsFromCodeActivity"
             android:label="@string/example_credentials_title" />
         <activity
@@ -70,10 +66,6 @@
             android:name=".orientation.OrientationActivity"
             android:label="@string/example_orientation_title"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".osmdroid.OpenStreetMapOverlay"
-            android:label="@string/example_osm_overlay_title"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".geofence.GeofenceMapsOverlayActivity"
             android:label="@string/example_googlemaps_overlay_geofencing_title"

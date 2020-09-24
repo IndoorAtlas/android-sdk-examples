@@ -8,8 +8,6 @@ android {
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
-    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set"
-    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set"
     def backgroundReportEndPoint = project.properties['backgroundReportEndPoint'] ?: ""
 
 
@@ -22,8 +20,6 @@ android {
         // avoid getting errors from malformed string resources if secret contains '%' chars
         resValue "string", "indooratlas_api_key", apiKey
         resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
-        resValue "string", "pubnub_publish_key", pubNubPublishKey
-        resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
         resValue "string", "background_report_endpoint", backgroundReportEndPoint
     }
 
@@ -56,7 +52,7 @@ dependencies {
         println("in-sources SDK build")
         implementation project(path: ':sdk')
     } else {
-        implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.3@aar"
+        implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.5@aar"
     }
 
     implementation 'com.android.support:appcompat-v7:26.1.0'
@@ -64,10 +60,5 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:0.3.+'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
-    implementation 'com.pubnub:pubnub-android:3.7.5'
     implementation 'com.android.support:design:26.1.0'
-
-    // for Open Street Map support
-    implementation 'org.osmdroid:osmdroid-android:6.0.3'
-    implementation 'com.github.MKergall:osmbonuspack:6.5.2'
 }

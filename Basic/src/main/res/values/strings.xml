@@ -10,15 +10,12 @@
     <string name="example_googlemaps_overlay_geofencing_title">Geofences on Google Maps Overlay</string>
     <string name="example_googlemaps_overlay_description">Demonstrates showing location over a floor plan which is loaded as map overlay. Indoor-outdoor detection is enabled, automatically switches between IndoorAtlas and GPS</string>
     <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Indoor-outdoor detection is enabled, automatically switches between IndoorAtlas and GPS. Geofences work outdoors as well. </string>
-    <string name="example_osm_overlay_title">Overlay with Open Street Map</string>
-    <string name="example_osm_overlay_description">Maps overlay with Open Street Map</string>
     <string name="example_googlemaps_indoor_title">Google Indoor Maps</string>
     <string name="example_googlemaps_indoor_description">Demonstrates using IndoorAtlas locations on Google Indoor Maps</string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
     <string name="storage_permission_denied_message">No access to external storage. Permission needed for displaying floor plans</string>
-    <string name="storage_permission_denied_message_osm">No access to external storage. Permission needed for storing map tiles in the OSMDroid example.</string>
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_close">Close</string>
@@ -36,8 +33,6 @@
     <string name="menu_set_channel">Set channel</string>
     <string name="channel_dialog_title">Channel name</string>
     <string name="error_setting_channel">Setting channel failed: %s</string>
-    <string name="example_sharelocation_description">Demonstrates sharing ones location via 3rd party cloud service.</string>
-    <string name="example_sharelocation_title">Location sharing</string>
     <string name="menu_change_color">Change color</string>
     <string name="example_credentials_title">Set credentials</string>
     <string name="example_credentials_description">Demonstrates setting credentials from code</string>
