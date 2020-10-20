@@ -10,6 +10,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -122,19 +123,14 @@ public class ListExamplesActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        switch (requestCode) {
-            case REQUEST_CODE_ACCESS_COARSE_LOCATION:
-
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
                 if (grantResults.length == 0
                         || grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(this, R.string.location_permission_denied_message,
                             Toast.LENGTH_LONG).show();
                 }
-                break;
         }
-
     }
 
     /**
@@ -192,10 +188,10 @@ public class ListExamplesActivity extends AppCompatActivity {
             PackageManager pm = context.getPackageManager();
             PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
 
-            ActivityInfo[] activities = info.activities;
-            for (int i = 0; i < activities.length; i++) {
-                parseExample(activities[i], result);
+            for(ActivityInfo activityInfo : info.activities) {
+                parseExample(activityInfo, result);
             }
+
             return result;
 
         } catch (Exception e) {
@@ -204,7 +200,6 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     }
 
-    @SuppressWarnings("unchecked")
     private void parseExample(ActivityInfo info, ArrayList<ExampleEntry> list) {
         try {
             Class cls = Class.forName(info.name);
