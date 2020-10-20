@@ -66,11 +66,16 @@ public class ListExamplesActivity extends AppCompatActivity {
                             finish();
                         }
                     }).show();
-            return;
         }
 
-        ensurePermissions();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isSdkConfigured()) {
+            ensurePermissions();
+        }
     }
 
     /**
@@ -81,7 +86,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // We dont have access to FINE_LOCATION (Required by Google Maps example)
+            // We don't have access to FINE_LOCATION (Required by Google Maps example)
             // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -202,7 +207,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private void parseExample(ActivityInfo info, ArrayList<ExampleEntry> list) {
         try {
-            Class cls = Class.forName(info.name);
+            Class<?> cls = Class.forName(info.name);
             if (cls.isAnnotationPresent(SdkExample.class)) {
                 SdkExample annotation = (SdkExample) cls.getAnnotation(SdkExample.class);
                 list.add(new ExampleEntry(new ComponentName(info.packageName, info.name),
