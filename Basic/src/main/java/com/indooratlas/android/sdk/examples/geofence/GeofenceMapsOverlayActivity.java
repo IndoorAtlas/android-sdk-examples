@@ -1,13 +1,17 @@
 package com.indooratlas.android.sdk.examples.geofence;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -117,7 +121,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         final double radius = GEOFENCE_RADIUS_METERS;
         final int edgeCount = 12;
         final double EARTH_RADIUS_METERS = 6.371e6;
-        final double latPerMeter = 1.0/(EARTH_RADIUS_METERS * Math.PI/180);
+        final double latPerMeter = 1.0 / (EARTH_RADIUS_METERS * Math.PI / 180);
         final double lonPerMeter = latPerMeter / Math.cos(Math.PI / 180.0 * latLng.latitude);
 
         ArrayList<double[]> edges = new ArrayList<>();
@@ -283,7 +287,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
                 }
 
                 mShowIndoorLocation = true;
-                showInfo("Showing IndoorAtlas SDK\'s location output");
+                showInfo("Showing IndoorAtlas SDK's location output");
             }
             showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
@@ -307,7 +311,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     };
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(@NonNull Location location) {
         if (!mShowIndoorLocation) {
             Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
                     + "," + location.getLongitude());
@@ -320,11 +324,11 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onProviderDisabled(@NonNull String provider) {
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
+    public void onProviderEnabled(@NonNull String provider) {
     }
 
     @Override
@@ -377,6 +381,11 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            finish(); // Handle permission asking in ListExamplesActivity
+        }
+
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
 
