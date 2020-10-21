@@ -95,7 +95,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
             }
         }
 
-        String sb = "Geofence triggered. Geofence id: " + geofence.getId() + ". Trigger type: " +
+        String sb = "Geofence " + geofence.getName() + " triggered. Trigger type: " +
                 ((event.getGeofenceTransition() == IAGeofence.GEOFENCE_TRANSITION_ENTER) ?
                         "ENTER" : "EXIT");
 
@@ -137,6 +137,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         IAGeofence geofence = new IAGeofence.Builder()
                 .withEdges(edges)
                 .withId(geofenceId)
+                .withName(geofenceId)
                 .build();
 
 
