@@ -1,6 +1,7 @@
 package com.indooratlas.android.sdk.examples;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -77,14 +78,17 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
     }
 
+    public static boolean checkLocationPermissions(Activity activity) {
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
     /**
      * Checks that we have access to required information, if not ask for users permission.
      */
     private void ensurePermissions() {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
+        if (!checkLocationPermissions(this)) {
             // We don't have access to FINE_LOCATION (Required by Google Maps example)
             // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -129,11 +133,11 @@ public class ListExamplesActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
-                if (grantResults.length == 0
-                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.location_permission_denied_message,
-                            Toast.LENGTH_LONG).show();
-                }
+            if (grantResults.length == 0
+                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, R.string.location_permission_denied_message,
+                        Toast.LENGTH_LONG).show();
+            }
         }
     }
 

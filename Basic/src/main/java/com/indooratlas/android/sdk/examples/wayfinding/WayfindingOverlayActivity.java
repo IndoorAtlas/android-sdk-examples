@@ -1,12 +1,10 @@
 package com.indooratlas.android.sdk.examples.wayfinding;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +35,7 @@ import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.IARoute;
 import com.indooratlas.android.sdk.IAWayfindingListener;
 import com.indooratlas.android.sdk.IAWayfindingRequest;
+import com.indooratlas.android.sdk.examples.ListExamplesActivity;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
@@ -256,12 +255,14 @@ public class WayfindingOverlayActivity extends FragmentActivity
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!ListExamplesActivity.checkLocationPermissions(this)) {
             finish(); // Handle permission asking in ListExamplesActivity
+            return;
         }
 
         // do not show Google's outdoor location
