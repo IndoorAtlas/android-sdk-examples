@@ -13,8 +13,8 @@
     <string name="example_googlemaps_indoor_title">Google Indoor Maps</string>
     <string name="example_googlemaps_indoor_description">Demonstrates using IndoorAtlas locations on Google Indoor Maps</string>
     <string name="location_permission_request_title">Permission required</string>
-    <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
-    <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
+    <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix and for some examples.</string>
+    <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed and some examples may not work!</string>
     <string name="storage_permission_denied_message">No access to external storage. Permission needed for displaying floor plans</string>
     <string name="button_ok">OK</string>
     <string name="button_cancel">Cancel</string>
@@ -25,7 +25,7 @@
     <string name="configuration_incomplete_message">API credentials needed, please see gradle.properties in project root level.</string>
     <string name="dialog_set_location_title">Set location</string>
     <string name="error_could_not_set_location">Error setting location: %s</string>
-    <string name="action_share">Share...</string>
+    <string name="action_share">Share…</string>
     <string name="share_dialog_title">Your shared name?</string>
     <string name="current_channel">Current channel: %s</string>
     <string name="error_loading_floor_plan">Error while loading floor plan</string>

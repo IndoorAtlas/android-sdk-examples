@@ -1,6 +1,7 @@
 package com.indooratlas.android.sdk.examples;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 
 /**
@@ -65,11 +66,21 @@ public class ListExamplesActivity extends AppCompatActivity {
                             finish();
                         }
                     }).show();
-            return;
         }
 
-        ensurePermissions();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isSdkConfigured()) {
+            ensurePermissions();
+        }
+    }
+
+    public static boolean checkLocationPermissions(Activity activity) {
+        return ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     /**
@@ -77,10 +88,8 @@ public class ListExamplesActivity extends AppCompatActivity {
      */
     private void ensurePermissions() {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // We dont have access to FINE_LOCATION (Required by Google Maps example)
+        if (!checkLocationPermissions(this)) {
+            // We don't have access to FINE_LOCATION (Required by Google Maps example)
             // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -122,19 +131,14 @@ public class ListExamplesActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        switch (requestCode) {
-            case REQUEST_CODE_ACCESS_COARSE_LOCATION:
-
-                if (grantResults.length == 0
-                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, R.string.location_permission_denied_message,
-                            Toast.LENGTH_LONG).show();
-                }
-                break;
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
+            if (grantResults.length == 0
+                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, R.string.location_permission_denied_message,
+                        Toast.LENGTH_LONG).show();
+            }
         }
-
     }
 
     /**
@@ -192,10 +196,10 @@ public class ListExamplesActivity extends AppCompatActivity {
             PackageManager pm = context.getPackageManager();
             PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
 
-            ActivityInfo[] activities = info.activities;
-            for (int i = 0; i < activities.length; i++) {
-                parseExample(activities[i], result);
+            for(ActivityInfo activityInfo : info.activities) {
+                parseExample(activityInfo, result);
             }
+
             return result;
 
         } catch (Exception e) {
@@ -204,10 +208,9 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     }
 
-    @SuppressWarnings("unchecked")
     private void parseExample(ActivityInfo info, ArrayList<ExampleEntry> list) {
         try {
-            Class cls = Class.forName(info.name);
+            Class<?> cls = Class.forName(info.name);
             if (cls.isAnnotationPresent(SdkExample.class)) {
                 SdkExample annotation = (SdkExample) cls.getAnnotation(SdkExample.class);
                 list.add(new ExampleEntry(new ComponentName(info.packageName, info.name),

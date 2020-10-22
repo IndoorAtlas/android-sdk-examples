@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.3'
+    compileSdkVersion 30
+    buildToolsVersion "30.0.1"
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 24
-        targetSdkVersion 26
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars
@@ -55,10 +55,17 @@ dependencies {
         implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.5@aar"
     }
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.google.android.gms:play-services-maps:8.1.0'
-    implementation 'com.google.maps.android:android-maps-utils:0.3.+'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:design:28.0.0'
+    //noinspection GradleDependency
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+
+    implementation 'com.google.maps.android:android-maps-utils:0.3.4'
     implementation 'com.squareup.picasso:picasso:2.5.2'
+
+    //noinspection GradleDependency
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
-    implementation 'com.android.support:design:26.1.0'
+
 }
