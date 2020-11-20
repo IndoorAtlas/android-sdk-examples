@@ -368,6 +368,9 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.addGeofences(new IAGeofenceRequest.Builder()
+                .withCloudGeofences(true) // listen geofences defined in app.indooratlas.com
+                .build(), this);
     }
 
     @Override
