@@ -378,7 +378,7 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         super.onPause();
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
     }
 
     @SuppressLint("MissingPermission")

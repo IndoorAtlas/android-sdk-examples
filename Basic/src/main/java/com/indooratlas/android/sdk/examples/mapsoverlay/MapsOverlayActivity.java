@@ -241,7 +241,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
         super.onPause();
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
     }
 
     @Override
