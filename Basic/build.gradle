@@ -52,7 +52,7 @@ dependencies {
         println("in-sources SDK build")
         implementation project(path: ':sdk')
     } else {
-        implementation "com.indooratlas.android:indooratlas-android-sdk:3.3.5@aar"
+        implementation "com.indooratlas.android:indooratlas-android-sdk:3.4.3@aar"
     }
 
     //noinspection GradleCompatible

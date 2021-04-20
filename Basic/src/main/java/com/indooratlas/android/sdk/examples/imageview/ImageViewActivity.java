@@ -1,21 +1,12 @@
 package com.indooratlas.android.sdk.examples.imageview;
 
-import android.Manifest;
 import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.PointF;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,15 +24,17 @@ import com.indooratlas.android.sdk.examples.utils.ExampleUtils;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
 import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
-
-import java.io.File;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
+import com.squareup.picasso.Target;
 
 @SdkExample(description = R.string.example_imageview_description)
 public class ImageViewActivity extends FragmentActivity {
 
     private static final String TAG = "IndoorAtlasExample";
 
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
+    /* used to decide when bitmap should be downscaled */
+    private static final int MAX_DIMENSION = 2048;
 
     // blue dot radius in meters
     private static final float dotRadius = 1.0f;
@@ -51,6 +44,7 @@ public class ImageViewActivity extends FragmentActivity {
     private BlueDotView mImageView;
     private long mDownloadId;
     private DownloadManager mDownloadManager;
+    private Target mLoadTarget;
 
     private IALocationListener mLocationListener = new IALocationListenerSupport() {
         @Override
@@ -89,7 +83,7 @@ public class ImageViewActivity extends FragmentActivity {
                 String id = region.getId();
                 Log.d(TAG, "floorPlan changed to " + id);
                 Toast.makeText(ImageViewActivity.this, id, Toast.LENGTH_SHORT).show();
-                fetchFloorPlan(region.getFloorPlan());
+                fetchFloorPlanBitmap(region.getFloorPlan());
             }
         }
 
@@ -127,13 +121,27 @@ public class ImageViewActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ensurePermissions();
         // starts receiving location updates
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
+        ///mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
         mIALocationManager.registerRegionListener(mRegionListener);
         IAOrientationRequest orientationRequest = new IAOrientationRequest(10f, 10f);
         mIALocationManager.registerOrientationListener(orientationRequest, mOrientationListener);
-        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+
+        IALocationRequest locReq = IALocationRequest.create();
+
+        // default mode
+        locReq.setPriority(IALocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Low power mode: Uses less power, but has lower accuracy use e.g. for background tracking
+        //locReq.setPriority(IALocationRequest.PRIORITY_LOW_POWER);
+
+        // Cart mode: Use when device is mounted to a shopping cart or similar platform with wheels
+        //locReq.setPriority(IALocationRequest.PRIORITY_CART_MODE);
+
+        // --- start receiving location updates & monitor region changes
+        mIALocationManager.requestLocationUpdates(locReq, mLocationListener);
+        mIALocationManager.registerRegionListener(mRegionListener);
     }
 
     @Override
@@ -142,97 +150,62 @@ public class ImageViewActivity extends FragmentActivity {
         mIALocationManager.removeLocationUpdates(mLocationListener);
         mIALocationManager.unregisterRegionListener(mRegionListener);
         mIALocationManager.unregisterOrientationListener(mOrientationListener);
-        unregisterReceiver(onComplete);
     }
 
     /**
      * Methods for fetching bitmap image.
      */
 
-    /*  Broadcast receiver for floor plan image download */
-    private BroadcastReceiver onComplete = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
-            if (id != mDownloadId) {
-                Log.w(TAG, "Ignore unrelated download");
-                return;
-            }
-            Log.w(TAG, "Image download completed");
-            Bundle extras = intent.getExtras();
-
-            if (extras == null) {
-                Log.w(TAG, "Extras null: can't show floor plan");
-                return;
-            }
-
-            DownloadManager.Query q = new DownloadManager.Query();
-            q.setFilterById(extras.getLong(DownloadManager.EXTRA_DOWNLOAD_ID));
-            Cursor c = mDownloadManager.query(q);
-
-            if (c.moveToFirst()) {
-                int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                    // process download
-                    String filePath = c.getString(c.getColumnIndex(
-                            DownloadManager.COLUMN_LOCAL_URI));
-                    showFloorPlanImage(filePath);
-                }
-            }
-            c.close();
-        }
-    };
-
-    private void showFloorPlanImage(String filePath) {
-        Log.w(TAG, "showFloorPlanImage: " + filePath);
+    private void showFloorPlanImage(Bitmap bitmap) {
         mImageView.setDotRadius(mFloorPlan.getMetersToPixels() * dotRadius);
-        mImageView.setImage(ImageSource.uri(filePath));
+        mImageView.setImage(ImageSource.bitmap(bitmap));
     }
+
 
     /**
-     * Fetches floor plan data from IndoorAtlas server. Some room for cleaning up!!
+     * Download floor plan using Picasso library.
      */
-    private void fetchFloorPlan(IAFloorPlan floorPlan) {
+    private void fetchFloorPlanBitmap(final IAFloorPlan floorPlan) {
+
         mFloorPlan = floorPlan;
-        String fileName = mFloorPlan.getId() + ".img";
-        String filePath = Environment.getExternalStorageDirectory() + "/"
-                + Environment.DIRECTORY_DOWNLOADS + "/" + fileName;
-        File file = new File(filePath);
-        if (!file.exists()) {
-            DownloadManager.Request request =
-                    new DownloadManager.Request(Uri.parse(mFloorPlan.getUrl()));
-            request.setDescription("IndoorAtlas floor plan");
-            request.setTitle("Floor plan");
-            request.setDestinationInExternalPublicDir(Environment.
-                    DIRECTORY_DOWNLOADS, fileName);
+        final String url = floorPlan.getUrl();
+        mLoadTarget = new Target() {
 
-            mDownloadId = mDownloadManager.enqueue(request);
-        } else {
-            showFloorPlanImage(filePath);
-        }
-    }
-
-    private void ensurePermissions() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE) {
-            if (grantResults.length == 0
-                    || grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(this, R.string.storage_permission_denied_message,
-                        Toast.LENGTH_LONG).show();
-                finish();
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
+                        + bitmap.getHeight());
+                if (mFloorPlan != null && floorPlan.getId().equals(mFloorPlan.getId())) {
+                    showFloorPlanImage(bitmap);
+                }
             }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                // N/A
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable placeHolderDrawable) {
+                Toast.makeText(ImageViewActivity.this, "Failed to load bitmap", Toast.LENGTH_SHORT).show();
+                mFloorPlan = null;
+            }
+        };
+
+        RequestCreator request = Picasso.with(this).load(url);
+
+        final int bitmapWidth = floorPlan.getBitmapWidth();
+        final int bitmapHeight = floorPlan.getBitmapHeight();
+
+        if (bitmapHeight > MAX_DIMENSION) {
+            request.resize(0, MAX_DIMENSION);
+        } else if (bitmapWidth > MAX_DIMENSION) {
+            request.resize(MAX_DIMENSION, 0);
         }
+
+        request.into(mLoadTarget);
     }
+
 
 }
 

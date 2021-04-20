@@ -18,13 +18,13 @@ allprojects {
         jcenter()
         mavenCentral()
         maven {
-            url "https://indooratlas-ltd.bintray.com/mvn-public"
+            url "https://dl.cloudsmith.io/public/indooratlas/mvn-public/maven/"
         }
         maven {
-            url "https://indooratlas-ltd.bintray.com/mvn-public-alpha"
+            url "https://dl.cloudsmith.io/public/indooratlas/mvn-public-alpha/maven/"
         }
         maven {
-            url "https://indooratlas-ltd.bintray.com/mvn-public-beta"
+            url "https://dl.cloudsmith.io/public/indooratlas/mvn-public-beta/maven/"
         }
     }
 }
