@@ -29,8 +29,11 @@ To run the examples you need to configure your IndoorAtlas API keys. If you do n
 
 Once you have API keys, edit them into `gradle.properties` in the project root level.
 
-## Examples
+### Building the AR examples
 
+By default the AR examples aren't build. You can choose ARCore and AREngine variants to build the examples. Note: you need AR enabled api key to run the AR examples, contact the IndoorAtlas sales at sales@indooratlas.com
+
+## Examples
 
 ### Simple Example
 
@@ -97,6 +100,10 @@ Once you have API keys, edit them into `gradle.properties` in the project root l
 * [Set credentials](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/credentials): Demonstrates how to set IndoorAtlas credentials from code in runtime.
 
 ![](/example-screenshots/set-credentials_06.jpg)
+
+### AR wayfinding examples
+
+* [AR wayfinding](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/ar/java/com/indooratlas/android/sdk/examples/ar): AR wayfinding examples, both using IndoorAtlas high-level and low-level AR apis.
 
 
 ## Documentation
