@@ -35,6 +35,13 @@ By default the AR examples aren't build. You can choose ARCore and AREngine vari
 
 ## Examples
 
+### AR Example
+
+* [AR Example](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/Basic/src/ar/java/com/indooratlas/android/sdk/examples/ar): Shows how to use IndoorAtlas SDK's AR APIs to implement AR Wayfinding. Displays AR POIs/Ads.
+
+![](/example-screenshots/AR-wayfinding-ad.jpg)
+
+
 ### Simple Example
 
 * [Simple Example](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/simple): This is the hello world of IndoorAtlas SDK. Displays received location updates as log entries.
