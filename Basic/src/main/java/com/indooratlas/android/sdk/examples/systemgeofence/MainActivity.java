@@ -45,7 +45,7 @@ import okhttp3.Response;
 @SdkExample(description = R.string.example_system_geofencing_description)
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private final static int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
+    private final static int REQUEST_CODE_ACCESS_BACKGROUND_LOCATION = 1;
     private final static String TAG = "Geofencing";
     private final static float GEOFENCING_RADIUS_METER = 100.0f;
 
@@ -166,8 +166,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void ensurePermissions() {
 
         if (!checkBackgroundLocationPermissions(this)) {
-            // We don't have access to FINE_LOCATION (Required by Google Maps example)
-            // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
+            // We don't have access to ACCESS_BACKGROUND_LOCATION
+            // If you want to keep receive the geofencing event after activity life-cycle destroyed,
+            // it required background location permission granted
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
 
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.d(TAG, "request permissions");
                                 ActivityCompat.requestPermissions(MainActivity.this,
                                         new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                                        REQUEST_CODE_ACCESS_BACKGROUND_LOCATION);
                             }
                         })
                         .setNegativeButton(R.string.permission_button_deny, new DialogInterface.OnClickListener() {
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // ask user for permission
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                        REQUEST_CODE_ACCESS_BACKGROUND_LOCATION);
 
             }
 
