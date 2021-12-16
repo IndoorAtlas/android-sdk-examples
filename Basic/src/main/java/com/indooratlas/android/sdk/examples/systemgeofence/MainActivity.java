@@ -72,7 +72,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         geofencingClient = LocationServices.getGeofencingClient(this);
         ensurePermissions();
 
-        // Loading venue center coordinate from Positioning API
+        /**
+         * Loading venue center coordinate from Positioning API
+         * If the api key have not "Positioning API" scope, it use hardcoded {@link geofenceCenterPoint geofenceCenterPoint} by default
+         */
         String url = String.format("https://positioning-api.indooratlas.com/v1/venues?key=%s", getString(R.string.indooratlas_api_key));
         Request request = new Request.Builder()
                 .url(url)
