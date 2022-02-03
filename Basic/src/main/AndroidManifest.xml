@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- For geofence only -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -91,6 +93,9 @@
             android:name=".lockfloor.LockFloorActivity"
             android:label="@string/example_lockfloor_title"
             android:screenOrientation="portrait" />
+        <activity android:name=".systemgeofence.MainActivity"
+            android:label="@string/example_system_geofencing_title"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".foregroundservice.ForegroundService"
@@ -107,6 +112,7 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
+        <receiver android:name=".systemgeofence.GeofenceReceiver" />
     </application>
 
 </manifest>

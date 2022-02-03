@@ -1,0 +1,4 @@
+<resources>
+    <string name="ar_about_text">This application runs on <a href="https://play.google.com/store/apps/details?id=com.google.ar.core">Google Play Services for AR</a> (ARCore),
+        which is provided by Google LLC and governed by the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</string>
+</resources>

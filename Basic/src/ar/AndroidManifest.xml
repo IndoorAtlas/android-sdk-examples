@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.indooratlas.android.sdk.examples">
+    <application>
+        <activity
+            android:name="com.indooratlas.android.sdk.examples.ar.WayfindingAr"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:label="@string/example_wayfindingar_title"
+            android:screenOrientation="locked">
+        </activity>
+        <activity
+            android:name="com.indooratlas.android.sdk.examples.ar.ThirdPartyAr"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:label="@string/example_thirdpartyar_title"
+            android:screenOrientation="locked">
+        </activity>
+    </application>
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+</manifest>

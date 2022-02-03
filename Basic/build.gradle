@@ -21,7 +21,10 @@ android {
         resValue "string", "indooratlas_api_key", apiKey
         resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
         resValue "string", "background_report_endpoint", backgroundReportEndPoint
+        buildConfigField "boolean", "ENABLE_AR", "false"
     }
+
+    flavorDimensions "arCapability", "arVariant"
 
     signingConfigs {
         debug {
@@ -45,6 +48,45 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    productFlavors {
+        lite { // without AR
+            dimension "arCapability"
+        }
+        ar { // with AR
+            dimension "arCapability"
+            buildConfigField "boolean", "ENABLE_AR", "true"
+        }
+
+        arCore { // use ARCore for AR
+            dimension "arVariant"
+        }
+        arEngine { // use AR Engine for AR
+            dimension "arVariant"
+            // This actually adds the repository to all variants, but as long as
+            // you don't depend on anything there, it should not affect the build
+            // i.e., the app does not ship with any Huawei code unless the arEngine
+            // variant is used
+            repositories {
+                maven {
+                    // For Huawei AR Engine
+                    url 'https://developer.huawei.com/repo/'
+                }
+            }
+        }
+        noAr { // dummy AR choice to be used with "lite" (= no AR)
+            dimension "arVariant"
+        }
+    }
+
+    android.variantFilter { variant ->
+        def name1 = variant.getFlavors().get(0).name
+        def name2 = variant.getFlavors().get(1).name
+        if (name1.equals('lite') == name2.startsWith('ar')) {
+            variant.setIgnore(true);
+        }
+    }
+
 }
 
 dependencies {
@@ -61,11 +103,25 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     //noinspection GradleDependency
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
 
     implementation 'com.google.maps.android:android-maps-utils:0.3.4'
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation "com.squareup.okhttp3:okhttp:4.9.3"
 
     //noinspection GradleDependency
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 
+    // ARCore (Google Play Services for AR) library.
+    arCoreImplementation 'com.google.ar:core:1.20.0'
+
+    // Huawei AR Engine
+    arEngineImplementation 'com.huawei.hms:arenginesdk:2.13.0.4'
+
+    // Obj - a simple Wavefront OBJ file loader. Used by both AR modes
+    // https://github.com/javagl/Obj
+    arImplementation 'de.javagl:obj:0.2.1'
+
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }

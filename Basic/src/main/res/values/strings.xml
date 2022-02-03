@@ -12,6 +12,13 @@
     <string name="example_googlemaps_overlay_geofencing_description">Demonstrates showing location and setting Geofences over a floor plan which is loaded as map overlay. Indoor-outdoor detection is enabled, automatically switches between IndoorAtlas and GPS. Geofences work outdoors as well. </string>
     <string name="example_googlemaps_indoor_title">Google Indoor Maps</string>
     <string name="example_googlemaps_indoor_description">Demonstrates using IndoorAtlas locations on Google Indoor Maps</string>
+    <string name="example_wayfindingar_title">AR Wayfinding</string>
+    <string name="example_wayfindingar_description">Demonstrates AR wayfinding using data from IndoorAtlas services</string>
+    <string name="example_thirdpartyar_title">3rdparty AR Wayfinding</string>
+    <string name="example_thirdpartyar_description">Demonstrates AR wayfinding using custom routing data</string>
+    <string name="example_system_geofencing_title">Foreground service triggered by Android geofencing</string>
+    <string name="example_system_geofencing_description">Demonstrate the toggling of foreground service for location update when the device enters / exits Android geofence.</string>
+    <string name="example_system_geofencing_default_coord_hints">Unable to load venue coordinate from Positioning API. <b>Use default coordinate defined in source code.</b></string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix and for some examples.</string>
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed and some examples may not work!</string>
