@@ -1,7 +1,7 @@
 package com.indooratlas.android.sdk.examples.orientation;
 
 import android.opengl.GLSurfaceView;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
