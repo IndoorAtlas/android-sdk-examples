@@ -5,8 +5,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 

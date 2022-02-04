@@ -1,21 +1,18 @@
 package com.indooratlas.android.sdk.examples.lockfloor;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
@@ -191,8 +188,8 @@ public class LockFloorActivity extends AppCompatActivity
             }
         });
 
-        android.support.v7.app.AlertDialog.Builder builder =
-                new android.support.v7.app.AlertDialog.Builder(this);
+        androidx.appcompat.app.AlertDialog.Builder builder =
+                new androidx.appcompat.app.AlertDialog.Builder(this);
         builder.setTitle("Lock / unlock floor");
         builder.setMessage("Floor number:");
         builder.setView(numberPicker);
