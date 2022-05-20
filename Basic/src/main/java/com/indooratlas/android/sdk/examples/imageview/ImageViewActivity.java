@@ -7,6 +7,8 @@ import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
+
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,17 +35,12 @@ public class ImageViewActivity extends FragmentActivity {
 
     private static final String TAG = "IndoorAtlasExample";
 
-    /* used to decide when bitmap should be downscaled */
-    private static final int MAX_DIMENSION = 2048;
-
     // blue dot radius in meters
     private static final float dotRadius = 1.0f;
 
     private IALocationManager mIALocationManager;
     private IAFloorPlan mFloorPlan;
     private BlueDotView mImageView;
-    private long mDownloadId;
-    private DownloadManager mDownloadManager;
     private Target mLoadTarget;
 
     private IALocationListener mLocationListener = new IALocationListenerSupport() {
@@ -103,7 +100,6 @@ public class ImageViewActivity extends FragmentActivity {
 
         mImageView = findViewById(R.id.imageView);
 
-        mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
 
         // Setup long click listener for sharing traceId
@@ -173,8 +169,8 @@ public class ImageViewActivity extends FragmentActivity {
 
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                Log.d(TAG, "onBitmap loaded with dimensions: " + bitmap.getWidth() + "x"
-                        + bitmap.getHeight());
+                Log.d(TAG, "onBitmap floorplan loaded with dimensions: "
+                        + bitmap.getWidth() + "x"  + bitmap.getHeight());
                 if (mFloorPlan != null && floorPlan.getId().equals(mFloorPlan.getId())) {
                     showFloorPlanImage(bitmap);
                 }
@@ -193,19 +189,7 @@ public class ImageViewActivity extends FragmentActivity {
         };
 
         RequestCreator request = Picasso.with(this).load(url);
-
-        final int bitmapWidth = floorPlan.getBitmapWidth();
-        final int bitmapHeight = floorPlan.getBitmapHeight();
-
-        if (bitmapHeight > MAX_DIMENSION) {
-            request.resize(0, MAX_DIMENSION);
-        } else if (bitmapWidth > MAX_DIMENSION) {
-            request.resize(MAX_DIMENSION, 0);
-        }
-
         request.into(mLoadTarget);
     }
-
-
+    
 }
-
