@@ -16,7 +16,6 @@
 #   public *;
 #}
 
-
 # This example uses Picasso, see: https://github.com/square/picasso/blob/master/README.md
 -dontwarn com.squareup.okhttp.**
 
@@ -25,7 +24,4 @@
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
 -dontwarn java.nio.**
-
-# Required by IndoorAtlas SDK
--keep public class com.indooratlas.algorithm.ClientProcessingManager { *; }
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement

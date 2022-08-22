@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    compileSdkVersion 31
+    buildToolsVersion "30.0.2"
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
@@ -91,7 +91,7 @@ android {
 
 dependencies {
 
-    implementation "com.indooratlas.android:indooratlas-android-sdk:3.4.12@aar"
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.5.5@aar"
     //noinspection GradleCompatible
     implementation 'androidx.appcompat:appcompat:1.0.0'
     //noinspection GradleCompatible

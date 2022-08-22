@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -25,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -35,7 +38,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private static final String TAG = "IAExample";
 
-    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
+    private static final int REQUEST_CODE_PERMISSIONS = 1;
 
     private ExamplesAdapter mAdapter;
 
@@ -79,20 +82,36 @@ public class ListExamplesActivity extends AppCompatActivity {
     }
 
     public static boolean checkLocationPermissions(Activity activity) {
-        return ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
+        boolean loc = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // required with Android 12+ and targetSdkVersion >= 31
+            boolean scan = ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN)
+                    == PackageManager.PERMISSION_GRANTED;
+            return loc && scan;
+        } else {
+            return loc;
+        }
     }
 
     /**
      * Checks that we have access to required information, if not ask for users permission.
      */
     private void ensurePermissions() {
+        boolean needBLEScanPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+        final List<String> permissions = new ArrayList<>(Arrays.asList(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION));
+        if (needBLEScanPermission) {
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN);
+        }
 
         if (!checkLocationPermissions(this)) {
-            // We don't have access to FINE_LOCATION (Required by Google Maps example)
-            // IndoorAtlas SDK has minimum requirement of COARSE_LOCATION to enable WiFi scanning
+            // We don't have access to ACCESS_FINE_LOCATION and/or BLUETOOTH_SCAN permissions
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION) ||
+                    (needBLEScanPermission && ActivityCompat.shouldShowRequestPermissionRationale(
+                            this, Manifest.permission.BLUETOOTH_SCAN))) {
 
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.location_permission_request_title)
@@ -102,9 +121,8 @@ public class ListExamplesActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.d(TAG, "request permissions");
                                 ActivityCompat.requestPermissions(ListExamplesActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
-                                                Manifest.permission.ACCESS_FINE_LOCATION},
-                                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                                        permissions.toArray(new String[]{}),
+                                        REQUEST_CODE_PERMISSIONS);
                             }
                         })
                         .setNegativeButton(R.string.permission_button_deny, new DialogInterface.OnClickListener() {
@@ -118,13 +136,10 @@ public class ListExamplesActivity extends AppCompatActivity {
                         .show();
 
             } else {
-
-                // ask user for permission
+                // ask user for permissions
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION},
-                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
-
+                        permissions.toArray(new String[]{}),
+                        REQUEST_CODE_PERMISSIONS);
             }
 
         }
@@ -132,7 +147,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_ACCESS_COARSE_LOCATION) {
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.length == 0
                     || grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(this, R.string.location_permission_denied_message,
