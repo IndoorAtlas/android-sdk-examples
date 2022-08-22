@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars
