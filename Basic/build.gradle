@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.1"
+    compileSdkVersion 31
+    buildToolsVersion "30.0.2"
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars
@@ -94,7 +94,7 @@ dependencies {
         println("in-sources SDK build")
         implementation project(path: ':sdk')
     } else {
-        implementation "com.indooratlas.android:indooratlas-android-sdk:3.4.12@aar"
+        implementation "com.indooratlas.android:indooratlas-android-sdk:3.5.5@aar"
     }
 
     //noinspection GradleCompatible
