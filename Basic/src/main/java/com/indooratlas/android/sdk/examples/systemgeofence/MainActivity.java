@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent = new Intent(this, GeofenceReceiver.class);
         intent.setAction(GeofenceReceiver.ACTION_GEOFENCE_EVENT);
         // Use FLAG_UPDATE_CURRENT so that you get the same pending intent back when calling
-        PendingIntent geofencePenddingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent geofencePenddingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         return geofencePenddingIntent;
     }
 
