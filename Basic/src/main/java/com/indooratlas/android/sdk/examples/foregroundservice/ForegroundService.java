@@ -229,7 +229,7 @@ public class ForegroundService extends Service implements IARegion.Listener {
 
     private PendingIntent buildPendingIntent() {
         return PendingIntent.getService(this, 0,
-                new Intent(this, ForegroundService.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                new Intent(this, ForegroundService.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
 
     private PendingIntent buildPendingIntentWithAction(String action) {
