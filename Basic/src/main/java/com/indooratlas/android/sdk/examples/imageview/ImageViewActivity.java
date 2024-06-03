@@ -154,7 +154,7 @@ public class ImageViewActivity extends FragmentActivity {
 
     private void showFloorPlanImage(Bitmap bitmap) {
         mImageView.setDotRadius(mFloorPlan.getMetersToPixels() * dotRadius);
-        mImageView.setImage(ImageSource.bitmap(bitmap));
+        mImageView.setImage(ImageSource.cachedBitmap(bitmap));
     }
 
 

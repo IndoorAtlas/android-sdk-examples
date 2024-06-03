@@ -132,29 +132,31 @@ public class ForegroundService extends Service implements IARegion.Listener {
             return START_STICKY;
         }
 
-        if (intent.getAction().equals(ForegroundService.STARTFOREGROUND_ACTION)) {
-            Log.i(LOG_TAG, "Received Start Foreground Intent");
-            // Automatically also start positioning + build a notification with a Pause button
-            startForeground(NOTIFICATION_ID, buildNotification(true).build());
-            startPositioning();
-            return START_STICKY;
+        if (intent.getAction() != null) {
+            if (intent.getAction().equals(ForegroundService.STARTFOREGROUND_ACTION)) {
+                Log.i(LOG_TAG, "Received Start Foreground Intent");
+                // Automatically also start positioning + build a notification with a Pause button
+                startForeground(NOTIFICATION_ID, buildNotification(true).build());
+                startPositioning();
+                return START_STICKY;
 
-        } else if (intent.getAction().equals(ForegroundService.PAUSE_ACTION)) {
-            Log.i(LOG_TAG, "Clicked Pause: stopping positioning");
-            // Paused: build a notification with a Start button
-            stopPositioning();
-            notificationManager.notify(NOTIFICATION_ID, buildNotification(false).build());
-        } else if (intent.getAction().equals(ForegroundService.START_ACTION)) {
-            Log.i(LOG_TAG, "Clicked Start: starting positioning");
-            // Started: build a notification with a Pause button
-            notificationManager.notify(NOTIFICATION_ID, buildNotification(true).build());
-            startPositioning();
-        } else if (intent.getAction().equals(ForegroundService.STOP_ACTION) ||
-                intent.getAction().equals(ForegroundService.STOPFOREGROUND_ACTION)) {
-            Log.i(LOG_TAG, "Clicked Stop or received stop intent: stopping positioning and service");
-            stopPositioning();
-            stopForeground(true);
-            stopSelf();
+            } else if (intent.getAction().equals(ForegroundService.PAUSE_ACTION)) {
+                Log.i(LOG_TAG, "Clicked Pause: stopping positioning");
+                // Paused: build a notification with a Start button
+                stopPositioning();
+                notificationManager.notify(NOTIFICATION_ID, buildNotification(false).build());
+            } else if (intent.getAction().equals(ForegroundService.START_ACTION)) {
+                Log.i(LOG_TAG, "Clicked Start: starting positioning");
+                // Started: build a notification with a Pause button
+                notificationManager.notify(NOTIFICATION_ID, buildNotification(true).build());
+                startPositioning();
+            } else if (intent.getAction().equals(ForegroundService.STOP_ACTION) ||
+                    intent.getAction().equals(ForegroundService.STOPFOREGROUND_ACTION)) {
+                Log.i(LOG_TAG, "Clicked Stop or received stop intent: stopping positioning and service");
+                stopPositioning();
+                stopForeground(true);
+                stopSelf();
+            }
         }
 
 		return super.onStartCommand(intent, flags, startId);
@@ -189,7 +191,7 @@ public class ForegroundService extends Service implements IARegion.Listener {
                 .setLargeIcon(mLargeIconBitmap)
                 .setOngoing(true)
                 .setContentIntent(PendingIntent.getActivity(this, 0,
-                        openMainActivityIntent, 0))
+                        openMainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .addAction(android.R.drawable.ic_media_ff, "Stop",
                         buildPendingIntentWithAction(ForegroundService.STOP_ACTION));
 
@@ -227,13 +229,13 @@ public class ForegroundService extends Service implements IARegion.Listener {
 
     private PendingIntent buildPendingIntent() {
         return PendingIntent.getService(this, 0,
-                new Intent(this, ForegroundService.class), 0);
+                new Intent(this, ForegroundService.class), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
 
     private PendingIntent buildPendingIntentWithAction(String action) {
         Intent intent = new Intent(this, ForegroundService.class);
         intent.setAction(action);
-        return PendingIntent.getService(this, 0, intent, 0);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     @Override

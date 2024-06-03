@@ -39,7 +39,7 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
-public class MapsOverlayActivity extends FragmentActivity implements LocationListener, OnMapReadyCallback {
+public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "IndoorAtlasExample";
 
@@ -54,7 +54,6 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     private IALocationManager mIALocationManager;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
-    private boolean mShowIndoorLocation = false;
 
     private void showBlueDot(LatLng center, double accuracyRadius, double bearing) {
         if (mCircle == null) {
@@ -105,9 +104,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
 
             final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
 
-            if (mShowIndoorLocation) {
-                showBlueDot(center, location.getAccuracy(), location.getBearing());
-            }
+            showBlueDot(center, location.getAccuracy(), location.getBearing());
 
             // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
@@ -138,12 +135,16 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                     mGroundOverlay.setTransparency(0.0f);
                 }
 
-                mShowIndoorLocation = true;
                 showInfo("Showing IndoorAtlas SDK\'s location output");
             }
             showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
                     : "FLOOR_PLAN ") + region.getId());
+
+            Log.d(TAG, "onEnterRegion(): " + (region.getType() == IARegion.TYPE_VENUE
+                    ? "VENUE "
+                    : "FLOOR_PLAN ") + region.getId());
+
         }
 
         @Override
@@ -154,38 +155,12 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
                 mGroundOverlay.setTransparency(0.5f);
             }
 
-            mShowIndoorLocation = false;
             showInfo("Exit " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
                     : "FLOOR_PLAN ") + region.getId());
         }
 
     };
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (!mShowIndoorLocation) {
-            Log.d(TAG, "new LocationService location received with coordinates: " + location.getLatitude()
-                    + "," + location.getLongitude());
-
-            showBlueDot(
-                    new LatLng(location.getLatitude(), location.getLongitude()),
-                    location.getAccuracy(),
-                    location.getBearing());
-        }
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -247,7 +222,7 @@ public class MapsOverlayActivity extends FragmentActivity implements LocationLis
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // do not show Google's outdoor location
+        // do not show Google's outdoor location, plot loc that comes from IA SDK
         mMap.setMyLocationEnabled(false);
 
         // Setup long click to share the traceId
