@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.jaredsburrows.license'
 
 android {
     compileSdk 34
@@ -35,6 +35,10 @@ android {
             keyAlias "sdk_debug"
             keyPassword "android"
         }
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     buildTypes {
