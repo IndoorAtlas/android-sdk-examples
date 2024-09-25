@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 31
-    buildToolsVersion "30.0.2"
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
@@ -78,6 +77,7 @@ android {
             dimension "arVariant"
         }
     }
+    namespace 'com.indooratlas.android.sdk.examples'
 
     android.variantFilter { variant ->
         def name1 = variant.getFlavors().get(0).name
