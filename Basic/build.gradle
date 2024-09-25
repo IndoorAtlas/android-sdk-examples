@@ -9,6 +9,9 @@ android {
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
     def backgroundReportEndPoint = project.properties['backgroundReportEndPoint'] ?: ""
 
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
