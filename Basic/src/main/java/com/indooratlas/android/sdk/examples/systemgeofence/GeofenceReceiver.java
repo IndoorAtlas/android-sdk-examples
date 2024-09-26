@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -22,23 +24,45 @@ public class GeofenceReceiver extends BroadcastReceiver implements GoogleApiClie
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        sendLogToMainActivity(context, "GeofenceReceiver onReceive");
+
         if (intent.getAction().equals(ACTION_GEOFENCE_EVENT)) {
             GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
             if (geofencingEvent.hasError()) {
-                Log.e(TAG, "Geofencing Error Code(" + geofencingEvent.getErrorCode() + ")");
+                sendLogToMainActivity(context, "Geofencing Error Code(" +
+                        geofencingEvent.getErrorCode() + ")");
                 return;
             }
             switch (geofencingEvent.getGeofenceTransition()) {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    // After starting the foreground service, you can close the example app and continue
+                    sendLogToMainActivity(context, "GeofenceReceiver onReceive : " +
+                            "GEOFENCE_TRANSITION_ENTER");
+                    sendLogToMainActivity(context, "GeofenceReceiver onReceive : " +
+                            "starting IndoorAtlas positioning in Foreground Service" +
+                            "--> See ActionBar for location updates");
+
+                    sendLogToMainActivity(context, "GeofenceReceiver onReceive : " +
+                            "--> Note: you can use a Fake GPS app to simulate location updates" +
+                            " inside and outside the geofence platform geofence area");
+
+                    // After starting the foreground service, you can close the
+                    // example app and continue
                     // using the foreground service notification
                     Intent startIntent = new Intent(context, ForegroundService.class);
                     startIntent.setAction(ForegroundService.STARTFOREGROUND_ACTION);
                     context.startService(startIntent);
                     break;
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    // To close the foreground service, "Stop foreground service" button must be pressed
+                    sendLogToMainActivity(context, "GeofenceReceiver onReceive : " +
+                            "GEOFENCE_TRANSITION_EXIT");
+                    sendLogToMainActivity(context, "GeofenceReceiver onReceive : " +
+                            "stopping IndoorAtlas positioning in Foreground Service" +
+                            "--> ActionBar notification is closed");
+
+                    // To close the foreground service, "Stop foreground service" button
+                    // must be pressed
                     Intent stopIntent = new Intent(context, ForegroundService.class);
                     stopIntent.setAction(ForegroundService.STOPFOREGROUND_ACTION);
                     context.startService(stopIntent);
@@ -68,5 +92,13 @@ public class GeofenceReceiver extends BroadcastReceiver implements GoogleApiClie
     @Override
     public void onResult(@NonNull Status status) {
 
+    }
+
+    private void sendLogToMainActivity(Context context, String log) {
+        // Send a local broadcast
+        Log.d(TAG, "sendLogToMainActivity : "+log);
+        Intent localIntent = new Intent("GeofenceReceiverLog");
+        localIntent.putExtra("log", log);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
     }
 }
