@@ -88,11 +88,17 @@ By default the AR examples aren't build. You can choose ARCore and AREngine vari
 ![](/example-screenshots/foreground-service_14.png)
 
 
-### Geofences Example
+### IndoorAtlas Geofences Example
 
 * [Geofences](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/geofence): Demonstrates how to set geofences and receive the geofence events.
 
 ![](/example-screenshots/geofences_10.png)
+
+### Start IndoorAtlas with Platform Geofence Wakeup
+
+* [Platform Geofence Wakeup](https://github.com/IndoorAtlas/android-sdk-examples/tree/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/systemgeofence): Demonstrates how to set and wakeup from platform geofence events to start IndoorAtlas near a venue.
+
+![](/example-screenshots/platform_geofence_example_15.png)
 
 
 ### Orientation Example
