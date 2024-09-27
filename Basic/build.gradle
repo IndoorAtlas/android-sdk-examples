@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 31
+    compileSdk 34
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars

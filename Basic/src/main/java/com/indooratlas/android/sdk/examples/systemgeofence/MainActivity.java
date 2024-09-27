@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -163,6 +164,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+    }
+
+
+    public void onResume() {
+        super.onResume();
+        log("onResume");
+
+        // Check if notifications are enabled for my app.
+        // Needed to show IA positioning updates in the notification aka Action bar.
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        boolean areNotificationsEnabled = notificationManager.areNotificationsEnabled();
+
+        log("onResume, areNotificationsEnabled : "+areNotificationsEnabled);
+
+        if (!areNotificationsEnabled) {
+            // Notifications are disabled for your app. You might want to notify the user or take appropriate action.
+            Intent intent = new Intent();
+            intent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+            intent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
+            startActivity(intent);
+        }
     }
 
     private void registerGeofence() {
