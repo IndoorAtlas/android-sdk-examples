@@ -9,6 +9,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -57,6 +58,8 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
     private IALocationManager mIALocationManager;
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
+    private boolean mRotateMapAccordingToMyHeading = true;
+    private Button mEnableMapRotateToggleButton;
 
     private void showBlueDot(LatLng center, double accuracyRadius, double bearing) {
         if (mCircle == null) {
@@ -94,12 +97,25 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
 
         // Rotate world map according to bearing
         Log.d(TAG, "rotating map according to bearing: " + mHeadingMarker.getRotation());
-        if (mMap != null && mHeadingMarker.getRotation() != 0.0) {
+        if (mRotateMapAccordingToMyHeading && mMap != null && mHeadingMarker.getRotation() != 0.0) {
             CameraPosition newCamPos = new CameraPosition(center,
                     mMap.getCameraPosition().zoom,
                     0.0f,
                     (float)mHeadingMarker.getRotation()); // this is set in OrientationListener
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCamPos), 500, null);
+        }
+    }
+
+    // Listener for Turn Map button
+    public void onTurnMap(View view) {
+        if (mRotateMapAccordingToMyHeading == true) {
+            mRotateMapAccordingToMyHeading = false;
+            mEnableMapRotateToggleButton.setText("Rotation on");
+            showInfo("Map rotation disabled");
+        } else {
+            mRotateMapAccordingToMyHeading = true;
+            mEnableMapRotateToggleButton.setText("Rotation off");
+            showInfo("Map rotation enabled");
         }
     }
 
@@ -199,7 +215,7 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_maps_rotate);
 
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
@@ -211,6 +227,15 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
                 .getMapAsync(this);
+
+        // Add listener for Turn map button
+        mEnableMapRotateToggleButton = findViewById(R.id.turn_map_button);
+        mEnableMapRotateToggleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onTurnMap(v);
+            }
+        });
     }
 
     @Override
