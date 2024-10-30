@@ -2,9 +2,9 @@ package com.indooratlas.android.sdk.examples.mapsoverlay;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
+
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
@@ -38,6 +38,9 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import com.indooratlas.android.sdk.IAOrientationListener;
+import com.indooratlas.android.sdk.IAOrientationRequest;
+
 @SdkExample(description = R.string.example_googlemaps_overlay_description)
 public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -48,7 +51,7 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
-    private Marker mMarker;
+    private Marker mBearingMarker, mHeadingMarker;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
@@ -67,9 +70,15 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
                         .zIndex(1.0f)
                         .visible(true)
                         .strokeWidth(5.0f));
-                mMarker = mMap.addMarker(new MarkerOptions()
+                mBearingMarker = mMap.addMarker(new MarkerOptions()
                         .position(center)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_blue_dot))
+                        .anchor(0.5f, 0.5f)
+                        .rotation((float)bearing)
+                        .flat(true));
+                mHeadingMarker = mMap.addMarker(new MarkerOptions()
+                        .position(center)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.map_red_dot))
                         .anchor(0.5f, 0.5f)
                         .rotation((float)bearing)
                         .flat(true));
@@ -78,8 +87,19 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
             // move existing markers position to received location
             mCircle.setCenter(center);
             mCircle.setRadius(accuracyRadius);
-            mMarker.setPosition(center);
-            mMarker.setRotation((float)bearing);
+            mBearingMarker.setPosition(center);
+            mBearingMarker.setRotation((float)bearing);
+            mHeadingMarker.setPosition(center);
+        }
+
+        // Rotate world map according to bearing
+        Log.d(TAG, "rotating map according to bearing: " + mHeadingMarker.getRotation());
+        if (mMap != null && mHeadingMarker.getRotation() != 0.0) {
+            CameraPosition newCamPos = new CameraPosition(center,
+                    mMap.getCameraPosition().zoom,
+                    0.0f,
+                    (float)mHeadingMarker.getRotation()); // this is set in OrientationListener
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(newCamPos), 500, null);
         }
     }
 
@@ -108,9 +128,23 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
 
             // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 17.5f));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 20.0f));
                 mCameraPositionNeedsUpdating = false;
             }
+        }
+    };
+
+    private IAOrientationListener mOrientationListner = new IAOrientationListener() {
+        @Override
+        public void onHeadingChanged(long ts, double heading) {
+            if (mHeadingMarker != null) {
+                mHeadingMarker.setRotation((float)heading);
+            }
+        }
+
+        @Override
+        public void onOrientationChange(long ts, double[] q) {
+
         }
     };
 
@@ -209,6 +243,7 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
         // --- start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(locReq, mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
+        mIALocationManager.registerOrientationListener(new IAOrientationRequest(1, -1), mOrientationListner);
     }
 
     @Override
@@ -217,6 +252,7 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
         // unregister location & region changes
         mIALocationManager.removeLocationUpdates(mListener);
         mIALocationManager.unregisterRegionListener(mRegionListener);
+        mIALocationManager.unregisterOrientationListener(mOrientationListner);
     }
 
     @Override
