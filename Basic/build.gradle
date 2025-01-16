@@ -1,20 +1,22 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.jaredsburrows.license'
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "30.0.2"
+    compileSdk 34
 
     // note: use gradle.properties in project root level to set your api credentials
     def apiKey = project.properties['indoorAtlasApiKey'] ?: "api-key-not-set"
     def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "api-secret-not-set"
     def backgroundReportEndPoint = project.properties['backgroundReportEndPoint'] ?: ""
 
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId "com.indooratlas.android.sdk.examples"
         minSdkVersion 24
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         // avoid getting errors from malformed string resources if secret contains '%' chars
@@ -78,6 +80,7 @@ android {
             dimension "arVariant"
         }
     }
+    namespace 'com.indooratlas.android.sdk.examples'
 
     android.variantFilter { variant ->
         def name1 = variant.getFlavors().get(0).name
@@ -110,11 +113,11 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:4.9.3"
 
     //noinspection GradleDependency
-    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.2.0'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // ARCore (Google Play Services for AR) library.
-    arCoreImplementation 'com.google.ar:core:1.20.0'
+    arCoreImplementation 'com.google.ar:core:1.47.0'
 
     // Huawei AR Engine
     arEngineImplementation 'com.huawei.hms:arenginesdk:2.13.0.4'

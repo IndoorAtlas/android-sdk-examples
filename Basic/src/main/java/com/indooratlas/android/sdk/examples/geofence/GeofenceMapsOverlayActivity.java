@@ -102,10 +102,12 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
                 sb,
                 Toast.LENGTH_LONG).show();
 
-        final LatLng center = new LatLng(mLatestLocation.getLatitude(), mLatestLocation.getLongitude());
+        if (mLatestLocation != null) {
+            final LatLng center = new LatLng(mLatestLocation.getLatitude(), mLatestLocation.getLongitude());
 
-        if (mShowIndoorLocation) {
-            showBlueDot(center, mLatestLocation.getAccuracy(), mLatestLocation.getBearing());
+            if (mShowIndoorLocation) {
+                showBlueDot(center, mLatestLocation.getAccuracy(), mLatestLocation.getBearing());
+            }
         }
     }
 
