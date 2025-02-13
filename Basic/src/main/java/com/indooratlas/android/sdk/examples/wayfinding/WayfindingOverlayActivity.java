@@ -8,6 +8,8 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,6 +37,7 @@ import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.IARoute;
 import com.indooratlas.android.sdk.IAWayfindingListener;
 import com.indooratlas.android.sdk.IAWayfindingRequest;
+import com.indooratlas.android.sdk.IAWayfindingTags;
 import com.indooratlas.android.sdk.examples.ListExamplesActivity;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.SdkExample;
@@ -102,6 +105,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     };
 
     private int mFloor;
+    private boolean mAccessibleRoute = false;
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
@@ -215,6 +219,24 @@ public class WayfindingOverlayActivity extends FragmentActivity
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
                 .getMapAsync(this);
+
+        // Handle "accessible route" checkbox state change
+        CheckBox accessibleRouteCheckbox = findViewById(R.id.checkbox_accessible_route);
+        accessibleRouteCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Code to handle accessible route enabled
+                    showInfo("Accessible route enabled");
+                    mAccessibleRoute = true;
+                } else {
+                    // Code to handle accessible route disabled
+                    showInfo("Accessible route disabled");
+                    mAccessibleRoute = false;
+                }
+            }
+        });
+
     }
 
     @Override
@@ -408,7 +430,20 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 .withLongitude(point.longitude)
                 .build();
 
-        mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+
+
+        if (mAccessibleRoute) {
+            Log.d(TAG, "Requesting wayfinding with accessible route");
+
+            IAWayfindingRequest req = new IAWayfindingRequest.Builder()
+                    .withDestination(mWayfindingDestination)
+                    .withTags(IAWayfindingTags.EXCLUDE_INACCESSIBLE)
+                    .build();
+            mIALocationManager.requestWayfindingUpdates(req, mWayfindingListener);
+        } else {
+            Log.d(TAG, "Requesting wayfinding with default route");
+            mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+        }
 
         if (mDestinationMarker != null) {
             mDestinationMarker.remove();
