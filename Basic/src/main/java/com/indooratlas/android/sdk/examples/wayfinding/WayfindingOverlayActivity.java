@@ -289,6 +289,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
+
+        // disable 3d building shapes, since they cause gray shades over floor plan images
+        mMap.setBuildingsEnabled(false);
+
         mMap.setOnMapClickListener(this);
 
         // disable various Google maps UI elements that do not work indoors

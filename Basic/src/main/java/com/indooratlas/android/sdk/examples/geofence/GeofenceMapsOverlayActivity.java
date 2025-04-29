@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -342,6 +343,10 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        CheckBox accessibleRouteCheckbox = findViewById(R.id.checkbox_accessible_route);
+        // Not used in this example
+        accessibleRouteCheckbox.setVisibility(View.GONE);
+
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
@@ -395,6 +400,9 @@ public class GeofenceMapsOverlayActivity extends FragmentActivity implements Loc
 
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
+
+        // disable 3d building shapes, since they cause gray shades over floor plan images
+        mMap.setBuildingsEnabled(false);
 
         // Setup long click to add a dynamic geofence
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {

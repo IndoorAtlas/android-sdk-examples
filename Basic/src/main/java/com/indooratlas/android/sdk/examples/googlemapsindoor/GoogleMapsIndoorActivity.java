@@ -1,6 +1,9 @@
 package com.indooratlas.android.sdk.examples.googlemapsindoor;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.CheckBox;
+
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -154,6 +157,11 @@ public class GoogleMapsIndoorActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        CheckBox accessibleRouteCheckbox = findViewById(R.id.checkbox_accessible_route);
+        // Not used in this example
+        accessibleRouteCheckbox.setVisibility(View.GONE);
+
         mIALocationManager = IALocationManager.create(this);
         mFloorLevelMatcher = new GoogleMapsFloorLevelMatcher();
 
