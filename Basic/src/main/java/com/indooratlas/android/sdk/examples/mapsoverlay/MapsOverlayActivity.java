@@ -286,6 +286,9 @@ public class MapsOverlayActivity extends FragmentActivity implements OnMapReadyC
         // do not show Google's outdoor location, plot loc that comes from IA SDK
         mMap.setMyLocationEnabled(false);
 
+        // disable 3d building shapes, since they cause gray shades over floor plan images
+        mMap.setBuildingsEnabled(false);
+
         // Setup long click to share the traceId
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
