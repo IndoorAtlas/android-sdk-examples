@@ -94,7 +94,7 @@ android {
 
 dependencies {
 
-    implementation "com.indooratlas.android:indooratlas-android-sdk:3.7.0@aar"
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.7.1@aar"
     //noinspection GradleCompatible
     implementation 'androidx.appcompat:appcompat:1.0.0'
     //noinspection GradleCompatible
